@@ -48,3 +48,16 @@ Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+
+
+-tasks 
+   - create a dashboard that summarizes the protein, calories, and carbs for the day
+   - create a logger page for the user to log their meals/snacks for the day with the ability to add the nutrients for each item being added
+   - create an energy expenditure logger 
+   - add feature for setting goals for nutrients and energy expenditure 
+   - maybe add a label scanning feature
+
+pseudocode for making an add food page
+   - create drop-down menu for selecting meal
+   - create search/input bar for name of food
+   - create 
