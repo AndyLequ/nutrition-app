@@ -5,6 +5,9 @@ import { useFood } from '../FoodProvider';
 // display somewhere in this page the data input into the addfood page
 // display the data input into the addfood page in a list format
 
+
+
+
 export default function LogScreen() {
     const { foods, loading } = useFood();
 
@@ -16,6 +19,19 @@ export default function LogScreen() {
         );
     }
 
+    const renderMealList = (mealType: string) => (
+        <FlatList
+            data={foods.filter(food => food.mealType === mealType)}
+            keyExtractor={item => item.id}
+            renderItem={({ item }) => (
+                <View style={styles.listItem}>
+                    <Text>{item.name}</Text>
+                    <Text>{item.amount}</Text>
+                </View>
+            )}
+            ListEmptyComponent={<Text style={styles.emptyText}>No foods logged</Text>}
+        />
+        )
 
     return (
         <View style={styles.container}>
@@ -23,28 +39,23 @@ export default function LogScreen() {
                 {/* Meal Sections */}
                 <View style={styles.mealContainer}>
                     <Text style={styles.titlename}>Breakfast</Text>
-                    <FlatList
-                        data={foods}
-                        keyExtractor={item => item.id}
-                        renderItem={({ item }) => (
-                            <View style={styles.listItem}>
-                                <Text>{item.name}</Text>
-                            </View>
-                        )}
-                        
-                    />
+                    {renderMealList('breakfast')}
+                    
                 </View>
 
                 <View style={styles.mealContainer}>
                     <Text style={styles.titlename}>Lunch</Text>
+                    {renderMealList('lunch')}
                 </View>
 
                 <View style={styles.mealContainer}>
                     <Text style={styles.titlename}>Dinner</Text>
+                    {renderMealList('dinner')}
                 </View>
 
                 <View style={styles.mealContainer}>
                     <Text style={styles.titlename}>Snacks</Text>
+                    {renderMealList('snacks')}
                 </View>
             </View>
         </View>

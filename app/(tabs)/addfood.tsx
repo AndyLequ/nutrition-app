@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, TextInput, Text, Button } from 'react-native';
+import { StyleSheet, View, TextInput, Text, Button, Picker } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFood } from '../FoodProvider';
 
@@ -10,6 +10,7 @@ const addFood = () => {
     const [isFocused1, setIsFocused1] = useState(false);
     const [isFocused2, setIsFocused2] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [mealType, setMealType] = useState<'breakfast'|'lunch'|'dinner'|'snacks'>('breakfast');
     const { addFood } = useFood();
 
     useEffect(() => {
@@ -18,9 +19,10 @@ const addFood = () => {
             try{
                 const savedData = await AsyncStorage.getItem('data');
                 if(savedData !== null){
-                    const { foodName, savedfoodName, Amount, savedAmount } = JSON.parse(savedData);
+                    const {savedfoodName,savedAmount, savedMealType } = JSON.parse(savedData);
                     setfoodName(savedfoodName);
                     setAmount(savedAmount);
+                    setMealType(savedMealType || 'breakfast');
                 }
             } catch(e){
                     console.error('Failed to load data')
@@ -39,6 +41,7 @@ const addFood = () => {
                     const dataToSave = JSON.stringify({
                     foodName,
                     Amount,
+                    mealType,
                 });
                 await AsyncStorage.setItem('@inputs', dataToSave);
                 } catch(e){
@@ -49,7 +52,7 @@ const addFood = () => {
             saveData();
         }
     }
-    , [foodName, Amount, isLoading]);
+    , [foodName, Amount, mealType, isLoading]);
 
 if(isLoading){
     return (
@@ -64,9 +67,10 @@ const handleSubmit = async () => {
         return;
     }
 
-    await addFood({ name: foodName, amount: Amount });
+    await addFood({ name: foodName, amount: Amount, mealType });
     setfoodName('');
     setAmount('');
+    setMealType('breakfast');
 }
 
     return (
@@ -104,6 +108,20 @@ const handleSubmit = async () => {
                         onFocus={() => setIsFocused2(true)}
                         onBlur={() => setIsFocused2(false)}
                     />
+
+                <View style={styles.inputGroup}>
+                    <Text style={styles.label}>Meal Type</Text>
+                    <Picker
+                        selectedValue={mealType}
+                        onValueChange={itemValue => setMealType(itemValue)}
+                    >
+                        <Picker.Item label="Breakfast" value="breakfast" />
+                        <Picker.Item label="Lunch" value="lunch" />
+                        <Picker.Item label="Dinner" value="dinner" />
+                        <Picker.Item label="Snacks" value="snacks" />
+                    </Picker>
+                </View>
+
                     <Button title="Submit" onPress={handleSubmit} />
                 </View>
             </View>
@@ -137,6 +155,7 @@ const styles = StyleSheet.create({
     },
     inputGroup: {
         marginBottom: 20,
+        
     },
     label: {
         fontSize: 14,
