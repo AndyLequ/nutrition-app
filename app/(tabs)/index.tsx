@@ -1,13 +1,14 @@
-import { View, Text, StyleSheet } from 'react-native';
-import { useState } from 'react';
-import Svg, {Path, G} from 'react-native-svg';
-import MealPlanList from '@/components/MealPlanList';
+import { View, Text, StyleSheet } from "react-native";
+import { useState, useEffect } from "react";
+import Svg, { Path, G } from "react-native-svg";
+import MealPlanList from "@/components/MealPlanList";
+import axios from "axios";
 
 const data = [
-  {value: 35, color: '#f39c12', label: 'Protein'},
-  {value: 45, color: '#3498db', label: 'Carbs'},
-  {value: 20, color: '#e74c3c', label: 'Fat'},
-]
+  { value: 35, color: "#f39c12", label: "Protein" },
+  { value: 45, color: "#3498db", label: "Carbs" },
+  { value: 20, color: "#e74c3c", label: "Fat" },
+];
 
 // const calculatePieSections = (data, size) => {
 //   const total = data.reduce((sum, item) => sum + item.value, 0);
@@ -17,15 +18,37 @@ const data = [
 //     const angle = (item.value / total) * Math.PI * 2;
 //     const endAngle = startAngle + angle;
 
-    
 //   })
 // }
 
 export default function Index() {
+  const [foods, setFoods] = useState<{ fdcId: number; description: string }[]>(
+    []
+  );
 
-    return(
-        //summary detailing information about protein, carbs, calorie intake for the day (consumed and remaining)
-        <View style={styles.container}>
+  useEffect(() => {
+    fetchFoodData();
+  }, []);
+
+  const fetchFoodData = async () => {
+    try {
+      const response = await axios.get(
+        "https://api.nal.usda.gov/fdc/v1/foods/list",
+        {
+          params: {
+            api_key: "HLqWQkzG49tyYQpbYZ7zUzQ0Ofg1uJvSMsv8hfq5",
+          },
+        }
+      );
+      setFoods(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  return (
+    //summary detailing information about protein, carbs, calorie intake for the day (consumed and remaining)
+    <View style={styles.container}>
       <Text style={styles.title}>Summary</Text>
       <View style={styles.grid}>
         <View style={styles.column}>
@@ -41,55 +64,62 @@ export default function Index() {
           <Text style={styles.value}>0g</Text>
         </View>
 
-        
-
+        <View style={styles.list}>
+          {foods.map((food) => (
+            <Text key={food.fdcId} style={styles.item}>
+              {food.description}
+            </Text>
+          ))}
+        </View>
       </View>
 
-
-      
-      
       {/* meal plan goes here */}
       {/* foods eaten goes here */}
       {/* energy expenditure weaving into overall calorie calculation goes here*/}
     </View>
-    )
-
-
-
+  );
 }
 
 const styles = StyleSheet.create({
-    container: {
+  container: {
     padding: 16,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 12,
     elevation: 3, // Shadow (Android)
-    shadowColor: '#000', // Shadow (iOS)
+    shadowColor: "#000", // Shadow (iOS)
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
   title: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
     marginBottom: 12,
-    color: '#2c3e50',
+    color: "#2c3e50",
   },
   grid: {
-    flexDirection: 'row',
-    justifyContent: 'space-between', // Even spacing
+    flexDirection: "row",
+    justifyContent: "space-between", // Even spacing
   },
   column: {
-    alignItems: 'center',
+    alignItems: "center",
     paddingHorizontal: 12,
   },
   label: {
     fontSize: 14,
-    color: '#7f8c8d',
+    color: "#7f8c8d",
     marginBottom: 4,
   },
   value: {
     fontSize: 16,
-    fontWeight: '500',
-    color: '#2c3e50',
+    fontWeight: "500",
+    color: "#2c3e50",
   },
-})
+  list: {
+    marginTop: 16,
+  },
+  item: {
+    fontSize: 14,
+    color: "#2c3e50",
+    marginBottom: 8,
+  },
+});
