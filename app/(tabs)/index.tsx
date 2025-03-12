@@ -22,27 +22,46 @@ const data = [
 // }
 
 export default function Index() {
-  const [foods, setFoods] = useState<{ fdcId: number; description: string }[]>(
-    []
-  );
+  interface FoodData {
+    items: { name: string; calories: number }[];
+  }
+
+  const [foods, setFoods] = useState<FoodData | null>(null);
+
+  const query = "10oz chicken";
 
   useEffect(() => {
     fetchFoodData();
   }, []);
 
   const fetchFoodData = async () => {
+    // try {
+    //   const response = await axios.get(
+    //     "https://api.calorieninjas.com/v1/nutrition?query=" + query,
+    //     {
+    //       params: {
+    //         api_key: "+cluK2htPjTdPiQkB8UWGQ==EvpntLCBKYrr2A65",
+    //       },
+    //     }
+    //   );
+    //   setFoods(response.data);
+    // } catch (error) {
+    //   console.log(error);
+    // }
     try {
-      const response = await axios.get(
-        "https://api.nal.usda.gov/fdc/v1/foods/list",
+      const response = await fetch(
+        "https://api.calorieninjas.com/v1/nutrition?query=" + query,
         {
-          params: {
-            api_key: "HLqWQkzG49tyYQpbYZ7zUzQ0Ofg1uJvSMsv8hfq5",
+          headers: {
+            "X-API-Key": "+cluK2htPjTdPiQkB8UWGQ==EvpntLCBKYrr2A65",
           },
         }
       );
-      setFoods(response.data);
-    } catch (error) {
-      console.log(error);
+      if (!response.ok) throw new Error("Failed to fetch");
+      const jsonData = await response.json();
+      setFoods(jsonData); // Update state with fetched data
+    } catch (err) {
+      console.log(err); // Handle errors
     }
   };
 
@@ -65,11 +84,18 @@ export default function Index() {
         </View>
 
         <View style={styles.list}>
-          {foods.map((food) => (
-            <Text key={food.fdcId} style={styles.item}>
-              {food.description}
-            </Text>
-          ))}
+          {foods && foods.items?.length > 0 && (
+            <View style={styles.listContainer}>
+              <View style={styles.listItem}>
+                <Text style={styles.label}>Name:</Text>
+                <Text style={styles.value}>{foods.items[0].name}</Text>
+              </View>
+              <View style={styles.listItem}>
+                <Text style={styles.label}>Calories: </Text>
+                <Text style={styles.value}>{foods.items[0].calories}</Text>
+              </View>
+            </View>
+          )}
         </View>
       </View>
 
@@ -121,5 +147,18 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#2c3e50",
     marginBottom: 8,
+  },
+  listContainer: {
+    marginVertical: 10,
+    padding: 15,
+    backgroundColor: "#f8f9fa",
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#e9ecef",
+  },
+  listItem: {
+    flexDirection: "row",
+    marginBottom: 8,
+    alignItems: "baseline",
   },
 });
