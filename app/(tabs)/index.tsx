@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Svg, { Path, G } from "react-native-svg";
 import MealPlanList from "@/components/MealPlanList";
 import axios from "axios";
+require("dotenv");
 
 const data = [
   { value: 35, color: "#f39c12", label: "Protein" },
@@ -40,7 +41,7 @@ export default function Index() {
     //     "https://api.calorieninjas.com/v1/nutrition?query=" + query,
     //     {
     //       params: {
-    //         api_key: "+cluK2htPjTdPiQkB8UWGQ==EvpntLCBKYrr2A65",
+    //         api_key: API_KEY
     //       },
     //     }
     //   );
@@ -69,7 +70,7 @@ export default function Index() {
     //summary detailing information about protein, carbs, calorie intake for the day (consumed and remaining)
     <View style={styles.container}>
       <Text style={styles.title}>Summary</Text>
-      <View style={styles.grid}>
+      <View style={styles.summaryGrid}>
         <View style={styles.column}>
           <Text style={styles.label}>Protein</Text>
           <Text style={styles.value}>0g</Text>
@@ -83,16 +84,16 @@ export default function Index() {
           <Text style={styles.value}>0g</Text>
         </View>
 
-        <View style={styles.list}>
+        <View style={styles.foodList}>
           {foods && foods.items?.length > 0 && (
             <View style={styles.listContainer}>
               <View style={styles.listItem}>
-                <Text style={styles.label}>Name:</Text>
-                <Text style={styles.value}>{foods.items[0].name}</Text>
+                <Text style={styles.listLabel}>Name:</Text>
+                <Text style={styles.listValue}>{foods.items[0].name}</Text>
               </View>
               <View style={styles.listItem}>
-                <Text style={styles.label}>Calories: </Text>
-                <Text style={styles.value}>{foods.items[0].calories}</Text>
+                <Text style={styles.listLabel}>Calories:</Text>
+                <Text style={styles.listValue}>{foods.items[0].calories}</Text>
               </View>
             </View>
           )}
@@ -108,57 +109,90 @@ export default function Index() {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    elevation: 3, // Shadow (Android)
-    shadowColor: "#000", // Shadow (iOS)
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginBottom: 12,
-    color: "#2c3e50",
-  },
-  grid: {
-    flexDirection: "row",
-    justifyContent: "space-between", // Even spacing
+    flex: 1,
+    padding: 20,
+    backgroundColor: "#ffffff",
   },
   column: {
+    backgroundColor: "#f8f9fa",
+    borderRadius: 12,
+    padding: 16,
+    width: "30%",
     alignItems: "center",
-    paddingHorizontal: 12,
+    borderWidth: 1,
+    borderColor: "#e9ecef",
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
   },
   label: {
-    fontSize: 14,
-    color: "#7f8c8d",
-    marginBottom: 4,
+    fontSize: 15,
+    color: "#636e72",
+    marginBottom: 6,
+    fontWeight: "500",
   },
   value: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#2d3436",
+    letterSpacing: 0.25,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "600",
+    color: "#2d3436",
+    marginBottom: 25,
+  },
+  summaryGrid: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 25,
+  },
+  summaryCard: {
+    backgroundColor: "#f8f9fa",
+    borderRadius: 12,
+    padding: 18,
+    width: "30%",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#e9ecef",
+  },
+  summaryLabel: {
     fontSize: 16,
-    fontWeight: "500",
-    color: "#2c3e50",
+    color: "#636e72",
+    marginBottom: 6,
   },
-  list: {
-    marginTop: 16,
+  summaryValue: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#2d3436",
   },
-  item: {
-    fontSize: 14,
-    color: "#2c3e50",
-    marginBottom: 8,
+  foodList: {
+    marginTop: 15,
   },
   listContainer: {
-    marginVertical: 10,
-    padding: 15,
     backgroundColor: "#f8f9fa",
-    borderRadius: 8,
+    borderRadius: 12,
+    padding: 18,
     borderWidth: 1,
     borderColor: "#e9ecef",
   },
   listItem: {
     flexDirection: "row",
-    marginBottom: 8,
-    alignItems: "baseline",
+    justifyContent: "space-between",
+    marginBottom: 12,
+    alignItems: "center",
+  },
+  listLabel: {
+    fontSize: 16,
+    color: "#636e72",
+    fontWeight: "500",
+  },
+  listValue: {
+    fontSize: 16,
+    color: "#2d3436",
+    fontWeight: "600",
   },
 });
