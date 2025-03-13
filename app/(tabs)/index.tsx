@@ -3,8 +3,8 @@ import { useState, useEffect } from "react";
 import Svg, { Path, G } from "react-native-svg";
 import MealPlanList from "@/components/MealPlanList";
 import axios from "axios";
-require("dotenv");
-
+import { CALORIENINJAS_API_KEY} from '@env'
+const apiKey = CALORIENINJAS_API_KEY
 const data = [
   { value: 35, color: "#f39c12", label: "Protein" },
   { value: 45, color: "#3498db", label: "Carbs" },
@@ -41,7 +41,7 @@ export default function Index() {
     //     "https://api.calorieninjas.com/v1/nutrition?query=" + query,
     //     {
     //       params: {
-    //         api_key: API_KEY
+    //         api_key: apiKey
     //       },
     //     }
     //   );
@@ -54,7 +54,7 @@ export default function Index() {
         "https://api.calorieninjas.com/v1/nutrition?query=" + query,
         {
           headers: {
-            "X-API-Key": "+cluK2htPjTdPiQkB8UWGQ==EvpntLCBKYrr2A65",
+            "X-API-Key": `${apiKey}`,
           },
         }
       );

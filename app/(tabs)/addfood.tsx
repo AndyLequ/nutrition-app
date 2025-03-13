@@ -79,8 +79,6 @@ const addFood = ({ navigation }: { navigation: NavigationProp<any> }) => {
 
     await addFood({ name: foodName, amount: Amount, mealType });
 
-  
-
     setfoodName("");
     setAmount("");
     setMealType("breakfast");
