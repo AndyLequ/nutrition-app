@@ -1,6 +1,5 @@
 import { View, Text, StyleSheet } from "react-native";
 import { useState, useEffect } from "react";
-import Svg, { Path, G } from "react-native-svg";
 import MealPlanList from "@/components/MealPlanList";
 import axios from "axios";
 
@@ -9,17 +8,6 @@ const data = [
   { value: 45, color: "#3498db", label: "Carbs" },
   { value: 20, color: "#e74c3c", label: "Fat" },
 ];
-
-// const calculatePieSections = (data, size) => {
-//   const total = data.reduce((sum, item) => sum + item.value, 0);
-//   let startAngle = 0;
-
-//   return data.map((item, index) => {
-//     const angle = (item.value / total) * Math.PI * 2;
-//     const endAngle = startAngle + angle;
-
-//   })
-// }
 
 export default function Index() {
   const [foods, setFoods] = useState<{ fdcId: number; description: string }[]>(

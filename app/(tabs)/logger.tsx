@@ -5,9 +5,6 @@ import { useFood } from '../FoodProvider';
 // display somewhere in this page the data input into the addfood page
 // display the data input into the addfood page in a list format
 
-
-
-
 export default function LogScreen() {
     const { foods, loading } = useFood();
 
