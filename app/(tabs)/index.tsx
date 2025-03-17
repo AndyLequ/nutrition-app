@@ -2,37 +2,34 @@ import { View, Text, StyleSheet } from "react-native";
 import { useState, useEffect } from "react";
 import MealPlanList from "@/components/MealPlanList";
 import axios from "axios";
-
 const data = [
   { value: 35, color: "#f39c12", label: "Protein" },
   { value: 45, color: "#3498db", label: "Carbs" },
   { value: 20, color: "#e74c3c", label: "Fat" },
 ];
-
+console.log("API Key:", process.env.REACT_APP_API_KEY);
 export default function Index() {
-  const [foods, setFoods] = useState<{ fdcId: number; description: string }[]>(
-    []
-  );
+  const [foods, setFoods] = useState([]);
 
   useEffect(() => {
-    fetchFoodData();
-  }, []);
+    const fetchFoods = async () => {
+      try {
+        const response = await axios.get(
+          "https://api.spoonacular.com/food/ingredients/9266/information?amount=1",
+          {
+            headers: {
+              "x-api-key": process.env.EXPO_PUBLIC_API_KEY,
+            },
+          }
+        );
+        console.log(response.data);
+      } catch (error) {
+        console.error("Error fetching data from spoonacular API", error);
+      }
+    };
 
-  const fetchFoodData = async () => {
-    try {
-      const response = await axios.get(
-        "https://api.nal.usda.gov/fdc/v1/foods/list",
-        {
-          params: {
-            api_key: "HLqWQkzG49tyYQpbYZ7zUzQ0Ofg1uJvSMsv8hfq5",
-          },
-        }
-      );
-      setFoods(response.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+    fetchFoods();
+  }, []);
 
   return (
     //summary detailing information about protein, carbs, calorie intake for the day (consumed and remaining)
@@ -54,8 +51,8 @@ export default function Index() {
 
         <View style={styles.list}>
           {foods.map((food) => (
-            <Text key={food.fdcId} style={styles.item}>
-              {food.description}
+            <Text key={food} style={styles.item}>
+              {food}
             </Text>
           ))}
         </View>
