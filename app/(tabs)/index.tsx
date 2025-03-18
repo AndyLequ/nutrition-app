@@ -7,7 +7,7 @@ const data = [
   { value: 45, color: "#3498db", label: "Carbs" },
   { value: 20, color: "#e74c3c", label: "Fat" },
 ];
-console.log("API Key:", process.env.REACT_APP_API_KEY);
+console.log("API Key:", process.env.EXPO_PUBLIC_API_KEY);
 export default function Index() {
   const [foods, setFoods] = useState([]);
 
