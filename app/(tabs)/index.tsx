@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, ScrollView, SafeAreaView, Image } from "react-native";
 import { useState, useEffect } from "react";
 import MealPlanList from "@/components/MealPlanList";
 import axios from "axios";
@@ -7,28 +7,80 @@ const data = [
   { value: 45, color: "#3498db", label: "Carbs" },
   { value: 20, color: "#e74c3c", label: "Fat" },
 ];
-console.log("API Key:", process.env.EXPO_PUBLIC_API_KEY);
+
+// Define interface for individual result items
+interface Result {
+  id: number;
+  name: string;
+  image: string;
+}
+
+// Define interface for the entire API response
+interface ApiResponse {
+  results: Result[];
+  offset: number;
+  number: number;
+  totalResults: number;
+}
+
+function MyComponent() {
+  // Specify the generic type for useState
+  const [apiData, setApiData] = useState<ApiResponse>({
+    results: [],
+    offset: 0,
+    number: 0,
+    totalResults: 0,
+  });
+}
 export default function Index() {
-  const [foods, setFoods] = useState([]);
+  const [ingredients, setIngredients] = useState<ApiResponse>({
+    results: [],
+    offset: 0,
+    number: 0,
+    totalResults: 0,
+  });
 
   useEffect(() => {
-    const fetchFoods = async () => {
+    // const fetchBanana = async () => {
+    //   try {
+    //     const response = await axios.get(
+    //       "https://api.spoonacular.com/food/ingredients/9266/information?amount=1",
+    //       {
+    //         headers: {
+    //           "x-api-key": process.env.EXPO_PUBLIC_API_KEY,
+    //         },
+    //       }
+    //     );
+    //     console.log(response.data);
+    //   } catch (error) {
+    //     console.error("Error fetching data from spoonacular API", error);
+    //   }
+    // };
+    // fetchBanana();
+  }, []);
+
+  //search ingredients function
+  // `https://api.spoonacular.com/food/ingredients/search?query=${food}&${number}=2&sort=calories&sortDirection=desc`
+  const ingredientName = "banana";
+  const ingredientQuantity = "2";
+  useEffect(() => {
+    const fetchIngredients = async () => {
       try {
-        const response = await axios.get(
-          "https://api.spoonacular.com/food/ingredients/9266/information?amount=1",
+        const response = await axios.get<ApiResponse>(
+          `https://api.spoonacular.com/food/ingredients/search?query=${ingredientName}&number=${ingredientQuantity}&sort=calories&sortDirection=desc`,
           {
             headers: {
               "x-api-key": process.env.EXPO_PUBLIC_API_KEY,
             },
           }
         );
-        console.log(response.data);
+        setIngredients(response.data);
       } catch (error) {
+        //handle error
         console.error("Error fetching data from spoonacular API", error);
       }
     };
-
-    fetchFoods();
+    fetchIngredients();
   }, []);
 
   return (
@@ -49,17 +101,24 @@ export default function Index() {
           <Text style={styles.value}>0g</Text>
         </View>
 
-        <View style={styles.list}>
-          {foods.map((food) => (
-            <Text key={food} style={styles.item}>
-              {food}
-            </Text>
-          ))}
-        </View>
+        <View style={styles.list}></View>
       </View>
 
       {/* meal plan goes here */}
-      {/* foods eaten goes here */}
+      <SafeAreaView style={styles.container}>
+        <Text style={styles.heading}>
+          Total results: {ingredients.totalResults}
+        </Text>
+
+        <ScrollView>
+          {ingredients.results?.map((item) => (
+            <View key={item.id} style={styles.itemContainer}>
+              <Text style={styles.itemName}>{item.name}</Text>
+              
+            </View>
+          ))}
+        </ScrollView>
+      </SafeAreaView>
       {/* energy expenditure weaving into overall calorie calculation goes here*/}
     </View>
   );
@@ -74,6 +133,17 @@ const styles = StyleSheet.create({
     shadowColor: "#000", // Shadow (iOS)
     shadowOpacity: 0.1,
     shadowRadius: 4,
+  },
+  heading: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 16,
+  },
+  itemContainer: {
+    marginBottom: 20,
+    padding: 16,
+    borderRadius: 8,
+    backgroundColor: "#f5f5f5",
   },
   title: {
     fontSize: 18,
@@ -107,4 +177,14 @@ const styles = StyleSheet.create({
     color: "#2c3e50",
     marginBottom: 8,
   },
+  itemName: {
+    fontSize: 16,
+    fontWeight: "600",
+    marginBottom: 8,
+  },
+  itemImage: {
+    width: '100%',
+    height: 200,
+    borderRadius: 4,
+  }
 });
