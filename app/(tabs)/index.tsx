@@ -12,11 +12,10 @@ const data = [
 interface Result {
   id: number;
   name: string;
-  image: string;
 }
 
 // Define interface for the entire API response
-interface ApiResponse {
+interface IngredientResponse {
   results: Result[];
   offset: number;
   number: number;
@@ -25,7 +24,7 @@ interface ApiResponse {
 
 function MyComponent() {
   // Specify the generic type for useState
-  const [apiData, setApiData] = useState<ApiResponse>({
+  const [apiData, setApiData] = useState<IngredientResponse>({
     results: [],
     offset: 0,
     number: 0,
@@ -33,7 +32,7 @@ function MyComponent() {
   });
 }
 export default function Index() {
-  const [ingredients, setIngredients] = useState<ApiResponse>({
+  const [ingredients, setIngredients] = useState<IngredientResponse>({
     results: [],
     offset: 0,
     number: 0,
@@ -66,7 +65,7 @@ export default function Index() {
   useEffect(() => {
     const fetchIngredients = async () => {
       try {
-        const response = await axios.get<ApiResponse>(
+        const response = await axios.get<IngredientResponse>(
           `https://api.spoonacular.com/food/ingredients/search?query=${ingredientName}&number=${ingredientQuantity}&sort=calories&sortDirection=desc`,
           {
             headers: {
@@ -82,6 +81,19 @@ export default function Index() {
     };
     fetchIngredients();
   }, []);
+
+
+  // get the nutrition facts about the ingredient selected
+  const fetchNutrition = async () => {
+    try {
+      const response = await axios.get(
+        // using id to select which ingredient we need
+        // https://api.spoonacular.com/food/ingredients/${id}/information?amount=1
+      )
+    } catch (error) {
+      //error for when gettin ingredient fails 
+    }
+  }
 
   return (
     //summary detailing information about protein, carbs, calorie intake for the day (consumed and remaining)
