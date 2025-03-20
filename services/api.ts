@@ -1,5 +1,6 @@
 import axios from 'axios'
 
+//interface for ingredient response
 interface IngredientResponse {
     results: Array<{
         id: number;
@@ -10,6 +11,7 @@ interface IngredientResponse {
     }>;
 }
 
+// Create an axios instance with default settings
 const api = axios.create({
     baseURL: 'https://api.spoonacular.com/food/ingredients',
     headers: {
@@ -18,6 +20,7 @@ const api = axios.create({
 
 })
 
+// function for fetching list of ingredients based on the search query
 export const fetchIngredients = async (ingredientName: string, ingredientQuantity: string) => {
     try {
         const response = await api.get<IngredientResponse>(`/search?query=${ingredientName}&number=${ingredientQuantity}&sort=calories&sortDirection=desc`)
@@ -28,6 +31,7 @@ export const fetchIngredients = async (ingredientName: string, ingredientQuantit
     }
 }
 
+// function for fetching ingredient information based on the ingredient id
 export const fetchIngredientInfo = async (ingredientId: number) => {
     try {
         const response = await api.get(`/information?amount=1&id=${ingredientId}`)
