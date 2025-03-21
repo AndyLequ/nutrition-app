@@ -9,18 +9,17 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   FlatList,
+  Alert,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFood } from "../FoodProvider";
 import debounce from "lodash.debounce";
 import axios from "axios";
-
+import { foodApi } from "../../services/api";
 
 // function to add food, whatever is submitted will be displayed in another file, probably the logger
 const addFood = () => {
-
   //the state variables, these states are concerned with the food being searched and then added
-  const [searchQuery, setSearchQuery] = useState("");
   const [amount, setAmount] = useState("");
   const [isFocused1, setIsFocused1] = useState(false);
   const [isFocused2, setIsFocused2] = useState(false);
@@ -28,15 +27,19 @@ const addFood = () => {
   const [mealType, setMealType] = useState<
     "breakfast" | "lunch" | "dinner" | "snacks"
   >("breakfast");
+
+  // 1. CURRENT ISSUE: state variables for handling data regarding the food that is written in the search bar
+  const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [selectedFood, setSelectedFood] = useState(null);
+  const [selectedFood, setSelectedFood] = useState<Ingredient | null>(null);
 
-  const [submittedFoods, setSubmittedFoods] = useState([]);
-  const [showFoodList, setShowFoodList] = useState(false);
-
+  // these states are for later use, not important right now
+  // const [submittedFoods, setSubmittedFoods] = useState([]);
+  // const [showFoodList, setShowFoodList] = useState(false);
   const { addFood } = useFood();
 
+  // 1. CURRENT ISSUE:
   // function for searching for food, will be called when the user types in the search bar
   // this function will be debounced to avoid making too many requests to the API
   const debouncedSearch = debounce(async (query) => {
@@ -51,6 +54,7 @@ const addFood = () => {
           }
         );
         setSearchResults(response.data.results || []);
+        console.log("Search results:", response.data.results);
       } catch (error) {
         console.error("Error fetching data from spoonacular API", error);
       } finally {
@@ -59,35 +63,56 @@ const addFood = () => {
     }
   });
 
+  // 1. CURRENT ISSUE:
   // function to handle search input
-  const handleSearch = (query) => {
+  const handleSearch = async (query: string) => {
     setSearchQuery(query);
-    if (!query) {
-      setSearchResults([]);
-    } else debouncedSearch(query);
+    if (!query) return setSearchResults([]);
+
+    setIsSearching(true);
+    debouncedSearch(query);
   };
 
+  // not a priority right now!
   // function to handle food selection
-  const handleFoodSelect = (food) => {
-    setSelectedFood(food);
-    setSearchQuery(food.description);
-    setSearchResults([]);
-  };
-  
+  // const handleFoodSelect = async (ingredient: Ingredient) => {
+  //   try {
+  //     // Get initial nutrition for 100g
+  //     const nutrition = await foodApi.getNutrition(ingredient.id, 100);
+  //     setSelectedFood({ ...ingredient, ...nutrition });
+  //     setSearchQuery(ingredient.name);
+  //     setSearchResults([]);
+  //   } catch (error) {
+  //     Alert.alert("Error", "Failed to load nutrition data");
+  //   }
+  // };
+
   // function to handle form submission
   // this function will be called when the user clicks the submit button
   const handleSubmit = async () => {
-    if (!searchQuery || !amount) {
-      return;
+    if (!selectedFood || !amount) return;
+
+    try {
+      // Get final nutrition for actual amount
+      const nutrition = await foodApi.getNutrition(
+        selectedFood.id,
+        parseFloat(amount)
+      );
+
+      await addFood({
+        name: selectedFood.name,
+        amount: `${nutrition.amount}${nutrition.unit}`,
+        mealType,
+        protein: nutrition.protein,
+        calories: nutrition.calories,
+      });
+
+      // Reset form...
+    } catch (error) {
+      Alert.alert("Error", "Failed to save food entry");
     }
-    
-    await addFood({ name: searchQuery, amount: amount, mealType });
-    setSearchQuery("");
-    setAmount("");
-    setMealType("breakfast");
-    setSelectedFood(null);
   };
-  
+
   // useEffect to load data from async storage
   useEffect(() => {
     const loadData = async () => {
@@ -136,7 +161,7 @@ const addFood = () => {
       </View>
     );
   }
-  
+
   // return the form to add food
   return (
     <View style={styles.container}>
@@ -151,16 +176,17 @@ const addFood = () => {
               placeholder="Search for food..."
               placeholderTextColor="#94a3b8"
               value={searchQuery}
-              onChangeText={setSearchQuery}
+              onChangeText={handleSearch}
               onFocus={() => setIsFocused1(true)}
               onBlur={() => setIsFocused1(false)}
             />
           </View>
 
           {/* below is the search indicator showing the searching status */}
-          {isSearching && <ActivityIndicator style={styles.searchIndicator} />}
+          {/* {isSearching && <ActivityIndicator style={styles.searchIndicator} />} */}
 
-          {/* below is the list of potential items */}
+          {/* 1. CURRENT ISSUE: */}
+
           {searchResults.length > 0 && (
             <FlatList
               data={searchResults}
@@ -169,11 +195,11 @@ const addFood = () => {
                 <TouchableOpacity
                   style={styles.resultItem}
                   onPress={() => {
-                    setSelectedFood(item);
-                    setSearchQuery(item.description);
-                    setSearchResults([]);
+                    handleFoodSelect(item);
                   }}
-                ></TouchableOpacity>
+                >
+                  <Text>{item.name}</Text>
+                </TouchableOpacity>
               )}
             />
           )}
@@ -300,6 +326,11 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 16,
     fontWeight: "600",
+  },
+  resultItem: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#cbd5e1",
   },
 });
 

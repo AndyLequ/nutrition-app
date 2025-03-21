@@ -1,44 +1,63 @@
-import axios from 'axios'
+// api.ts - Updated with better typing and nutrition endpoint
+import axios from 'axios';
 
-//interface for ingredient response
-interface IngredientResponse {
-    results: Array<{
-        id: number;
-        name: string;
-        image: string;
-        amount: number;
-        unit: string;
-    }>;
+interface Ingredient {
+    id: number;
+    name: string;
+    image: string;
 }
 
-// Create an axios instance with default settings
+interface IngredientResponse {
+    results: Ingredient[];
+}
+
+interface NutritionInfo {
+    protein: number;
+    calories: number;
+    amount: number;
+    unit: string;
+}
+
 const api = axios.create({
-    baseURL: 'https://api.spoonacular.com/food/ingredients',
+    baseURL: 'https://api.spoonacular.com',
     headers: {
         'x-api-key': process.env.EXPO_PUBLIC_API_KEY,
     },
+});
 
-})
+export const foodApi = {
+    searchIngredients: async (query: string, limit: number = 10): Promise<Ingredient[]> => {
+        try {
+            const response = await api.get<IngredientResponse>(
+                `/food/ingredients/search?query=${query}&number=${limit}`
+            );
+            return response.data.results;
+        } catch (error) {
+            console.error("Error searching ingredients:", error);
+            throw error;
+        }
+    },
 
-// function for fetching list of ingredients based on the search query
-export const fetchIngredients = async (ingredientName: string, ingredientQuantity: string) => {
-    try {
-        const response = await api.get<IngredientResponse>(`/search?query=${ingredientName}&number=${ingredientQuantity}&sort=calories&sortDirection=desc`)
-        return response.data
-    } catch (error) {
-        console.error("Error fetching data from spoonacular API", error)
-        throw error
+    getNutrition: async (ingredientId: number, amount: number, unit: string = 'g'): Promise<NutritionInfo> => {
+        try {
+            const response = await api.get<{
+                nutrition: {
+                    nutrients: Array<{ name: string; amount: number; unit: string }>
+                }
+            }>(`/food/ingredients/${ingredientId}/information`, {
+                params: { amount, unit }
+            });
+
+            const nutrients = response.data.nutrition.nutrients;
+            return {
+                protein: nutrients.find(n => n.name === 'Protein')?.amount || 0,
+                calories: nutrients.find(n => n.name === 'Calories')?.amount || 0,
+                amount,
+                unit
+            };
+        } catch (error) {
+            console.error("Error fetching nutrition:", error);
+            throw error;
+        }
     }
-}
-
-// function for fetching ingredient information based on the ingredient id
-export const fetchIngredientInfo = async (ingredientId: number) => {
-    try {
-        const response = await api.get(`/information?amount=1&id=${ingredientId}`)
-        return response.data
-    } catch (error) {
-        console.error("Error fetching data from spoonacular API", error)
-        throw error
-    }
-}
-
+};
