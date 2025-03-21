@@ -28,7 +28,7 @@ const addFood = () => {
     "breakfast" | "lunch" | "dinner" | "snacks"
   >("breakfast");
 
-  // 1. CURRENT ISSUE: state variables for handling data regarding the food that is written in the search bar
+  //: state variables for handling data regarding the food that is written in the search bar
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -39,7 +39,7 @@ const addFood = () => {
   // const [showFoodList, setShowFoodList] = useState(false);
   const { addFood } = useFood();
 
-  // 1. CURRENT ISSUE:
+  //:
   // function for searching for food, will be called when the user types in the search bar
   // this function will be debounced to avoid making too many requests to the API
   const debouncedSearch = debounce(async (query) => {
@@ -63,7 +63,7 @@ const addFood = () => {
     }
   });
 
-  // 1. CURRENT ISSUE:
+  //:
   // function to handle search input
   const handleSearch = async (query: string) => {
     setSearchQuery(query);
@@ -73,22 +73,20 @@ const addFood = () => {
     debouncedSearch(query);
   };
 
-  // not a priority right now!
   // function to handle food selection
-  // const handleFoodSelect = async (ingredient: Ingredient) => {
-  //   try {
-  //     // Get initial nutrition for 100g
-  //     const nutrition = await foodApi.getNutrition(ingredient.id, 100);
-  //     setSelectedFood({ ...ingredient, ...nutrition });
-  //     setSearchQuery(ingredient.name);
-  //     setSearchResults([]);
-  //   } catch (error) {
-  //     Alert.alert("Error", "Failed to load nutrition data");
-  //   }
-  // };
+  const handleFoodSelect = (food: Ingredient) => {
+    setSelectedFood(food);
+    setSearchQuery(food.name);
+    setSearchResults([]);
+    foodApi.getNutrition(food.id, 100).then((nutrition) => {
+      console.log("Nutrition data:", nutrition);
+    });
+    console.log("Selected food:", food);
+  };
 
   // function to handle form submission
   // this function will be called when the user clicks the submit button
+  // this needs to be changed to account for the nutrition data being fetched from the API
   const handleSubmit = async () => {
     if (!selectedFood || !amount) return;
 
@@ -184,8 +182,6 @@ const addFood = () => {
 
           {/* below is the search indicator showing the searching status */}
           {/* {isSearching && <ActivityIndicator style={styles.searchIndicator} />} */}
-
-          {/* 1. CURRENT ISSUE: */}
 
           {searchResults.length > 0 && (
             <FlatList
