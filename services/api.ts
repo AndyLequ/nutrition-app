@@ -38,9 +38,10 @@ export const foodApi = {
         }
     },
 
-    getNutrition: async (ingredientId: number, amount: number, unit: string = 'g'): Promise<NutritionInfo> => {
+    getNutrition: async (ingredientId: number, amount: number, unit: string): Promise<NutritionInfo & { name: string }> => {
         try {
             const response = await api.get<{
+                name: string;
                 nutrition: {
                     nutrients: Array<{ name: string; amount: number; unit: string }>
                 }
@@ -50,6 +51,7 @@ export const foodApi = {
 
             const nutrients = response.data.nutrition.nutrients;
             return {
+                name: response.data.name,
                 protein: nutrients.find(n => n.name === 'Protein')?.amount || 0,
                 calories: nutrients.find(n => n.name === 'Calories')?.amount || 0,
                 amount,

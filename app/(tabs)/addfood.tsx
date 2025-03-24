@@ -21,6 +21,7 @@ import { foodApi } from "../../services/api";
 const addFood = () => {
   //the state variables, these states are concerned with the food being searched and then added
   const [amount, setAmount] = useState("");
+  const [unit, setUnit] = useState("g");
   const [isFocused1, setIsFocused1] = useState(false);
   const [isFocused2, setIsFocused2] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -78,7 +79,7 @@ const addFood = () => {
     setSelectedFood(food);
     setSearchQuery(food.name);
     setSearchResults([]);
-    foodApi.getNutrition(food.id, 100).then((nutrition) => {
+    foodApi.getNutrition(food.id, amount, unit).then((nutrition) => {
       console.log("Nutrition data:", nutrition);
     });
     console.log("Selected food:", food);
@@ -212,6 +213,19 @@ const addFood = () => {
               onFocus={() => setIsFocused2(true)}
               onBlur={() => setIsFocused2(false)}
             />
+          </View>
+
+          <View>
+            <Text style={styles.label}>Units</Text>
+            <Picker
+              selectedValue={unit}
+              onValueChange={(unitValue) => setUnit(unitValue)}
+            >
+              <Picker.Item label="g" value="g" />
+              <Picker.Item label="kg" value="kg" />
+              <Picker.Item label="oz" value="oz" />
+              <Picker.Item label="lb" value="lb" />
+            </Picker>
           </View>
 
           {/* below is the meal type picker */}
