@@ -134,6 +134,32 @@ const addFood = () => {
     loadData();
   }, []);
 
+  // useEffect(() => {
+  //   const loadData = async () => {
+  //     try {
+  //       const savedData = await AsyncStorage.setItem(
+  //         "@inputs",
+  //         JSON.stringify({
+  //           searchQuery,
+  //           amount,
+  //           mealType,
+  //         })
+  //       );
+  //       if (savedData !== null) {
+  //         const { searchQuery, amount, mealType } = JSON.parse(savedData);
+  //         setSearchQuery(searchQuery);
+  //         setAmount(amount);
+  //         setMealType(mealType);
+  //       }
+  //     } catch (e) {
+  //       console.error("Failed to load data");
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   };
+  //   loadData();
+  // }, []);
+
   // useEffect to save data to async storage
   useEffect(() => {
     if (!isLoading) {

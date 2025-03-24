@@ -35,7 +35,7 @@ export const FoodProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     const loadFoods = async () => {
       try {
-        const savedFoods = await AsyncStorage.getItem("@foods");
+        const savedFoods = await AsyncStorage.getItem("@inputs");
         if (savedFoods) {
           setFoods(
             JSON.parse(savedFoods, (key, value) => {
