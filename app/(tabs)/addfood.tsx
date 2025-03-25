@@ -95,16 +95,25 @@ const addFood = () => {
       // Get final nutrition for actual amount
       const nutrition = await foodApi.getNutrition(
         selectedFood.id,
-        parseFloat(amount)
+        parseFloat(amount),
+        unit
       );
 
       await addFood({
         name: selectedFood.name,
         amount: `${nutrition.amount}${nutrition.unit}`,
         mealType,
-        protein: nutrition.protein,
-        calories: nutrition.calories,
+        protein: Number(nutrition.protein),
+        calories: Number(nutrition.calories),
       });
+
+      setSearchQuery("");
+      setAmount("");
+      setUnit("g");
+      setMealType("breakfast");
+      setSelectedFood(null);
+
+      await AsyncStorage.removeItem("@inputs"); // Clear saved data
 
       // Reset form...
     } catch (error) {
@@ -133,32 +142,6 @@ const addFood = () => {
     };
     loadData();
   }, []);
-
-  // useEffect(() => {
-  //   const loadData = async () => {
-  //     try {
-  //       const savedData = await AsyncStorage.setItem(
-  //         "@inputs",
-  //         JSON.stringify({
-  //           searchQuery,
-  //           amount,
-  //           mealType,
-  //         })
-  //       );
-  //       if (savedData !== null) {
-  //         const { searchQuery, amount, mealType } = JSON.parse(savedData);
-  //         setSearchQuery(searchQuery);
-  //         setAmount(amount);
-  //         setMealType(mealType);
-  //       }
-  //     } catch (e) {
-  //       console.error("Failed to load data");
-  //     } finally {
-  //       setIsLoading(false);
-  //     }
-  //   };
-  //   loadData();
-  // }, []);
 
   // useEffect to save data to async storage
   useEffect(() => {
