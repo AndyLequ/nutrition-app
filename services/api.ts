@@ -14,6 +14,8 @@ interface IngredientResponse {
 interface NutritionInfo {
     protein: number;
     calories: number;
+    carbs: number;
+    fat: number;
     amount: number;
     unit: string;
 }
@@ -54,6 +56,8 @@ export const foodApi = {
                 name: response.data.name,
                 protein: nutrients.find(n => n.name === 'Protein')?.amount || 0,
                 calories: nutrients.find(n => n.name === 'Calories')?.amount || 0,
+                carbs: nutrients.find(n => n.name === 'Carbohydrates')?.amount || 0,
+                fat: nutrients.find(n => n.name === 'Fat')?.amount || 0,
                 amount,
                 unit
             };

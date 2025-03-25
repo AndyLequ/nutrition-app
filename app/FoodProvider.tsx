@@ -10,6 +10,8 @@ type FoodItem = {
   mealType: MealType;
   protein: number;
   calories: number;
+  carbs: number;
+  fat: number;
   createdAt: Date;
 };
 
@@ -41,21 +43,20 @@ export const FoodProvider: React.FC<{ children: React.ReactNode }> = ({
 
         let parsedFoods = [];
 
-        if(savedFoods){
-          try{
-            if (savedFoods) {
-              parsedFoods = JSON.parse(savedFoods, (key, value) => {
-                if (key === "createdAt") return new Date(value);
-                return value;
-              });
-            }
-    
-            if(!Array.isArray(parsedFoods)) {
-              console.warn("Invalid food data found - resetting to empty array.");
+        if (savedFoods) {
+          try {
+            parsedFoods = JSON.parse(savedFoods, (key, value) => {
+              if (key === "createdAt") return new Date(value);
+              return value;
+            });
+
+            if (!Array.isArray(parsedFoods)) {
+              console.warn(
+                "Invalid food data found - resetting to empty array."
+              );
               parsedFoods = [];
               await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify([]));
             }
-
           } catch (error) {
             console.error("Error parsing saved foods:", error);
             parsedFoods = []; // Reset to empty array on error
@@ -69,10 +70,8 @@ export const FoodProvider: React.FC<{ children: React.ReactNode }> = ({
       } finally {
         setLoading(false); // Set loading to false after attempting to load
       }
-
-      
     };
-  
+
     loadFoods();
   }, []);
 

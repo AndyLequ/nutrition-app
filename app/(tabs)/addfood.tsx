@@ -105,6 +105,8 @@ const addFood = () => {
         mealType,
         protein: Number(nutrition.protein),
         calories: Number(nutrition.calories),
+        carbs: Number(nutrition.carbs),
+        fat: Number(nutrition.fat),
       });
 
       setSearchQuery("");

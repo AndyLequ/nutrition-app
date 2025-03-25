@@ -8,8 +8,6 @@ import { useFood } from "../FoodProvider";
 export default function LogScreen() {
   const { foods, loading } = useFood();
 
-  const safeFoods = Array.isArray(foods) ? foods : [];
-
   if (loading) {
     return (
       <View style={styles.container}>
@@ -20,7 +18,7 @@ export default function LogScreen() {
 
   const renderMealList = (mealType: string) => (
     <FlatList
-      data={safeFoods.filter((food) => food.mealType === mealType)}
+      data={foods.filter((food) => food.mealType === mealType)}
       keyExtractor={(item) => item.id}
       renderItem={({ item }) => (
         <View style={styles.listItem}>
