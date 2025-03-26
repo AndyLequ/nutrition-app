@@ -1,7 +1,7 @@
 import { Text, View, StyleSheet, FlatList } from "react-native";
 import React from "react";
 import { useFood } from "../FoodProvider";
-
+import { renderMealList } from "../../components/mealList";
 // display somewhere in this page the data input into the addfood page
 // display the data input into the addfood page in a list format
 

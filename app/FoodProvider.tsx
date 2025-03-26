@@ -35,6 +35,15 @@ export const FoodProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const STORAGE_KEY = "@foods";
 
+  const resetFoods = async () => {
+    try {
+      await AsyncStorage.removeItem(STORAGE_KEY);
+      setFoods([]); // Reset state to empty array
+    } catch (error) {
+      console.error("Error resetting foods:", error);
+    }
+  };
+
   // Load saved foods on mount
   useEffect(() => {
     const loadFoods = async () => {

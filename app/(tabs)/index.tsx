@@ -10,13 +10,13 @@ import { useState, useEffect } from "react";
 import MealPlanList from "@/components/MealPlanList";
 import axios from "axios";
 import { useFood } from "../FoodProvider";
+
+import AsyncStorage from "@react-native-async-storage/async-storage";
 const data = [
   { value: 35, color: "#f39c12", label: "Protein" },
   { value: 45, color: "#3498db", label: "Carbs" },
   { value: 20, color: "#e74c3c", label: "Fat" },
 ];
-
-// Define interface for individual result items
 
 export default function Index() {
   const [protein, setProtein] = useState(0);
@@ -28,19 +28,22 @@ export default function Index() {
   const safeFoods = Array.isArray(foods) ? foods : [];
 
   useEffect(() => {
-    const totalProtein = safeFoods.reduce(
-      (sum, food) => sum + (food.protein || 0),
-      0
+    const truncateToTwoDecimals = (num: number) => {
+      return Math.trunc(num * 100) / 100;
+    };
+
+    const totalProtein = truncateToTwoDecimals(
+      safeFoods.reduce((sum, food) => sum + (food.protein || 0), 0)
     );
-    const totalCalories = safeFoods.reduce(
-      (sum, food) => sum + (food.calories || 0),
-      0
+    const totalCalories = truncateToTwoDecimals(
+      safeFoods.reduce((sum, food) => sum + (food.calories || 0), 0)
     );
-    const totalCarbs = safeFoods.reduce(
-      (sum, food) => sum + (food.carbs || 0),
-      0
+    const totalCarbs = truncateToTwoDecimals(
+      safeFoods.reduce((sum, food) => sum + (food.carbs || 0), 0)
     );
-    const totalFat = safeFoods.reduce((sum, food) => sum + (food.fat || 0), 0);
+    const totalFat = truncateToTwoDecimals(
+      safeFoods.reduce((sum, food) => sum + (food.fat || 0), 0)
+    );
 
     setProtein(totalProtein);
     setCalories(totalCalories);
@@ -62,9 +65,12 @@ export default function Index() {
           <Text style={styles.value}>{calories}</Text>
         </View>
         <View style={styles.column}>
-          {/* need to work on getting the carbs to return from the get request, need to adjust all the data interfaces,contexts, etc... */}
           <Text style={styles.label}>Carbs</Text>
           <Text style={styles.value}>{carbs}</Text>
+        </View>
+        <View style={styles.column}>
+          <Text style={styles.label}>Fat</Text>
+          <Text style={styles.value}>{fat}</Text>
         </View>
 
         <View style={styles.list}></View>
