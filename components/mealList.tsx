@@ -1,27 +1,37 @@
 import React from "react";
 import { View, Text, FlatList, StyleSheet } from "react-native";
+import { FoodItem } from "../app/FoodProvider"; // Adjust the import based on your file structure
 
-export const renderMealList = (
-  mealType: string,
+interface RenderMealListProps {
+  mealType: string;
   foodsForMealType: FoodItem[]
-) => (
-  <View style={styles.mealContainer}>
-    <Text style={styles.titlename}>{mealType}</Text>
-    <FlatList
-      data={foodsForMealType}
-      keyExtractor={(item) => item.id}
-      renderItem={({ item }) => (
-        <View style={styles.listItem}>
-          <Text>{item.name}</Text>
-          <Text>{item.amount}</Text>
-          <Text>Protein: {item.protein}g</Text>
-          <Text>Calories: {item.calories} cal</Text>
-        </View>
-      )}
-      ListEmptyComponent={<Text style={styles.emptyText}>No items found</Text>}
-    />
-  </View>
-);
+}
+
+const RenderMealList: React.FC<RenderMealListProps> = ({
+  mealType, 
+  foodsForMealType,
+}) => {
+  return (
+    <View style={styles.mealContainer}>
+      <Text style={styles.titlename}>{mealType}</Text>
+      <FlatList
+        data={foodsForMealType}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <View style={styles.listItem}>
+            <Text>{item.name}</Text>
+            <Text>{item.amount}</Text>
+            <Text>Protein: {item.protein}g</Text>
+            <Text>Calories: {item.calories} cal</Text>
+          </View>
+        )}
+        ListEmptyComponent={
+          <Text style={styles.emptyText}>No items found</Text>
+        }
+      />
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -52,3 +62,5 @@ const styles = StyleSheet.create({
     color: "#2c3e50",
   },
 });
+
+export default RenderMealList;

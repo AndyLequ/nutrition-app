@@ -3,7 +3,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type MealType = "breakfast" | "lunch" | "dinner" | "snacks";
 
-type FoodItem = {
+export type FoodItem = {
   id: string;
   name: string;
   amount: string; // Add the amount property
