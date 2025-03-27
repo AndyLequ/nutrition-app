@@ -54,12 +54,11 @@ const addFood = () => {
             },
           }
         );
-        setSearchResults(response.data.results || []);
+        return response.data.results || [];
         console.log("Search results:", response.data.results);
       } catch (error) {
         console.error("Error fetching data from spoonacular API", error);
-      } finally {
-        setIsSearching(false);
+        return [];
       }
     }
   });
@@ -71,7 +70,10 @@ const addFood = () => {
     if (!query) return setSearchResults([]);
 
     setIsSearching(true);
-    debouncedSearch(query);
+    const newSearchResults = await debouncedSearch(query);
+
+    setSearchResults(newSearchResults);
+    setIsSearching(false);
   };
 
   // function to handle food selection
