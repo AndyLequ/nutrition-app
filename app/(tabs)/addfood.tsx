@@ -18,7 +18,7 @@ import axios from "axios";
 import { foodApi } from "../../services/api";
 
 // function to add food, whatever is submitted will be displayed in another file, probably the logger
-const addFood = () => {
+const AddFood = () => {
   //the state variables, these states are concerned with the food being searched and then added
   const [amount, setAmount] = useState("");
   const [unit, setUnit] = useState("g");
@@ -357,4 +357,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default addFood;
+export default AddFood;
