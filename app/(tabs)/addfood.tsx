@@ -5,12 +5,12 @@ import {
   TextInput,
   Text,
   Button,
-  Picker,
   TouchableOpacity,
   ActivityIndicator,
   FlatList,
   Alert,
 } from "react-native";
+import { Picker } from "@react-native-picker/picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFood } from "../FoodProvider";
 import debounce from "lodash.debounce";

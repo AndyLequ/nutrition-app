@@ -73,7 +73,11 @@ export default function Index() {
           <Text style={styles.value}>{fat}</Text>
         </View>
 
-        <View style={styles.list}></View>
+        {/* This will be a new row where I show the goals */}
+        <View style={styles.column}>
+          <Text style={styles.label}>Goals</Text>
+          <Text style={styles.value}>150</Text>
+        </View>
       </View>
 
       {/* meal plan goes here */}
