@@ -5,22 +5,129 @@ import {
   TextInput,
   Text,
   Button,
-  Picker,
+  TouchableOpacity,
+  ActivityIndicator,
+  FlatList,
+  Alert,
 } from "react-native";
+import { Picker } from "@react-native-picker/picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFood } from "../FoodProvider";
+import debounce from "lodash.debounce";
+import axios from "axios";
+import { foodApi } from "../../services/api";
 
-const addFood = () => {
-  const [foodName, setfoodName] = useState("");
-  const [Amount, setAmount] = useState("");
+// function to add food, whatever is submitted will be displayed in another file, probably the logger
+const AddFood = () => {
+  //the state variables, these states are concerned with the food being searched and then added
+  const [amount, setAmount] = useState("");
+  const [unit, setUnit] = useState("g");
   const [isFocused1, setIsFocused1] = useState(false);
   const [isFocused2, setIsFocused2] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [mealType, setMealType] = useState<
     "breakfast" | "lunch" | "dinner" | "snacks"
   >("breakfast");
+
+  //: state variables for handling data regarding the food that is written in the search bar
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [selectedFood, setSelectedFood] = useState<Ingredient | null>(null);
+
+  // these states are for later use, not important right now
+  // const [submittedFoods, setSubmittedFoods] = useState([]);
+  // const [showFoodList, setShowFoodList] = useState(false);
   const { addFood } = useFood();
 
+  //:
+  // function for searching for food, will be called when the user types in the search bar
+  // this function will be debounced to avoid making too many requests to the API
+  const debouncedSearch = debounce(async (query) => {
+    if (query.length > 2) {
+      try {
+        const response = await axios.get(
+          `https://api.spoonacular.com/food/ingredients/search?query=${query}&number=2&sort=calories&sortDirection=desc`,
+          {
+            headers: {
+              "x-api-key": process.env.EXPO_PUBLIC_API_KEY,
+            },
+          }
+        );
+        setSearchResults(response.data.results || []);
+        console.log("Search results:", response.data.results);
+      } catch (error) {
+        console.error("Error fetching data from spoonacular API", error);
+        setSearchResults([]);
+      } finally {
+        setIsSearching(false);
+      }
+    } else {
+      setSearchResults([]);
+      setIsSearching(false);
+    }
+  }, 500);
+
+  //:
+  // function to handle search input
+  const handleSearch = async (query: string) => {
+    setSearchQuery(query);
+    if (!query) return setSearchResults([]);
+
+    setIsSearching(true);
+    debouncedSearch(query);
+  };
+
+  // function to handle food selection
+  const handleFoodSelect = (food: Ingredient) => {
+    setSelectedFood(food);
+    setSearchQuery(food.name);
+    setSearchResults([]);
+    // foodApi.getNutrition(food.id, amount, unit).then((nutrition) => {
+    //   console.log("Nutrition data:", nutrition);
+    // });
+    console.log("Selected food:", food);
+  };
+
+  // function to handle form submission
+  // this function will be called when the user clicks the submit button
+  // this needs to be changed to account for the nutrition data being fetched from the API
+  const handleSubmit = async () => {
+    if (!selectedFood || !amount) return;
+
+    try {
+      // Get final nutrition for actual amount
+      const nutrition = await foodApi.getNutrition(
+        selectedFood.id,
+        parseFloat(amount),
+        unit
+      );
+
+      await addFood({
+        name: selectedFood.name,
+        amount: `${nutrition.amount}${nutrition.unit}`,
+        mealType,
+        protein: Number(nutrition.protein),
+        calories: Number(nutrition.calories),
+        carbs: Number(nutrition.carbs),
+        fat: Number(nutrition.fat),
+      });
+
+      setSearchQuery("");
+      setAmount("");
+      setUnit("g");
+      setMealType("breakfast");
+      setSelectedFood(null);
+
+      await AsyncStorage.removeItem("@inputs"); // Clear saved data
+
+      // Reset form...
+    } catch (error) {
+      Alert.alert("Error", "Failed to save food entry");
+    }
+  };
+
+  // useEffect to load data from async storage
   useEffect(() => {
     const loadData = async () => {
       // Load data here
@@ -29,7 +136,7 @@ const addFood = () => {
         if (savedData !== null) {
           const { savedfoodName, savedAmount, savedMealType } =
             JSON.parse(savedData);
-          setfoodName(savedfoodName);
+          setSearchQuery(savedfoodName);
           setAmount(savedAmount);
           setMealType(savedMealType || "breakfast");
         }
@@ -42,13 +149,14 @@ const addFood = () => {
     loadData();
   }, []);
 
+  // useEffect to save data to async storage
   useEffect(() => {
     if (!isLoading) {
       const saveData = async () => {
         try {
           const dataToSave = JSON.stringify({
-            foodName,
-            Amount,
+            searchQuery,
+            amount,
             mealType,
           });
           await AsyncStorage.setItem("@inputs", dataToSave);
@@ -58,7 +166,7 @@ const addFood = () => {
       };
       saveData();
     }
-  }, [foodName, Amount, mealType, isLoading]);
+  }, [searchQuery, amount, mealType, isLoading]);
 
   if (isLoading) {
     return (
@@ -68,17 +176,7 @@ const addFood = () => {
     );
   }
 
-  const handleSubmit = async () => {
-    if (!foodName || !Amount) {
-      return;
-    }
-
-    await addFood({ name: foodName, amount: Amount, mealType });
-    setfoodName("");
-    setAmount("");
-    setMealType("breakfast");
-  };
-
+  // return the form to add food
   return (
     <View style={styles.container}>
       <View style={styles.formCard}>
@@ -86,31 +184,66 @@ const addFood = () => {
 
         <View style={styles.rowContainer}>
           <View style={[styles.inputGroup, styles.flexContainer]}>
-            <Text style={styles.label}>Food Name</Text>
+            <Text style={styles.label}>Search Food</Text>
             <TextInput
               style={[styles.input, isFocused1 && styles.inputFocused]}
-              placeholder="Enter text..."
+              placeholder="Search for food..."
               placeholderTextColor="#94a3b8"
-              value={foodName}
-              onChangeText={setfoodName}
+              value={searchQuery}
+              onChangeText={handleSearch}
               onFocus={() => setIsFocused1(true)}
               onBlur={() => setIsFocused1(false)}
             />
           </View>
 
+          {/* below is the search indicator showing the searching status */}
+          {/* {isSearching && <ActivityIndicator style={styles.searchIndicator} />} */}
+
+          {searchResults.length > 0 && (
+            <FlatList
+              data={searchResults}
+              keyExtractor={(item) => item.id.toString()}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={styles.resultItem}
+                  onPress={() => {
+                    handleFoodSelect(item);
+                  }}
+                >
+                  <Text>{item.name}</Text>
+                </TouchableOpacity>
+              )}
+            />
+          )}
+
+          {/* below is the amount input field */}
           <View style={[styles.inputGroup, styles.flexContainer]}>
-            <Text style={styles.label}>Amount</Text>
+            <Text style={styles.label}>amount</Text>
             <TextInput
               style={[styles.input, isFocused2 && styles.inputFocused]}
-              placeholder="Type here..."
+              placeholder="Enter amount (e.g., 100g)"
               placeholderTextColor="#94a3b8"
-              value={Amount}
+              value={amount}
               onChangeText={setAmount}
               onFocus={() => setIsFocused2(true)}
               onBlur={() => setIsFocused2(false)}
             />
           </View>
 
+          <View>
+            <Text style={styles.label}>Units</Text>
+            <Picker
+              selectedValue={unit}
+              onValueChange={(unitValue) => setUnit(unitValue)}
+            >
+              <Picker.Item label="g" value="g" />
+              <Picker.Item label="kg" value="kg" />
+              <Picker.Item label="oz" value="oz" />
+              <Picker.Item label="lb" value="lb" />
+            </Picker>
+          </View>
+
+          {/* below is the meal type picker */}
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Meal Type</Text>
             <Picker
@@ -124,8 +257,13 @@ const addFood = () => {
             </Picker>
           </View>
 
-          <View style={styles.buttonContainer}>
-            <Button title="Submit" onPress={handleSubmit} />
+          {/* below is the submit button */}
+          <View style={styles.buttonWrapper}>
+            <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+              <Text style={styles.buttonText} onPress={handleSubmit}>
+                Submit
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
       </View>
@@ -195,6 +333,30 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     backgroundColor: "#6366f1",
   },
+  buttonWrapper: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    marginTop: 8,
+  },
+  button: {
+    height: 30,
+    backgroundColor: "#6366f1",
+    borderRadius: 8,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 24,
+    margin: 15,
+  },
+  buttonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  resultItem: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#cbd5e1",
+  },
 });
 
-export default addFood;
+export default AddFood;

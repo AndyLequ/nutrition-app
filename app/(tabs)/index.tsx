@@ -1,44 +1,55 @@
-import { View, Text, StyleSheet, ScrollView, SafeAreaView, Image } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  SafeAreaView,
+  Image,
+} from "react-native";
 import { useState, useEffect } from "react";
 import MealPlanList from "@/components/MealPlanList";
 import axios from "axios";
+import { useFood } from "../FoodProvider";
+
+import AsyncStorage from "@react-native-async-storage/async-storage";
 const data = [
   { value: 35, color: "#f39c12", label: "Protein" },
   { value: 45, color: "#3498db", label: "Carbs" },
   { value: 20, color: "#e74c3c", label: "Fat" },
 ];
 
-// Define interface for individual result items
-interface Result {
-  id: number;
-  name: string;
-}
-
-// Define interface for the entire API response
-interface IngredientResponse {
-  results: Result[];
-  offset: number;
-  number: number;
-  totalResults: number;
-}
-
-function MyComponent() {
-  // Specify the generic type for useState
-  const [apiData, setApiData] = useState<IngredientResponse>({
-    results: [],
-    offset: 0,
-    number: 0,
-    totalResults: 0,
-  });
-}
 export default function Index() {
-  const [ingredients, setIngredients] = useState<IngredientResponse>({
-    results: [],
-    offset: 0,
-    number: 0,
-    totalResults: 0,
-  });
+  const [protein, setProtein] = useState(0);
+  const [carbs, setCarbs] = useState(0);
+  const [calories, setCalories] = useState(0);
+  const [fat, setFat] = useState(0);
 
+  const { foods, loading } = useFood();
+  const safeFoods = Array.isArray(foods) ? foods : [];
+
+  useEffect(() => {
+    const truncateToTwoDecimals = (num: number) => {
+      return Math.trunc(num * 100) / 100;
+    };
+
+    const totalProtein = truncateToTwoDecimals(
+      safeFoods.reduce((sum, food) => sum + (food.protein || 0), 0)
+    );
+    const totalCalories = truncateToTwoDecimals(
+      safeFoods.reduce((sum, food) => sum + (food.calories || 0), 0)
+    );
+    const totalCarbs = truncateToTwoDecimals(
+      safeFoods.reduce((sum, food) => sum + (food.carbs || 0), 0)
+    );
+    const totalFat = truncateToTwoDecimals(
+      safeFoods.reduce((sum, food) => sum + (food.fat || 0), 0)
+    );
+
+    setProtein(totalProtein);
+    setCalories(totalCalories);
+    setCarbs(totalCarbs);
+    setFat(totalFat);
+  }, [safeFoods]);
 
   return (
     //summary detailing information about protein, carbs, calorie intake for the day (consumed and remaining)
@@ -47,22 +58,30 @@ export default function Index() {
       <View style={styles.grid}>
         <View style={styles.column}>
           <Text style={styles.label}>Protein</Text>
-          <Text style={styles.value}>0g</Text>
+          <Text style={styles.value}>{protein}</Text>
         </View>
         <View style={styles.column}>
           <Text style={styles.label}>Calories</Text>
-          <Text style={styles.value}>0</Text>
+          <Text style={styles.value}>{calories}</Text>
         </View>
         <View style={styles.column}>
           <Text style={styles.label}>Carbs</Text>
-          <Text style={styles.value}>0g</Text>
+          <Text style={styles.value}>{carbs}</Text>
+        </View>
+        <View style={styles.column}>
+          <Text style={styles.label}>Fat</Text>
+          <Text style={styles.value}>{fat}</Text>
         </View>
 
-        <View style={styles.list}></View>
+        {/* This will be a new row where I show the goals */}
+        <View style={styles.column}>
+          <Text style={styles.label}>Goals</Text>
+          <Text style={styles.value}>150</Text>
+        </View>
       </View>
 
       {/* meal plan goes here */}
-      
+
       {/* energy expenditure weaving into overall calorie calculation goes here*/}
     </View>
   );
@@ -127,8 +146,8 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   itemImage: {
-    width: '100%',
+    width: "100%",
     height: 200,
     borderRadius: 4,
-  }
+  },
 });
