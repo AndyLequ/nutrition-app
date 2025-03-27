@@ -1,7 +1,7 @@
 import { Text, View, StyleSheet, FlatList } from "react-native";
 import React from "react";
 import { useFood } from "../FoodProvider";
-import RenderMealList from "../../components/mealList";
+import MealList from "../../components/MealList";
 // display somewhere in this page the data input into the addfood page
 // display the data input into the addfood page in a list format
 
@@ -16,29 +16,14 @@ export default function LogScreen() {
     );
   }
 
-  // const renderMealList = (mealType: string) => (
-  //   <FlatList
-  //     data={foods.filter((food) => food.mealType === mealType)}
-  //     keyExtractor={(item) => item.id}
-  //     renderItem={({ item }) => (
-  //       <View style={styles.listItem}>
-  //         <Text>{item.name}</Text>
-  //         <Text>{item.amount}</Text>
-  //         <Text>Protein: {item.protein}g</Text>
-  //         <Text>Calories: {item.calories} cal</Text>
-  //       </View>
-  //     )}
-  //     ListEmptyComponent={<Text style={styles.emptyText}>No items found</Text>}
-  //   />
-  // );
-
+  
   return (
     <View style={styles.container}>
       <View style={styles.columnContainer}>
         {/* Meal Sections */}
         <View style={styles.mealContainer}>
           <Text style={styles.titlename}>Breakfast</Text>
-          <RenderMealList
+          <MealList
             mealType="breakfast"
             foodsForMealType={foods.filter(
               (food) => food.mealType === "breakfast"
@@ -48,7 +33,7 @@ export default function LogScreen() {
 
         <View style={styles.mealContainer}>
           <Text style={styles.titlename}>Lunch</Text>
-          <RenderMealList
+          <MealList
             mealType="lunch"
             foodsForMealType={foods.filter((food) => food.mealType === "lunch")}
           />
@@ -56,7 +41,7 @@ export default function LogScreen() {
 
         <View style={styles.mealContainer}>
           <Text style={styles.titlename}>Dinner</Text>
-          <RenderMealList
+          <MealList
             mealType="dinner"
             foodsForMealType={foods.filter(
               (food) => food.mealType === "dinner"
@@ -66,7 +51,7 @@ export default function LogScreen() {
 
         <View style={styles.mealContainer}>
           <Text style={styles.titlename}>Snacks</Text>
-          <RenderMealList
+          <MealList
             mealType="snacks"
             foodsForMealType={foods.filter(
               (food) => food.mealType === "snacks"

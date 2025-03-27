@@ -2,15 +2,12 @@ import React from "react";
 import { View, Text, FlatList, StyleSheet } from "react-native";
 import { FoodItem } from "../app/FoodProvider"; // Adjust the import based on your file structure
 
-interface RenderMealListProps {
+interface MealListProps {
   mealType: string;
-  foodsForMealType: FoodItem[]
+  foodsForMealType: FoodItem[];
 }
 
-const RenderMealList: React.FC<RenderMealListProps> = ({
-  mealType, 
-  foodsForMealType,
-}) => {
+const MealList: React.FC<MealListProps> = ({ mealType, foodsForMealType }) => {
   return (
     <View style={styles.mealContainer}>
       <Text style={styles.titlename}>{mealType}</Text>
@@ -63,4 +60,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default RenderMealList;
+export default MealList;

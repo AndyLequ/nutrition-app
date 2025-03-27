@@ -54,14 +54,19 @@ const AddFood = () => {
             },
           }
         );
-        return response.data.results || [];
+        setSearchResults(response.data.results || []);
         console.log("Search results:", response.data.results);
       } catch (error) {
         console.error("Error fetching data from spoonacular API", error);
-        return [];
+        setSearchResults([]);
+      } finally {
+        setIsSearching(false);
       }
+    } else {
+      setSearchResults([]);
+      setIsSearching(false);
     }
-  });
+  }, 500);
 
   //:
   // function to handle search input
@@ -70,10 +75,7 @@ const AddFood = () => {
     if (!query) return setSearchResults([]);
 
     setIsSearching(true);
-    const newSearchResults = await debouncedSearch(query);
-
-    setSearchResults(newSearchResults);
-    setIsSearching(false);
+    debouncedSearch(query);
   };
 
   // function to handle food selection
@@ -81,9 +83,9 @@ const AddFood = () => {
     setSelectedFood(food);
     setSearchQuery(food.name);
     setSearchResults([]);
-    foodApi.getNutrition(food.id, amount, unit).then((nutrition) => {
-      console.log("Nutrition data:", nutrition);
-    });
+    // foodApi.getNutrition(food.id, amount, unit).then((nutrition) => {
+    //   console.log("Nutrition data:", nutrition);
+    // });
     console.log("Selected food:", food);
   };
 
