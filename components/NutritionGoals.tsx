@@ -4,11 +4,19 @@ import { useFood } from "../app/FoodProvider";
 
 export const NutritionGoals = () => {
   const { foods } = useFood();
+
+  const truncateToTwoDecimals = (num: number) => {
+    return Math.trunc(num * 100) / 100;
+  };
   const proteinGoal = 150; // Example goal
   const calorieGoal = 2000; // Example goal
 
-  const totalProtein = foods.reduce((total, item) => total + item.protein, 0);
-  const totalCalories = foods.reduce((total, item) => total + item.calories, 0);
+  const totalProtein = truncateToTwoDecimals(
+    foods.reduce((total, item) => total + item.protein, 0)
+  );
+  const totalCalories = truncateToTwoDecimals(
+    foods.reduce((total, item) => total + item.calories, 0)
+  );
 
   const proteinProgress = Math.min((totalProtein / proteinGoal) * 100, 100);
   const calorieProgress = Math.min((totalCalories / calorieGoal) * 100, 100);
