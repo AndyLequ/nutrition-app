@@ -10,6 +10,7 @@ import { useState, useEffect } from "react";
 import MealPlanList from "@/components/MealPlanList";
 import axios from "axios";
 import { useFood } from "../FoodProvider";
+import { NutritionGoals } from "@/components/NutritionGoals";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 const data = [
@@ -53,31 +54,31 @@ export default function Index() {
 
   return (
     //summary detailing information about protein, carbs, calorie intake for the day (consumed and remaining)
-    <View style={styles.container}>
-      <Text style={styles.title}>Summary</Text>
-      <View style={styles.grid}>
-        <View style={styles.column}>
-          <Text style={styles.label}>Protein</Text>
-          <Text style={styles.value}>{protein}</Text>
-        </View>
-        <View style={styles.column}>
-          <Text style={styles.label}>Calories</Text>
-          <Text style={styles.value}>{calories}</Text>
-        </View>
-        <View style={styles.column}>
-          <Text style={styles.label}>Carbs</Text>
-          <Text style={styles.value}>{carbs}</Text>
-        </View>
-        <View style={styles.column}>
-          <Text style={styles.label}>Fat</Text>
-          <Text style={styles.value}>{fat}</Text>
+    <View>
+      <View style={styles.container}>
+        <Text style={styles.title}>Summary</Text>
+        <View style={styles.grid}>
+          <View style={styles.column}>
+            <Text style={styles.label}>Protein</Text>
+            <Text style={styles.value}>{protein}</Text>
+          </View>
+          <View style={styles.column}>
+            <Text style={styles.label}>Calories</Text>
+            <Text style={styles.value}>{calories}</Text>
+          </View>
+          <View style={styles.column}>
+            <Text style={styles.label}>Carbs</Text>
+            <Text style={styles.value}>{carbs}</Text>
+          </View>
+          <View style={styles.column}>
+            <Text style={styles.label}>Fat</Text>
+            <Text style={styles.value}>{fat}</Text>
+          </View>
         </View>
 
-        {/* This will be a new row where I show the goals */}
-        <View style={styles.column}>
-          <Text style={styles.label}>Goals</Text>
-          <Text style={styles.value}>150</Text>
-        </View>
+        {/* Nutrition Goals */}
+        <NutritionGoals />
+        <View></View>
       </View>
 
       {/* meal plan goes here */}

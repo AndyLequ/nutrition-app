@@ -275,13 +275,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f1f5f9",
-    justifyContent: "center",
+    paddingVertical: 16, // editing for mobile compatibility
     padding: 20,
   },
   formCard: {
     backgroundColor: "white",
     borderRadius: 12,
-    padding: 24,
+    padding: 16, // editing for mobile compatibility
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -292,11 +292,12 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "600",
     color: "#1e293b",
-    marginBottom: 24,
+    marginBottom: 16, // editing for mobile compatibility
     textAlign: "center",
   },
   inputGroup: {
     marginBottom: 20,
+    width: "100%", // editing for mobile compatibility
   },
   label: {
     fontSize: 14,
@@ -312,18 +313,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     fontSize: 16,
     color: "#0f172a",
+    width: "100%", // editing for mobile compatibility
   },
   inputFocused: {
     borderColor: "#6366f1",
     borderWidth: 2,
   },
   rowContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    // editing for mobile compatibility
+    flexDirection: "column",
+    gap: 16,
   },
   flexContainer: {
-    flex: 1,
-    marginHorizontal: 4,
+    width: "100%", // editing for mobile compatibility
   },
   buttonContainer: {
     height: 40,
@@ -337,14 +339,15 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "flex-end",
     marginTop: 8,
+    width: "100%", // editing for mobile compatibility
   },
   button: {
-    height: 30,
+    height: 50, // editing for mobile compatibility
     backgroundColor: "#6366f1",
     borderRadius: 8,
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 24,
+    paddingHorizontal: 32, // editing for mobile compatibility
     margin: 15,
   },
   buttonText: {
