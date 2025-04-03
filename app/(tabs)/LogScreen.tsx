@@ -15,52 +15,48 @@ export default function LogScreen() {
   }
 
   return (
-    <ScrollView className="flex-1 bg-white">
-      <View className="flex-1 bg-white">
-        <View className="flex-1 px-4">
-          {/* Meal Sections */}
-          <View className="flex-1 border-b border-gray-300 py-4">
-            <Text className="text-lg font-bold mb-2">Breakfast</Text>
-            <MealList
-              mealType="breakfast"
-              foodsForMealType={foods.filter(
-                (food) => food.mealType === "breakfast"
-              )}
-            />
-          </View>
+    <View className="flex-1 bg-white">
+      <View className="flex-1 px-4">
+        {/* Meal Sections */}
+        <View className="flex-1 border-b border-gray-300 py-4">
+          <Text className="text-lg font-bold mb-2">Breakfast</Text>
+          <MealList
+            mealType="breakfast"
+            foodsForMealType={foods.filter(
+              (food) => food.mealType === "breakfast"
+            )}
+          />
+        </View>
 
-          <View className="flex-1 border-b border-gray-300 py-4">
-            <Text className="text-lg font-bold mb-2">Lunch</Text>
-            <MealList
-              mealType="lunch"
-              foodsForMealType={foods.filter(
-                (food) => food.mealType === "lunch"
-              )}
-            />
-          </View>
+        <View className="flex-1 border-b border-gray-300 py-4">
+          <Text className="text-lg font-bold mb-2">Lunch</Text>
+          <MealList
+            mealType="lunch"
+            foodsForMealType={foods.filter((food) => food.mealType === "lunch")}
+          />
+        </View>
 
-          <View className="flex-1 border-b border-gray-300 py-4">
-            <Text className="text-lg font-bold mb-2">Dinner</Text>
-            <MealList
-              mealType="dinner"
-              foodsForMealType={foods.filter(
-                (food) => food.mealType === "dinner"
-              )}
-            />
-          </View>
+        <View className="flex-1 border-b border-gray-300 py-4">
+          <Text className="text-lg font-bold mb-2">Dinner</Text>
+          <MealList
+            mealType="dinner"
+            foodsForMealType={foods.filter(
+              (food) => food.mealType === "dinner"
+            )}
+          />
+        </View>
 
-          <View className="flex-1 border-b border-gray-300 py-4">
-            <Text className="text-lg font-bold mb-2">Snacks</Text>
-            <MealList
-              mealType="snacks"
-              foodsForMealType={foods.filter(
-                (food) => food.mealType === "snacks"
-              )}
-            />
-          </View>
+        <View className="flex-1 border-b border-gray-300 py-4">
+          <Text className="text-lg font-bold mb-2">Snacks</Text>
+          <MealList
+            mealType="snacks"
+            foodsForMealType={foods.filter(
+              (food) => food.mealType === "snacks"
+            )}
+          />
         </View>
       </View>
-    </ScrollView>
+    </View>
   );
 }
 
