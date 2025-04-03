@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, FlatList, StyleSheet } from "react-native";
-import { FoodItem } from "../app/FoodProvider"; // Adjust the import based on your file structure
+import { FoodItem } from "../FoodProvider"; // Adjust the import based on your file structure
 
 interface MealListProps {
   mealType: string;
@@ -9,21 +9,22 @@ interface MealListProps {
 
 const MealList: React.FC<MealListProps> = ({ mealType, foodsForMealType }) => {
   return (
-    <View style={styles.mealContainer}>
-      <Text style={styles.titlename}>{mealType}</Text>
+    <View className="bg-white shadow-md rounded-lg p-4 mb-4">
       <FlatList
         data={foodsForMealType}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <View style={styles.listItem}>
-            <Text>{item.name}</Text>
-            <Text>{item.amount}</Text>
-            <Text>Protein: {item.protein}g</Text>
-            <Text>Calories: {item.calories} cal</Text>
+          <View className="border-b border-gray-300 py-2">
+            <Text className="text-lg font-semibold text-gray-800">
+              {item.name}
+            </Text>
+            <Text className="text-gray-600">{item.amount}</Text>
+            <Text className="text-gray-600">Protein: {item.protein}g</Text>
+            <Text className="text-gray-600">Calories: {item.calories} cal</Text>
           </View>
         )}
         ListEmptyComponent={
-          <Text style={styles.emptyText}>No items found</Text>
+          <Text className="text-center text-gray-500 mt-4">No items found</Text>
         }
       />
     </View>
