@@ -9,6 +9,8 @@ import {
   ActivityIndicator,
   FlatList,
   Alert,
+  Pressable,
+  Keyboard,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -16,6 +18,7 @@ import { useFood } from "../FoodProvider";
 import debounce from "lodash.debounce";
 import axios from "axios";
 import { foodApi } from "../../services/api";
+import DropDownPicker from "react-native-dropdown-picker";
 
 // function to add food, whatever is submitted will be displayed in another file, probably the logger
 const AddFood = () => {
@@ -28,6 +31,19 @@ const AddFood = () => {
   const [mealType, setMealType] = useState<
     "breakfast" | "lunch" | "dinner" | "snacks"
   >("breakfast");
+  const [unitOpen, setUnitOpen] = useState(false);
+  const [mealTypeOpen, setMealTypeOpen] = useState(false);
+  const [unitItems, setUnitItems] = useState([
+    { label: "g", value: "g" },
+    { label: "oz", value: "oz" },
+    { label: "ml", value: "ml" },
+  ]);
+  const [mealTypeItems, setMealTypeItems] = useState([
+    { label: "Breakfast", value: "breakfast" },
+    { label: "Lunch", value: "lunch" },
+    { label: "Dinner", value: "dinner" },
+    { label: "Snacks", value: "snacks" },
+  ]);
 
   //: state variables for handling data regarding the food that is written in the search bar
   const [searchQuery, setSearchQuery] = useState("");
@@ -176,98 +192,142 @@ const AddFood = () => {
     );
   }
 
+  const dismissKeyboardAndCloseDropdowns = () => {
+    Keyboard.dismiss();
+    closeAllDropdowns();
+  };
+
+  const closeAllDropdowns = () => {
+    setUnitOpen(false);
+    setMealTypeOpen(false);
+  };
+
   // return the form to add food
   return (
-    <View style={styles.container}>
-      <View style={styles.formCard}>
-        <Text style={styles.title}>Add Food</Text>
+    <Pressable
+      style={{ flex: 1, backgroundColor: "white" }}
+      onPress={dismissKeyboardAndCloseDropdowns}
+    >
+      <View className="flex-1 bg-gray-100 justify-center p-5">
+        <View className="bg-white rounded-lg p-6 shadow-md">
+          <Text className="text-xl font-semibold text-gray-800 mb-6 text-center">
+            Add Food
+          </Text>
 
-        <View style={styles.rowContainer}>
-          <View style={[styles.inputGroup, styles.flexContainer]}>
-            <Text style={styles.label}>Search Food</Text>
-            <TextInput
-              style={[styles.input, isFocused1 && styles.inputFocused]}
-              placeholder="Search for food..."
-              placeholderTextColor="#94a3b8"
-              value={searchQuery}
-              onChangeText={handleSearch}
-              onFocus={() => setIsFocused1(true)}
-              onBlur={() => setIsFocused1(false)}
-            />
-          </View>
+          <View className="space-y-4">
+            <View>
+              <Text className="text-sm text-gray-600 mb-2">Search Food</Text>
+              <TextInput
+                className={`h-12 border rounded-lg px-4 text-base text-gray-900 ${
+                  isFocused1 ? "border-indigo-500" : "border-gray-300"
+                }`}
+                placeholder="Search for food..."
+                placeholderTextColor="#94a3b8"
+                value={searchQuery}
+                onChangeText={handleSearch}
+                onFocus={() => {
+                  setIsFocused1(true);
+                  closeAllDropdowns();
+                }}
+                onBlur={() => setIsFocused1(false)}
+              />
+            </View>
 
-          {/* below is the search indicator showing the searching status */}
-          {/* {isSearching && <ActivityIndicator style={styles.searchIndicator} />} */}
+            {searchResults.length > 0 && (
+              <FlatList
+                data={searchResults}
+                keyExtractor={(item) => item.id.toString()}
+                renderItem={({ item }) => (
+                  <TouchableOpacity
+                    className="p-3 border-b border-gray-300"
+                    onPress={() => {
+                      handleFoodSelect(item);
+                    }}
+                  >
+                    <Text className="text-gray-800">{item.name}</Text>
+                  </TouchableOpacity>
+                )}
+              />
+            )}
 
-          {searchResults.length > 0 && (
-            <FlatList
-              data={searchResults}
-              keyExtractor={(item) => item.id.toString()}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={styles.resultItem}
-                  onPress={() => {
-                    handleFoodSelect(item);
-                  }}
-                >
-                  <Text>{item.name}</Text>
-                </TouchableOpacity>
-              )}
-            />
-          )}
+            <View>
+              <Text className="text-sm text-gray-600 mb-2">Amount</Text>
+              <TextInput
+                className={`h-12 border rounded-lg px-4 text-base text-gray-900 ${
+                  isFocused2 ? "border-indigo-500" : "border-gray-300"
+                }`}
+                placeholder="Enter amount (e.g., 100g)"
+                placeholderTextColor="#94a3b8"
+                value={amount}
+                onChangeText={setAmount}
+                onFocus={() => {
+                  setIsFocused2(true);
+                  closeAllDropdowns();
+                }}
+                onBlur={() => setIsFocused2(false)}
+              />
+            </View>
 
-          {/* below is the amount input field */}
-          <View style={[styles.inputGroup, styles.flexContainer]}>
-            <Text style={styles.label}>amount</Text>
-            <TextInput
-              style={[styles.input, isFocused2 && styles.inputFocused]}
-              placeholder="Enter amount (e.g., 100g)"
-              placeholderTextColor="#94a3b8"
-              value={amount}
-              onChangeText={setAmount}
-              onFocus={() => setIsFocused2(true)}
-              onBlur={() => setIsFocused2(false)}
-            />
-          </View>
+            <View style={{ zIndex: 1000, elevation: 1000 }}>
+              <Text className="text-sm text-gray-600 mb-2">Units</Text>
 
-          <View>
-            <Text style={styles.label}>Units</Text>
-            <Picker
-              selectedValue={unit}
-              onValueChange={(unitValue) => setUnit(unitValue)}
-            >
-              <Picker.Item label="g" value="g" />
-              <Picker.Item label="kg" value="kg" />
-              <Picker.Item label="oz" value="oz" />
-              <Picker.Item label="lb" value="lb" />
-            </Picker>
-          </View>
+              <DropDownPicker
+                open={unitOpen}
+                value={unit}
+                items={unitItems}
+                setOpen={(open) => {
+                  Keyboard.dismiss();
+                  setUnitOpen(open);
+                }}
+                setValue={setUnit}
+                setItems={setUnitItems}
+                style={{
+                  borderColor: "#cbd5e1",
+                  borderRadius: 8,
+                }}
+                dropDownContainerStyle={{
+                  borderColor: "#cbd5e1",
+                }}
+              />
+            </View>
 
-          {/* below is the meal type picker */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Meal Type</Text>
-            <Picker
-              selectedValue={mealType}
-              onValueChange={(itemValue) => setMealType(itemValue)}
-            >
-              <Picker.Item label="Breakfast" value="breakfast" />
-              <Picker.Item label="Lunch" value="lunch" />
-              <Picker.Item label="Dinner" value="dinner" />
-              <Picker.Item label="Snacks" value="snacks" />
-            </Picker>
-          </View>
+            {/* Meal Type Dropdown */}
+            <View style={{ zIndex: 999, elevation: 999 }}>
+              <Text className="text-sm text-gray-600 mb-2">Meal Type</Text>
+              <DropDownPicker
+                open={mealTypeOpen}
+                value={mealType}
+                items={mealTypeItems}
+                setOpen={(open) => {
+                  Keyboard.dismiss();
+                  setMealTypeOpen(open);
+                }}
+                setValue={setMealType}
+                setItems={setMealTypeItems}
+                style={{
+                  borderColor: "#cbd5e1",
+                  borderRadius: 8,
+                }}
+                dropDownContainerStyle={{
+                  borderColor: "#cbd5e1",
+                }}
+              />
+            </View>
 
-          {/* below is the submit button */}
-          <View style={styles.buttonWrapper}>
-            <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-              <Text style={styles.buttonText} onPress={handleSubmit}>
-                Submit
-              </Text>
-            </TouchableOpacity>
+            <View className="mt-4">
+              <TouchableOpacity
+                className="h-12 bg-indigo-500 rounded-lg justify-center items-center"
+                onPress={handleSubmit}
+              >
+                <Text className="text-white text-base font-semibold">
+                  Submit
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </View>
-    </View>
+    </Pressable>
   );
 };
 

@@ -1,9 +1,7 @@
-import { Text, View, StyleSheet, FlatList } from "react-native";
+import { Text, View, StyleSheet, FlatList, ScrollView } from "react-native";
 import React from "react";
 import { useFood } from "../FoodProvider";
-import MealList from "../../components/MealList";
-// display somewhere in this page the data input into the addfood page
-// display the data input into the addfood page in a list format
+import MealList from "../components/MealList";
 
 export default function LogScreen() {
   const { foods, loading } = useFood();
@@ -16,13 +14,12 @@ export default function LogScreen() {
     );
   }
 
-  
   return (
-    <View style={styles.container}>
-      <View style={styles.columnContainer}>
+    <View className="flex-1 bg-white">
+      <View className="flex-1 px-4">
         {/* Meal Sections */}
-        <View style={styles.mealContainer}>
-          <Text style={styles.titlename}>Breakfast</Text>
+        <View className="flex-1 border-b border-gray-300 py-4">
+          <Text className="text-lg font-bold mb-2">Breakfast</Text>
           <MealList
             mealType="breakfast"
             foodsForMealType={foods.filter(
@@ -31,16 +28,16 @@ export default function LogScreen() {
           />
         </View>
 
-        <View style={styles.mealContainer}>
-          <Text style={styles.titlename}>Lunch</Text>
+        <View className="flex-1 border-b border-gray-300 py-4">
+          <Text className="text-lg font-bold mb-2">Lunch</Text>
           <MealList
             mealType="lunch"
             foodsForMealType={foods.filter((food) => food.mealType === "lunch")}
           />
         </View>
 
-        <View style={styles.mealContainer}>
-          <Text style={styles.titlename}>Dinner</Text>
+        <View className="flex-1 border-b border-gray-300 py-4">
+          <Text className="text-lg font-bold mb-2">Dinner</Text>
           <MealList
             mealType="dinner"
             foodsForMealType={foods.filter(
@@ -49,8 +46,8 @@ export default function LogScreen() {
           />
         </View>
 
-        <View style={styles.mealContainer}>
-          <Text style={styles.titlename}>Snacks</Text>
+        <View className="flex-1 border-b border-gray-300 py-4">
+          <Text className="text-lg font-bold mb-2">Snacks</Text>
           <MealList
             mealType="snacks"
             foodsForMealType={foods.filter(
