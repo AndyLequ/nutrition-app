@@ -10,6 +10,7 @@ import {
   FlatList,
   Alert,
   Pressable,
+  Keyboard,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -191,6 +192,11 @@ const AddFood = () => {
     );
   }
 
+  const dismissKeyboardAndCloseDropdowns = () => {
+    Keyboard.dismiss();
+    closeAllDropdowns();
+  };
+
   const closeAllDropdowns = () => {
     setUnitOpen(false);
     setMealTypeOpen(false);
@@ -200,7 +206,7 @@ const AddFood = () => {
   return (
     <Pressable
       style={{ flex: 1, backgroundColor: "white" }}
-      onPress={closeAllDropdowns}
+      onPress={dismissKeyboardAndCloseDropdowns}
     >
       <View className="flex-1 bg-gray-100 justify-center p-5">
         <View className="bg-white rounded-lg p-6 shadow-md">
@@ -219,7 +225,10 @@ const AddFood = () => {
                 placeholderTextColor="#94a3b8"
                 value={searchQuery}
                 onChangeText={handleSearch}
-                onFocus={() => setIsFocused1(true)}
+                onFocus={() => {
+                  setIsFocused1(true);
+                  closeAllDropdowns();
+                }}
                 onBlur={() => setIsFocused1(false)}
               />
             </View>
@@ -251,7 +260,10 @@ const AddFood = () => {
                 placeholderTextColor="#94a3b8"
                 value={amount}
                 onChangeText={setAmount}
-                onFocus={() => setIsFocused2(true)}
+                onFocus={() => {
+                  setIsFocused2(true);
+                  closeAllDropdowns();
+                }}
                 onBlur={() => setIsFocused2(false)}
               />
             </View>
@@ -263,9 +275,12 @@ const AddFood = () => {
                 open={unitOpen}
                 value={unit}
                 items={unitItems}
-                setOpen={setUnitOpen}
+                setOpen={(open) => {
+                  Keyboard.dismiss();
+                  setUnitOpen(open);
+                }}
                 setValue={setUnit}
-                setItems={() => {}}
+                setItems={setUnitItems}
                 style={{
                   borderColor: "#cbd5e1",
                   borderRadius: 8,
@@ -283,9 +298,12 @@ const AddFood = () => {
                 open={mealTypeOpen}
                 value={mealType}
                 items={mealTypeItems}
-                setOpen={setMealTypeOpen}
+                setOpen={(open) => {
+                  Keyboard.dismiss();
+                  setMealTypeOpen(open);
+                }}
                 setValue={setMealType}
-                setItems={() => {}}
+                setItems={setMealTypeItems}
                 style={{
                   borderColor: "#cbd5e1",
                   borderRadius: 8,
