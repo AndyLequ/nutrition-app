@@ -10,11 +10,9 @@ interface MealListProps {
 const MealList: React.FC<MealListProps> = ({ mealType, foodsForMealType }) => {
   return (
     <View className="bg-white shadow-md rounded-lg p-4 mb-4">
-      <FlatList
-        data={foodsForMealType}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View className="border-b border-gray-300 py-2">
+      {foodsForMealType.length > 0 ? (
+        foodsForMealType.map((item) => (
+          <View key={item.id} className="border-b border-gray-300 py-2">
             <Text className="text-lg font-semibold text-gray-800">
               {item.name}
             </Text>
@@ -22,11 +20,10 @@ const MealList: React.FC<MealListProps> = ({ mealType, foodsForMealType }) => {
             <Text className="text-gray-600">Protein: {item.protein}g</Text>
             <Text className="text-gray-600">Calories: {item.calories} cal</Text>
           </View>
-        )}
-        ListEmptyComponent={
-          <Text className="text-center text-gray-500 mt-4">No items found</Text>
-        }
-      />
+        ))
+      ) : (
+        <Text className="text-center text-gray-500 mt-4">No items found</Text>
+      )}
     </View>
   );
 };

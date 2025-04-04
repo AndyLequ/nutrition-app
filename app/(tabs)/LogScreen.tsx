@@ -15,6 +15,8 @@ export default function LogScreen() {
   }
 
   return (
+    <ScrollView>
+
     <View className="flex-1 bg-white">
       <View className="flex-1 px-4">
         {/* Meal Sections */}
@@ -57,6 +59,7 @@ export default function LogScreen() {
         </View>
       </View>
     </View>
+    </ScrollView>
   );
 }
 
