@@ -1,22 +1,9 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  SafeAreaView,
-  Image,
-} from "react-native";
+import { View, Text, Dimensions } from "react-native";
 import { useState, useEffect } from "react";
-import MealPlanList from "@/components/MealPlanList";
-import axios from "axios";
 import { useFood } from "../FoodProvider";
-
-import AsyncStorage from "@react-native-async-storage/async-storage";
-const data = [
-  { value: 35, color: "#f39c12", label: "Protein" },
-  { value: 45, color: "#3498db", label: "Carbs" },
-  { value: 20, color: "#e74c3c", label: "Fat" },
-];
+import { NutritionGoals } from "../components/NutritionGoals";
+import Svg, { G, Path, Text as SvgText } from "react-native-svg";
+import * as d3Shape from "d3-shape";
 
 export default function Index() {
   const [protein, setProtein] = useState(0);
@@ -24,7 +11,7 @@ export default function Index() {
   const [calories, setCalories] = useState(0);
   const [fat, setFat] = useState(0);
 
-  const { foods, loading } = useFood();
+  const { foods } = useFood();
   const safeFoods = Array.isArray(foods) ? foods : [];
 
   useEffect(() => {
@@ -51,103 +38,95 @@ export default function Index() {
     setFat(totalFat);
   }, [safeFoods]);
 
-  return (
-    //summary detailing information about protein, carbs, calorie intake for the day (consumed and remaining)
-    <View style={styles.container}>
-      <Text style={styles.title}>Summary</Text>
-      <View style={styles.grid}>
-        <View style={styles.column}>
-          <Text style={styles.label}>Protein</Text>
-          <Text style={styles.value}>{protein}</Text>
-        </View>
-        <View style={styles.column}>
-          <Text style={styles.label}>Calories</Text>
-          <Text style={styles.value}>{calories}</Text>
-        </View>
-        <View style={styles.column}>
-          <Text style={styles.label}>Carbs</Text>
-          <Text style={styles.value}>{carbs}</Text>
-        </View>
-        <View style={styles.column}>
-          <Text style={styles.label}>Fat</Text>
-          <Text style={styles.value}>{fat}</Text>
-        </View>
+  const DATA = [
+    { name: "Protein", value: protein, color: "#FF6384" },
+    { name: "Carbs", value: carbs, color: "#36A2EB" },
+    { name: "Fat", value: fat, color: "#FFCE56" },
+    { name: "Calories", value: calories, color: "#4BC0C0" },
+  ];
 
-        {/* This will be a new row where I show the goals */}
-        <View style={styles.column}>
-          <Text style={styles.label}>Goals</Text>
-          <Text style={styles.value}>150</Text>
+  const screenWidth = Dimensions.get("window").width;
+  const radius = screenWidth * 0.4;
+  const innerRadius = radius * 0.6;
+
+  const totalValue = DATA.reduce((sum, item) => sum + item.value, 0);
+
+  const pieGenerator = d3Shape.pie().value((d) => d.value);
+  const arcs = pieGenerator(DATA);
+
+  const arcGenerator = d3Shape
+    .arc()
+    .innerRadius(innerRadius)
+    .outerRadius(radius);
+
+  return (
+    <View className="p-4 bg-white rounded-lg shadow-md">
+      <Text className="text-lg font-bold mb-4 text-gray-800">Summary</Text>
+      <View className="flex-row justify-between">
+        <View className="items-center px-3">
+          <Text className="text-sm text-gray-500 mb-1">Protein</Text>
+          <Text className="text-base font-medium text-gray-800">{protein}</Text>
+        </View>
+        <View className="items-center px-3">
+          <Text className="text-sm text-gray-500 mb-1">Calories</Text>
+          <Text className="text-base font-medium text-gray-800">
+            {calories}
+          </Text>
+        </View>
+        <View className="items-center px-3">
+          <Text className="text-sm text-gray-500 mb-1">Carbs</Text>
+          <Text className="text-base font-medium text-gray-800">{carbs}</Text>
+        </View>
+        <View className="items-center px-3">
+          <Text className="text-sm text-gray-500 mb-1">Fat</Text>
+          <Text className="text-base font-medium text-gray-800">{fat}</Text>
         </View>
       </View>
 
-      {/* meal plan goes here */}
+      {/* Nutrition Goals */}
+      <NutritionGoals />
 
-      {/* energy expenditure weaving into overall calorie calculation goes here*/}
+      {/* Pie Chart */}
+      <View style={{ padding: 20, backgroundColor: "white", borderRadius: 10 }}>
+        <Svg width={screenWidth} height={screenWidth}>
+          <G transform={`translate(${screenWidth / 2}, ${screenWidth / 2})`}>
+            {arcs.map((arc, index) => (
+              <Path
+                key={index}
+                d={arcGenerator(arc)}
+                fill={DATA[index].color}
+              />
+            ))}
+            <SvgText
+              x={0}
+              y={0}
+              textAnchor="middle"
+              fontSize="20"
+              fill="#000"
+              fontWeight="bold"
+            ></SvgText>
+          </G>
+        </Svg>
+      </View>
+      <View>
+        <Text>Legend</Text>
+        {DATA.map((item, index) => (
+          <View
+            key={index}
+            style={{ flexDirection: "row", alignItems: "center" }}
+          >
+            <View
+              style={{
+                width: 20,
+                height: 20,
+                backgroundColor: item.color,
+                marginRight: 10,
+              }}
+            />
+            <Text>{item.name}</Text>
+          </View>
+        ))}
+      </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    padding: 16,
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    elevation: 3, // Shadow (Android)
-    shadowColor: "#000", // Shadow (iOS)
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  heading: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 16,
-  },
-  itemContainer: {
-    marginBottom: 20,
-    padding: 16,
-    borderRadius: 8,
-    backgroundColor: "#f5f5f5",
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginBottom: 12,
-    color: "#2c3e50",
-  },
-  grid: {
-    flexDirection: "row",
-    justifyContent: "space-between", // Even spacing
-  },
-  column: {
-    alignItems: "center",
-    paddingHorizontal: 12,
-  },
-  label: {
-    fontSize: 14,
-    color: "#7f8c8d",
-    marginBottom: 4,
-  },
-  value: {
-    fontSize: 16,
-    fontWeight: "500",
-    color: "#2c3e50",
-  },
-  list: {
-    marginTop: 16,
-  },
-  item: {
-    fontSize: 14,
-    color: "#2c3e50",
-    marginBottom: 8,
-  },
-  itemName: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 8,
-  },
-  itemImage: {
-    width: "100%",
-    height: 200,
-    borderRadius: 4,
-  },
-});
