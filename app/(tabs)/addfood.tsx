@@ -19,9 +19,12 @@ import debounce from "lodash.debounce";
 import axios from "axios";
 import { foodApi } from "../../services/api";
 import DropDownPicker from "react-native-dropdown-picker";
+import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
-// function to add food, whatever is submitted will be displayed in another file, probably the logger
-const AddFood = () => {
+const TopTab = createMaterialTopTabNavigator();
+
+const AddFoodForm = () => {
   //the state variables, these states are concerned with the food being searched and then added
   const [amount, setAmount] = useState("");
   const [unit, setUnit] = useState("g");
@@ -328,6 +331,34 @@ const AddFood = () => {
         </View>
       </View>
     </Pressable>
+  );
+};
+
+const BlankTab = () => {
+  return (
+    <View style={styles.container}>
+      <Text>No content here</Text>
+    </View>
+  );
+};
+
+// function to add food, whatever is submitted will be displayed in another file, probably the logger
+const AddFood = () => {
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <TopTab.Navigator
+        screenOptions={{
+          swipeEnabled: true,
+          animationEnabled: true,
+          tabBarLabelStyle: { fontSize: 12 },
+          tabBarItemStyle: { width: 100 },
+          tabBarStyle: { backgroundColor: "#f1f5f9" },
+        }}
+      >
+        <TopTab.Screen name="Add Food" component={AddFoodForm} />
+        <TopTab.Screen name="Blank" component={BlankTab} />
+      </TopTab.Navigator>
+    </GestureHandlerRootView>
   );
 };
 
