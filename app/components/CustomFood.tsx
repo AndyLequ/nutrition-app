@@ -23,7 +23,16 @@ import DropDownPicker from "react-native-dropdown-picker";
 import { FoodItem } from "../FoodProvider";
 
 export const CustomFood = () => {
-  const [customFood, setCustomFood] = useState([]);
+  const [customFood, setCustomFood] = useState<
+    {
+      name: string;
+      amount: string;
+      unit: string;
+      protein: number;
+      calories: number;
+      mealType: "breakfast" | "lunch" | "dinner" | "snacks";
+    }[]
+  >([]);
   const [isLoading, setIsLoading] = useState(true);
   const [protein, setProtein] = useState("");
   const [calories, setCalories] = useState("");
@@ -51,6 +60,8 @@ export const CustomFood = () => {
     { label: "Snacks", value: "snacks" },
   ]);
 
+  const { addFood } = useFood();
+
   const dismissKeyboardAndCloseDropdowns = () => {
     Keyboard.dismiss();
     closeAllDropdowns();
@@ -62,6 +73,46 @@ export const CustomFood = () => {
   };
 
   // function to handle custom food submission
+  const handleSubmit = async () => {
+    if (!foodName || !amount || !protein || !calories) {
+      Alert.alert("Please fill in all fields");
+      return;
+    }
+
+    const proteinValue = parseFloat(protein);
+    const caloriesValue = parseFloat(calories);
+
+    if (isNaN(proteinValue) || isNaN(caloriesValue)) {
+      Alert.alert("Please enter valid numbers for protein and calories");
+      return;
+    }
+    try {
+      const newFood: FoodItem = {
+        id: Date.now().toString(),
+        name: foodName,
+        amount: amount,
+        mealType: mealType,
+        protein: proteinValue,
+        calories: caloriesValue,
+        carbs: 0,
+        fat: 0,
+        createdAt: new Date(),
+      };
+
+      addFood(newFood);
+    } catch (error) {
+      console.error("Error adding food:", error);
+      Alert.alert("Error adding food. Please try again.");
+    } finally {
+      setFoodName("");
+      setAmount("");
+      setProtein("");
+      setCalories("");
+      setUnit("g");
+      setMealType("breakfast");
+      closeAllDropdowns();
+    }
+  };
 
   return (
     <Pressable
@@ -69,19 +120,19 @@ export const CustomFood = () => {
       onPress={dismissKeyboardAndCloseDropdowns}
     >
       <View className="flex-1 bg-gray-100 justify-center p-5">
-        <View className="flex-1 bg-gray-100 justify-center p-5">
+        <View className="bg-white rounded-lg p-6 shadow-md">
           <Text className="text-xl font-semibold text-gray-800 mb-6 text-center">
             Add Food
           </Text>
 
           <View className="space-y-4">
             <View>
-              <Text className="text-sm text-gray-600 mb-2">Search Food</Text>
+              <Text className="text-sm text-gray-600 mb-2">Enter Food</Text>
               <TextInput
                 className={`h-12 border rounded-lg px-4 text-base text-gray-900 ${
                   isFocused1 ? "border-indigo-500" : "border-gray-300"
                 }`}
-                placeholder="Search for food..."
+                placeholder="Enter food..."
                 placeholderTextColor="#94a3b8"
                 value={foodName}
                 onChangeText={setFoodName}
@@ -113,12 +164,12 @@ export const CustomFood = () => {
 
             {/* protein input */}
             <View className="text-sm text-gray-600 mb-2">
-              Protein
+              <Text className="text-sm text-gray-600 mb-2">Protein</Text>
               <TextInput
                 className={`h-12 border rounded-lg px-4 text-base text-gray-900 ${
                   isFocused3 ? "border-indigo-500" : "border-gray-300"
                 }`}
-                placeholder="Enter protein"
+                placeholder="Enter protein in grams"
                 placeholderTextColor="#94a3b8"
                 value={protein}
                 onChangeText={setProtein}
@@ -132,7 +183,7 @@ export const CustomFood = () => {
 
             {/* calorie input */}
             <View className="text-sm text-gray-600 mb-2">
-              Calories
+              <Text className="text-sm text-gray-600 mb-2">Calories</Text>
               <TextInput
                 className={`h-12 border rounded-lg px-4 text-base text-gray-900 ${
                   isFocused4 ? "border-indigo-500" : "border-gray-300"
@@ -193,6 +244,17 @@ export const CustomFood = () => {
                   borderColor: "#cbd5e1",
                 }}
               />
+            </View>
+
+            <View className="mt-4">
+              <TouchableOpacity
+                className="h-12 bg-indigo-500 rounded-lg justify-center items-center"
+                onPress={handleSubmit}
+              >
+                <Text className="text-white text-base font-semibold">
+                  Submit
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
         </View>

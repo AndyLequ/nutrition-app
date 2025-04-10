@@ -85,7 +85,7 @@ export const SearchFood = () => {
     }
   }, 500);
 
-  //:
+  //
   // function to handle search input
   const handleSearch = async (query: string) => {
     setSearchQuery(query);
