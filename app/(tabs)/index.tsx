@@ -45,9 +45,9 @@ export default function Index() {
     { name: "Calories", value: calories, color: "#4BC0C0" },
   ];
 
-  const screenWidth = Dimensions.get("window").width;
-  const radius = screenWidth * 0.4;
-  const innerRadius = radius * 0.6;
+  const screenWidth = Dimensions.get("window").width * 0.4;
+  const radius = screenWidth * 0.5;
+  const innerRadius = radius * 0.5;
 
   const totalValue = DATA.reduce((sum, item) => sum + item.value, 0);
 
@@ -61,71 +61,86 @@ export default function Index() {
 
   return (
     <View className="p-4 bg-white rounded-lg shadow-md">
-      <Text className="text-lg font-bold mb-4 text-gray-800">Summary</Text>
-      <View className="flex-row justify-between">
-        <View className="items-center px-3">
-          <Text className="text-sm text-gray-500 mb-1">Protein</Text>
-          <Text className="text-base font-medium text-gray-800">{protein}</Text>
-        </View>
-        <View className="items-center px-3">
-          <Text className="text-sm text-gray-500 mb-1">Calories</Text>
-          <Text className="text-base font-medium text-gray-800">
-            {calories}
-          </Text>
-        </View>
-        <View className="items-center px-3">
-          <Text className="text-sm text-gray-500 mb-1">Carbs</Text>
-          <Text className="text-base font-medium text-gray-800">{carbs}</Text>
-        </View>
-        <View className="items-center px-3">
-          <Text className="text-sm text-gray-500 mb-1">Fat</Text>
-          <Text className="text-base font-medium text-gray-800">{fat}</Text>
-        </View>
-      </View>
-
-      {/* Nutrition Goals */}
-      <NutritionGoals />
-
-      {/* Pie Chart */}
-      <View style={{ padding: 20, backgroundColor: "white", borderRadius: 10 }}>
-        <Svg width={screenWidth} height={screenWidth}>
-          <G transform={`translate(${screenWidth / 2}, ${screenWidth / 2})`}>
-            {arcs.map((arc, index) => (
-              <Path
-                key={index}
-                d={arcGenerator(arc)}
-                fill={DATA[index].color}
-              />
-            ))}
-            <SvgText
-              x={0}
-              y={0}
-              textAnchor="middle"
-              fontSize="20"
-              fill="#000"
-              fontWeight="bold"
-            ></SvgText>
-          </G>
-        </Svg>
-      </View>
-      <View>
-        <Text>Legend</Text>
-        {DATA.map((item, index) => (
-          <View
-            key={index}
-            style={{ flexDirection: "row", alignItems: "center" }}
-          >
-            <View
-              style={{
-                width: 20,
-                height: 20,
-                backgroundColor: item.color,
-                marginRight: 10,
-              }}
-            />
-            <Text>{item.name}</Text>
+      <View className="bg-white p-3 rounded-lg shadow-sm">
+        <Text className="text-lg font-bold mb-4 text-gray-800">Summary</Text>
+        <View className="flex-row justify-between">
+          <View className="items-center px-3">
+            <Text className="text-sm text-gray-500 mb-1">Protein</Text>
+            <Text className="text-base font-medium text-gray-800">
+              {protein}
+            </Text>
           </View>
-        ))}
+          <View className="items-center px-3">
+            <Text className="text-sm text-gray-500 mb-1">Calories</Text>
+            <Text className="text-base font-medium text-gray-800">
+              {calories}
+            </Text>
+          </View>
+          <View className="items-center px-3">
+            <Text className="text-sm text-gray-500 mb-1">Carbs</Text>
+            <Text className="text-base font-medium text-gray-800">{carbs}</Text>
+          </View>
+          <View className="items-center px-3">
+            <Text className="text-sm text-gray-500 mb-1">Fat</Text>
+            <Text className="text-base font-medium text-gray-800">{fat}</Text>
+          </View>
+        </View>
+      </View>
+
+      {/* combining nutrition goals and pie chart to be side by side */}
+      <View className="flex-row flex-wrap justify-between mt-4">
+        {/* Nutrition Goals */}
+        <View className="flex-1 min-w-[50%] md:min-w[55%] mb-4 md:mb-0 md:pr-4">
+          <NutritionGoals />
+        </View>
+
+        {/* Pie Chart */}
+
+        <View className="flex-1 min-w-[45%] md:min-w-[45%] pl-2">
+          <View className="bg-white p-3 rounded-lg shadow-sm">
+            <View className="w-64 max-w-full aspect-square mx-auto">
+              <Svg width={screenWidth} height={screenWidth}>
+                <G transform={`translate(${radius}, ${radius})`}>
+                  {arcs.map((arc, index) => (
+                    <Path
+                      key={index}
+                      d={arcGenerator(arc)}
+                      fill={DATA[index].color}
+                    />
+                  ))}
+                  <SvgText
+                    x={0}
+                    y={0}
+                    textAnchor="middle"
+                    fontSize="20"
+                    fill="#000"
+                    fontWeight="bold"
+                  ></SvgText>
+                </G>
+              </Svg>
+            </View>
+            <View className="mt-3 w-full px-2">
+              <Text className="text-md font-medium mb-2 text-gray-700">
+                Legend
+              </Text>
+
+              <View className="flex-row flex-wrap justify-center gap-1">
+                {DATA.map((item, index) => (
+                  <View
+                    key={index}
+                    className="flex-row items-center gap-2 px-3 py-1 bg-gray-100 rounded-full mb-2"
+                  >
+                    <View
+                      className="w-4 h-4 rounded-sm"
+                      style={{ backgroundColor: item.color }}
+                    />
+                    <Text className="text-sm text-gray-600">{item.name}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          </View>
+        </View>
       </View>
     </View>
   );
