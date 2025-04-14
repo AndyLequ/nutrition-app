@@ -22,6 +22,16 @@ import DropDownPicker from "react-native-dropdown-picker";
 
 import { FoodItem } from "../FoodProvider";
 
+interface UnifiedSearchResult {
+  id: number;
+  name: string;
+  amount: string;
+  protein: number;
+  calories: number;
+  carbs: number;
+  fat: number;
+}
+
 export const SearchFood = () => {
   //the state variables, these states are concerned with the food being searched and then added
   const [amount, setAmount] = useState("");
@@ -48,7 +58,7 @@ export const SearchFood = () => {
 
   //: state variables for handling data regarding the food that is written in the search bar
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState([]);
+  const [searchResults, setSearchResults] = useState<UnifiedSearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [selectedFood, setSelectedFood] = useState<Ingredient | null>(null);
 
@@ -63,16 +73,48 @@ export const SearchFood = () => {
   const debouncedSearch = debounce(async (query) => {
     if (query.length > 2) {
       try {
-        const response = await axios.get(
-          `https://api.spoonacular.com/food/ingredients/search?query=${query}&number=2&sort=calories&sortDirection=desc`,
-          {
-            headers: {
-              "x-api-key": process.env.EXPO_PUBLIC_API_KEY,
-            },
-          }
+        const [ingredientsResponse, recipesResponse] = await Promise.all([
+          axios.get(
+            `https://api.spoonacular.com/food/ingredients/search?query=${query}&number=2&sort=calories&sortDirection=desc`,
+            {
+              headers: {
+                "x-api-key": process.env.EXPO_PUBLIC_API_KEY,
+              },
+            }
+          ),
+          axios.get(
+            `https://api.spoonacular.com/recipes/complexSearch?query=${query}&number=2&sort=calories&sortDirection=desc`,
+            {
+              headers: {
+                "x-api-key": process.env.EXPO_PUBLIC_API_KEY,
+              },
+            }
+          ),
+        ]);
+        const ingredientResults = ingredientsResponse.data.results.map(
+          (item) => ({
+            id: item.id,
+            name: item.name,
+            amount: item.amount,
+            protein: item.protein,
+            calories: item.calories,
+            carbs: item.carbs,
+            fat: item.fat,
+          })
         );
-        setSearchResults(response.data.results || []);
-        console.log("Search results:", response.data.results);
+
+        const recipeResults = recipesResponse.data.results.map((item) => ({
+          id: item.id,
+          name: item.title,
+          amount: item.servings,
+          protein: item.protein,
+          calories: item.calories,
+          carbs: item.carbs,
+          fat: item.fat,
+        }));
+
+        const combinedResults = [...ingredientResults, ...recipeResults];
+        setSearchResults(combinedResults);
       } catch (error) {
         console.error("Error fetching data from spoonacular API", error);
         setSearchResults([]);
