@@ -2,6 +2,7 @@ import { View, Text, Dimensions } from "react-native";
 import { useState, useEffect } from "react";
 import { useFood } from "../FoodProvider";
 import { NutritionGoals } from "../components/NutritionGoals";
+import { ResetButton } from "../components/ResetButton";
 import Svg, { G, Path, Text as SvgText } from "react-native-svg";
 import * as d3Shape from "d3-shape";
 
@@ -141,6 +142,10 @@ export default function Index() {
             </View>
           </View>
         </View>
+      </View>
+
+      <View className="mt-4">
+        <ResetButton />
       </View>
     </View>
   );

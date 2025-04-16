@@ -20,6 +20,7 @@ import axios from "axios";
 import { foodApi } from "../../services/api";
 import DropDownPicker from "react-native-dropdown-picker";
 
+import { UnifiedFoodItem } from "../../services/types"; // Adjust the import path as necessary
 import { FoodItem } from "../FoodProvider";
 
 interface UnifiedSearchResult {
@@ -30,6 +31,7 @@ interface UnifiedSearchResult {
   calories: number;
   carbs: number;
   fat: number;
+  type: "ingredient" | "recipe"; // Added type property
 }
 
 export const SearchFood = () => {
@@ -48,6 +50,7 @@ export const SearchFood = () => {
     { label: "g", value: "g" },
     { label: "oz", value: "oz" },
     { label: "ml", value: "ml" },
+    { label: "serving", value: "serving" },
   ]);
   const [mealTypeItems, setMealTypeItems] = useState([
     { label: "Breakfast", value: "breakfast" },
@@ -60,7 +63,9 @@ export const SearchFood = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<UnifiedSearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [selectedFood, setSelectedFood] = useState<Ingredient | null>(null);
+  const [selectedFood, setSelectedFood] = useState<UnifiedSearchResult | null>(
+    null
+  );
 
   // these states are for later use, not important right now
   // const [submittedFoods, setSubmittedFoods] = useState([]);
@@ -95,26 +100,21 @@ export const SearchFood = () => {
           (item) => ({
             id: item.id,
             name: item.name,
-            amount: item.amount,
-            protein: item.protein,
-            calories: item.calories,
-            carbs: item.carbs,
-            fat: item.fat,
+            type: "ingredient",
+            baseAmount: 100,
+            baseUnit: "g",
           })
         );
 
         const recipeResults = recipesResponse.data.results.map((item) => ({
           id: item.id,
           name: item.title,
-          amount: item.servings,
-          protein: item.protein,
-          calories: item.calories,
-          carbs: item.carbs,
-          fat: item.fat,
+          type: "recipe",
+          servings: item.servings,
+          nutrition: item.nutrition,
         }));
 
-        const combinedResults = [...ingredientResults, ...recipeResults];
-        setSearchResults(combinedResults);
+        setSearchResults([...ingredientResults, ...recipeResults]);
       } catch (error) {
         console.error("Error fetching data from spoonacular API", error);
         setSearchResults([]);
@@ -138,13 +138,15 @@ export const SearchFood = () => {
   };
 
   // function to handle food selection
-  const handleFoodSelect = (food: Ingredient) => {
+  const handleFoodSelect = (food: UnifiedSearchResult) => {
     setSelectedFood(food);
     setSearchQuery(food.name);
     setSearchResults([]);
-    // foodApi.getNutrition(food.id, amount, unit).then((nutrition) => {
-    //   console.log("Nutrition data:", nutrition);
-    // });
+    if (food.type === "recipe" && food.servings) {
+      setAmount(food.servings.toString());
+      setUnit("servings");
+    }
+
     console.log("Selected food:", food);
   };
 
@@ -155,12 +157,32 @@ export const SearchFood = () => {
     if (!selectedFood || !amount) return;
 
     try {
+      let nutrition;
       // Get final nutrition for actual amount
-      const nutrition = await foodApi.getNutrition(
-        selectedFood.id,
-        parseFloat(amount),
-        unit
-      );
+      if (selectedFood.type === "ingredient") {
+        nutrition = await foodApi.getNutrition(
+          selectedFood.id,
+          parseFloat(amount),
+          unit
+        );
+      } else {
+        const response = await axios.get(
+          `https://api.spoonacular.com/recipes/${selectedFood.id}/nutritionWidget.json`,
+          {
+            headers: {
+              "x-api-key": process.env.EXPO_PUBLIC_API_KEY,
+            },
+          }
+        );
+        nutrition = {
+          calories: parseFloat(response.data.calories.replace("k", "")),
+          protein: parseFloat(response.data.protein.replace("g", "")),
+          carbs: parseFloat(response.data.carbs.replace("g", "")),
+          fat: parseFloat(response.data.fat.replace("g", "")),
+          amount: parseFloat(amount),
+          unit: "servings",
+        };
+      }
 
       await addFood({
         name: selectedFood.name,
@@ -217,6 +239,8 @@ export const SearchFood = () => {
             searchQuery,
             amount,
             mealType,
+            unit,
+            foodType: selectedFood?.type,
           });
           await AsyncStorage.setItem("@inputs", dataToSave);
         } catch (e) {
@@ -225,7 +249,7 @@ export const SearchFood = () => {
       };
       saveData();
     }
-  }, [searchQuery, amount, mealType, isLoading]);
+  }, [searchQuery, amount, mealType, isLoading, unit, selectedFood?.type]);
 
   if (isLoading) {
     return (
@@ -288,6 +312,9 @@ export const SearchFood = () => {
                     }}
                   >
                     <Text className="text-gray-800">{item.name}</Text>
+                    <Text className="text-gray-500 text-sm">
+                      {item.type === "ingredient" ? "Ingredient" : "Recipe"}
+                    </Text>
                   </TouchableOpacity>
                 )}
               />
