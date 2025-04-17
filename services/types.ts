@@ -32,3 +32,4 @@ export type UnifiedFoodItem = {
   carbs?: number;
   fat?: number;
 };
+

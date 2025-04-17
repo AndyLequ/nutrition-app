@@ -26,12 +26,11 @@ import { FoodItem } from "../FoodProvider";
 interface UnifiedSearchResult {
   id: number;
   name: string;
-  amount: string;
-  protein: number;
-  calories: number;
-  carbs: number;
-  fat: number;
-  type: "ingredient" | "recipe"; // Added type property
+  type: "ingredient" | "recipe";
+  baseAmount?: number;
+  baseUnit?: string;
+  servings?: number;
+  nutrition?: any; // Adjust this type based on your API response
 }
 
 export const SearchFood = () => {
@@ -79,34 +78,28 @@ export const SearchFood = () => {
     if (query.length > 2) {
       try {
         const [ingredientsResponse, recipesResponse] = await Promise.all([
-          axios.get(
-            `https://api.spoonacular.com/food/ingredients/search?query=${query}&number=2&sort=calories&sortDirection=desc`,
-            {
-              headers: {
-                "x-api-key": process.env.EXPO_PUBLIC_API_KEY,
-              },
-            }
-          ),
-          axios.get(
-            `https://api.spoonacular.com/recipes/complexSearch?query=${query}&number=2&sort=calories&sortDirection=desc`,
-            {
-              headers: {
-                "x-api-key": process.env.EXPO_PUBLIC_API_KEY,
-              },
-            }
-          ),
+          foodApi.searchIngredients({
+            query,
+            limit: 1,
+            sort: "calories",
+            sortDirection: "desc",
+          }),
+          foodApi.searchRecipes({
+            query,
+            limit: 1,
+            sort: "calories",
+            sortDirection: "desc",
+          }),
         ]);
-        const ingredientResults = ingredientsResponse.data.results.map(
-          (item) => ({
-            id: item.id,
-            name: item.name,
-            type: "ingredient",
-            baseAmount: 100,
-            baseUnit: "g",
-          })
-        );
+        const ingredientResults = ingredientsResponse.map((item) => ({
+          id: item.id,
+          name: item.name,
+          type: "ingredient",
+          baseAmount: 100,
+          baseUnit: "g",
+        }));
 
-        const recipeResults = recipesResponse.data.results.map((item) => ({
+        const recipeResults = recipesResponse.map((item) => ({
           id: item.id,
           name: item.title,
           type: "recipe",
@@ -144,10 +137,14 @@ export const SearchFood = () => {
     setSearchResults([]);
     if (food.type === "recipe" && food.servings) {
       setAmount(food.servings.toString());
-      setUnit("servings");
+      setUnit("serving");
     }
 
     console.log("Selected food:", food);
+  };
+
+  const parseNutritionValue = (value: string) => {
+    parseFloat(value.replace(/[^\d.]/g, ""));
   };
 
   // function to handle form submission
@@ -166,22 +163,8 @@ export const SearchFood = () => {
           unit
         );
       } else {
-        const response = await axios.get(
-          `https://api.spoonacular.com/recipes/${selectedFood.id}/nutritionWidget.json`,
-          {
-            headers: {
-              "x-api-key": process.env.EXPO_PUBLIC_API_KEY,
-            },
-          }
-        );
-        nutrition = {
-          calories: parseFloat(response.data.calories.replace("k", "")),
-          protein: parseFloat(response.data.protein.replace("g", "")),
-          carbs: parseFloat(response.data.carbs.replace("g", "")),
-          fat: parseFloat(response.data.fat.replace("g", "")),
-          amount: parseFloat(amount),
-          unit: "servings",
-        };
+        nutrition = await foodApi.getRecipeNutrition(selectedFood.id);
+        nutrition.amount = parseFloat(amount);
       }
 
       await addFood({
