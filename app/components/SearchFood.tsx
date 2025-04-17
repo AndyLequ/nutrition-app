@@ -206,7 +206,12 @@ export const SearchFood = () => {
 
       await addFood({
         name: selectedFood.name,
-        amount: `${nutrition.amount}${nutrition.unit}`,
+        amount:
+          nutrition.unit === "serving"
+            ? `${nutrition.amount} ${
+                nutrition.amount === 1 ? "serving" : "servings"
+              }`
+            : `${nutrition.amount} ${nutrition.unit}`,
         mealType,
         protein: Number(nutrition.protein),
         calories: Number(nutrition.calories),
@@ -363,7 +368,7 @@ export const SearchFood = () => {
                 className={`h-12 border rounded-lg px-4 text-base text-gray-900 ${
                   isFocused2 ? "border-indigo-500" : "border-gray-300"
                 }`}
-                placeholder="Enter amount (e.g., 100g)"
+                placeholder="Enter amount (e.g., 100)"
                 placeholderTextColor="#94a3b8"
                 value={amount}
                 onChangeText={setAmount}
