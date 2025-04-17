@@ -62,16 +62,32 @@ export const SearchFood = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<UnifiedSearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [selectedFood, setSelectedFood] = useState<UnifiedSearchResult | null>(
-    null
-  );
+  const [selectedFood, setSelectedFood] = useState<
+    (UnifiedSearchResult & { servingSizeGrams?: number }) | null
+  >(null);
 
   // these states are for later use, not important right now
   // const [submittedFoods, setSubmittedFoods] = useState([]);
   // const [showFoodList, setShowFoodList] = useState(false);
   const { addFood } = useFood();
 
-  //:
+  const convertToServings = (
+    amount: number,
+    unit: string,
+    servingSizeGrams: number
+  ): number => {
+    const conversions: { [key: string]: number } = {
+      g: 1,
+      oz: 28.3495,
+      ml: 1,
+    };
+    if (unit === "serving") return amount;
+    if (!conversions[unit]) return 1;
+
+    const grams = amount * conversions[unit];
+    return grams / servingSizeGrams;
+  };
+
   // function for searching for food, will be called when the user types in the search bar
   // this function will be debounced to avoid making too many requests to the API
   const debouncedSearch = debounce(async (query) => {
@@ -131,15 +147,24 @@ export const SearchFood = () => {
   };
 
   // function to handle food selection
-  const handleFoodSelect = (food: UnifiedSearchResult) => {
+  const handleFoodSelect = async (food: UnifiedSearchResult) => {
     setSelectedFood(food);
     setSearchQuery(food.name);
     setSearchResults([]);
-    if (food.type === "recipe" && food.servings) {
-      setAmount(food.servings.toString());
-      setUnit("serving");
+    if (food.type === "recipe") {
+      try {
+        const recipeInfo = await foodApi.getRecipeInformation(food.id);
+        setSelectedFood({
+          ...food,
+          servingSizeGrams: recipeInfo.servingSizeGrams,
+        });
+      } catch (error) {
+        setSelectedFood(food);
+      }
+    } else {
+      setSelectedFood(food);
     }
-
+    setUnit(food.type === "recipe" ? "serving" : "g");
     console.log("Selected food:", food);
   };
 
@@ -163,8 +188,20 @@ export const SearchFood = () => {
           unit
         );
       } else {
-        nutrition = await foodApi.getRecipeNutrition(selectedFood.id);
-        nutrition.amount = parseFloat(amount);
+        const servings = convertToServings(
+          parseFloat(amount),
+          unit,
+          selectedFood.servingSizeGrams || 100
+        );
+        const baseNutrition = await foodApi.getRecipeNutrition(selectedFood.id);
+        nutrition = {
+          calories: baseNutrition.calories * servings,
+          protein: baseNutrition.protein * servings,
+          carbs: baseNutrition.carbs * servings,
+          fat: baseNutrition.fat * servings,
+          amount: parseFloat(amount),
+          unit,
+        };
       }
 
       await addFood({
@@ -190,6 +227,23 @@ export const SearchFood = () => {
       Alert.alert("Error", "Failed to save food entry");
     }
   };
+
+  useEffect(() => {
+    if (selectedFood?.type === "recipe") {
+      setUnitItems([
+        { label: "g", value: "g" },
+        { label: "oz", value: "oz" },
+        { label: "ml", value: "ml" },
+        { label: "serving", value: "serving" },
+      ]);
+    } else {
+      setUnitItems([
+        { label: "g", value: "g" },
+        { label: "oz", value: "oz" },
+        { label: "oz", value: "oz" },
+      ]);
+    }
+  }, [selectedFood?.type]);
 
   // useEffect to load data from async storage
   useEffect(() => {

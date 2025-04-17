@@ -122,6 +122,19 @@ export const foodApi = {
         }
     },
 
+    getRecipeInformation: async(recipeId: number) => {
+        try {
+            const response = await api.get(`/recipes/${recipeId}/information`)
+            return {
+                servings: response.data.servings,
+                servingSizeGrams: response.data.nutrition.weightPerServing?.amount || 100 //default to 100 grams
+            }
+        } catch (error) {
+            console.error("Error fetching recipe info:", error)
+            throw error;
+        }
+    },
+
     getRecipeNutrition: async (recipeId: number): Promise<NutritionInfo> => {
         try {
             const response = await api.get(`/recipes/${recipeId}/nutritionWidget.json`);
