@@ -28,34 +28,4 @@ const MealList: React.FC<MealListProps> = ({ mealType, foodsForMealType }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: "#fff",
-  },
-  listItem: {
-    padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
-  },
-  emptyText: {
-    textAlign: "center",
-    marginTop: 20,
-    color: "#999",
-  },
-  mealContainer: {
-    flex: 1,
-    borderBottomWidth: 1,
-    borderColor: "#ccc",
-    paddingBottom: 10,
-  },
-  titlename: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginBottom: 12,
-    color: "#2c3e50",
-  },
-});
-
 export default MealList;
