@@ -66,15 +66,15 @@ export default function Index() {
         <Text className="text-lg font-bold mb-4 text-gray-800">Summary</Text>
         <View className="flex-row justify-between">
           <View className="items-center px-3">
-            <Text className="text-sm text-gray-500 mb-1">Protein</Text>
-            <Text className="text-base font-medium text-gray-800">
-              {protein}
-            </Text>
-          </View>
-          <View className="items-center px-3">
             <Text className="text-sm text-gray-500 mb-1">Calories</Text>
             <Text className="text-base font-medium text-gray-800">
               {calories}
+            </Text>
+          </View>
+          <View className="items-center px-3">
+            <Text className="text-sm text-gray-500 mb-1">Protein</Text>
+            <Text className="text-base font-medium text-gray-800">
+              {protein}
             </Text>
           </View>
           <View className="items-center px-3">
@@ -100,6 +100,10 @@ export default function Index() {
         <View className="flex-1 min-w-[45%] md:min-w-[45%] pl-2">
           <View className="bg-white p-3 rounded-lg shadow-sm">
             <View className="w-64 max-w-full aspect-square mx-auto">
+              <Text className="text-2x1 font-bold mb-5 text-gray-800">
+                Chart
+              </Text>
+
               <Svg width={screenWidth} height={screenWidth}>
                 <G transform={`translate(${radius}, ${radius})`}>
                   {arcs.map((arc, index) => (
