@@ -23,49 +23,65 @@ interface Recipe {
   };
 }
 
-const initialMealData = [
-  {
-    date: "2023-12-04",
-    meals: {
-      breakfast: {
-        items: [
-          { id: "1a", name: "Oatmeal", calories: 150, protein: 5 },
-          { id: "1b", name: "Banana", calories: 89, protein: 1 },
-          { id: "1c", name: "Almond Milk", calories: 30, protein: 1 },
-        ],
-        totalCalories: 269,
-        totalProtein: 7,
+const generateWeek = () => {
+  const days = [];
+  const startDate = new Date("2023-12-03");
+  startDate.setHours(0, 0, 0, 0); // Set time to midnight
+
+  for (let i = 0; i < 7; i++) {
+    const currentDate = new Date(startDate);
+    currentDate.setDate(startDate.getDate() + i);
+
+    days.push({
+      date: currentDate.toISOString().split("T")[0],
+      meals: {
+        breakfast: { items: [], totalCalories: 0, totalProtein: 0 },
+        lunch: { items: [], totalCalories: 0, totalProtein: 0 },
+        dinner: { items: [], totalCalories: 0, totalProtein: 0 },
+        snacks: { items: [], totalCalories: 0, totalProtein: 0 },
       },
-      lunch: {
-        items: [
-          { id: "1d", name: "Grilled Chicken", calories: 300, protein: 30 },
-          { id: "1e", name: "Quinoa", calories: 220, protein: 8 },
-          { id: "1f", name: "Broccoli", calories: 55, protein: 4 },
-        ],
-        totalCalories: 575,
-        totalProtein: 42,
-      },
-      dinner: {
-        items: [
-          { id: "1g", name: "Salmon", calories: 350, protein: 40 },
-          { id: "1h", name: "Brown Rice", calories: 215, protein: 5 },
-          { id: "1i", name: "Asparagus", calories: 20, protein: 2 },
-        ],
-        totalCalories: 585,
-        totalProtein: 47,
-      },
-      snacks: {
-        items: [
-          { id: "1j", name: "Almonds", calories: 170, protein: 6 },
-          { id: "1k", name: "Apple", calories: 95, protein: 0 },
-        ],
-        totalCalories: 265,
-        totalProtein: 6,
-      },
+    });
+  }
+
+  days[0].meals = {
+    breakfast: {
+      items: [
+        { id: "1a", name: "Oatmeal", calories: 150, protein: 5 },
+        { id: "1b", name: "Eggs", calories: 200, protein: 12 },
+        { id: "1c", name: "Avocado", calories: 100, protein: 1 },
+      ],
+      totalCalories: 450,
+      totalProtein: 18,
     },
-  },
-  // Add more days as needed...
-];
+    lunch: {
+      items: [
+        { id: "2a", name: "Chicken Salad", calories: 350, protein: 30 },
+        { id: "2b", name: "Quinoa", calories: 200, protein: 8 },
+      ],
+      totalCalories: 550,
+      totalProtein: 38,
+    },
+    dinner: {
+      items: [
+        { id: "3a", name: "Salmon", calories: 400, protein: 40 },
+        { id: "3b", name: "Broccoli", calories: 50, protein: 4 },
+      ],
+      totalCalories: 450,
+      totalProtein: 44,
+    },
+    snacks: {
+      items: [
+        { id: "4a", name: "Greek Yogurt", calories: 150, protein: 15 },
+        { id: "4b", name: "Almonds", calories: 200, protein: 8 },
+      ],
+      totalCalories: 350,
+      totalProtein: 23,
+    },
+  };
+  return days;
+};
+
+const initialMealData = generateWeek();
 
 const MealPlanList = () => {
   const [expandedDay, setExpandedDay] = useState<string | null>(null);
