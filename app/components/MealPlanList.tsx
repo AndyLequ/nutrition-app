@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import type { MealType } from "../../services/types";
 import { foodApi } from "../../services/api";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface Recipe {
   id: number;
@@ -25,7 +26,7 @@ interface Recipe {
 
 const generateWeek = () => {
   const days = [];
-  const startDate = new Date("2023-12-03");
+  const startDate = new Date();
   startDate.setHours(0, 0, 0, 0); // Set time to midnight
 
   for (let i = 0; i < 7; i++) {
@@ -42,42 +43,6 @@ const generateWeek = () => {
       },
     });
   }
-
-  days[0].meals = {
-    breakfast: {
-      items: [
-        { id: "1a", name: "Oatmeal", calories: 150, protein: 5 },
-        { id: "1b", name: "Eggs", calories: 200, protein: 12 },
-        { id: "1c", name: "Avocado", calories: 100, protein: 1 },
-      ],
-      totalCalories: 450,
-      totalProtein: 18,
-    },
-    lunch: {
-      items: [
-        { id: "2a", name: "Chicken Salad", calories: 350, protein: 30 },
-        { id: "2b", name: "Quinoa", calories: 200, protein: 8 },
-      ],
-      totalCalories: 550,
-      totalProtein: 38,
-    },
-    dinner: {
-      items: [
-        { id: "3a", name: "Salmon", calories: 400, protein: 40 },
-        { id: "3b", name: "Broccoli", calories: 50, protein: 4 },
-      ],
-      totalCalories: 450,
-      totalProtein: 44,
-    },
-    snacks: {
-      items: [
-        { id: "4a", name: "Greek Yogurt", calories: 150, protein: 15 },
-        { id: "4b", name: "Almonds", calories: 200, protein: 8 },
-      ],
-      totalCalories: 350,
-      totalProtein: 23,
-    },
-  };
   return days;
 };
 
@@ -97,6 +62,33 @@ const MealPlanList = () => {
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [amount, setAmount] = useState("1");
   const displayPlans = mealPlans.length > 0 ? mealPlans : initialMealData;
+
+  const STORAGE_KEY = "@mealPlans";
+
+  useEffect(() => {
+    const loadMealPlans = async () => {
+      try {
+        const storedMealPlans = await AsyncStorage.getItem(STORAGE_KEY);
+        if (storedMealPlans) {
+          setMealPlans(JSON.parse(storedMealPlans));
+        }
+      } catch (error) {
+        console.error("Failed to load meal plans from storage:", error);
+      }
+    };
+    loadMealPlans();
+  }, []);
+
+  useEffect(() => {
+    const saveMealPlans = async () => {
+      try {
+        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(mealPlans));
+      } catch (error) {
+        console.error("Failed to save meal plans to storage:", error);
+      }
+    };
+    saveMealPlans();
+  }, [mealPlans]);
 
   //recipe search handling
   useEffect(() => {
@@ -180,6 +172,40 @@ const MealPlanList = () => {
     setSelectedMealType(null);
   };
 
+  const deleteMealItem = (day: string, mealType: MealType, mealId: string) => {
+    setMealPlans((prev) =>
+      prev.map((dayPlan) => {
+        if (dayPlan.date === day) {
+          const updatedItem = dayPlan.meals[mealType].items.filter(
+            (item) => item.id !== mealId
+          );
+
+          const totalCalories = updatedItem.reduce(
+            (sum, item) => sum + item.calories,
+            0
+          );
+          const totalProtein = updatedItem.reduce(
+            (sum, item) => sum + item.protein,
+            0
+          );
+          return {
+            ...dayPlan,
+            meals: {
+              ...dayPlan.meals,
+              [mealType]: {
+                ...dayPlan.meals[mealType],
+                items: updatedItem,
+                totalCalories: totalCalories,
+                totalProtein: totalProtein,
+              },
+            },
+          };
+        }
+        return dayPlan;
+      })
+    );
+  };
+
   const renderDay = ({ item }: { item: (typeof mealPlans)[0] }) => (
     <View className="bg-white rounded-lg p-4 mb-3 shadow-sm">
       <TouchableOpacity
@@ -211,78 +237,86 @@ const MealPlanList = () => {
                 onPress={() => setSelectedMealType(mealType as MealType)}
               >
                 <Text className="font-medium text-slate-800">{mealType}</Text>
-                <Text className="text-slate-500">
-                  {selectedMealType === mealType ? "▼" : "▶"}
-                </Text>
               </TouchableOpacity>
 
               {/* new block here */}
-              {selectedMealType === mealType && (
-                <View className="ml-2 mt-2">
-                  {/* search section */}
-                  <View className="mb-4">
-                    <TextInput
-                      className="border rounded-lg p-2 mb-2"
-                      placeholder="Search for recipes..."
-                      value={searchQuery}
-                      onChangeText={setSearchQuery}
-                    />
 
-                    {loading && <ActivityIndicator size="small" />}
-                    {error && (
-                      <Text className="text-red-500 text-sm">{error}</Text>
+              <View className="ml-2 mt-2">
+                {/* search section */}
+                <View className="mb-4">
+                  <TextInput
+                    className="border rounded-lg p-2 mb-2"
+                    placeholder="Search for recipes..."
+                    value={searchQuery}
+                    onChangeText={setSearchQuery}
+                  />
+
+                  {loading && <ActivityIndicator size="small" />}
+                  {error && (
+                    <Text className="text-red-500 text-sm">{error}</Text>
+                  )}
+
+                  <FlatList
+                    data={searchResults}
+                    keyExtractor={(item) => item.id.toString()}
+                    renderItem={({ item }) => (
+                      <TouchableOpacity
+                        className="p-2 border-b border-gray-100"
+                        onPress={() => handleRecipeSelect(item)}
+                      >
+                        <Text className="text-base">{item.title}</Text>
+                        <Text className="text-sm text-gray-500">
+                          {item.servings} servings
+                        </Text>
+                      </TouchableOpacity>
                     )}
+                  />
 
-                    <FlatList
-                      data={searchResults}
-                      keyExtractor={(item) => item.id.toString()}
-                      renderItem={({ item }) => (
-                        <TouchableOpacity
-                          className="p-2 border-b border-gray-100"
-                          onPress={() => handleRecipeSelect(item)}
-                        >
-                          <Text className="text-base">{item.title}</Text>
-                          <Text className="text-sm text-gray-500">
-                            {item.servings} servings
-                          </Text>
-                        </TouchableOpacity>
-                      )}
-                    />
-
-                    {selectedRecipe && (
-                      <View className="mt-4">
-                        <TextInput
-                          className="border rounded-lg p-2 mb-2"
-                          placeholder="Amount"
-                          value={amount}
-                          onChangeText={setAmount}
-                          keyboardType="numeric"
-                        />
-                        <TouchableOpacity
-                          className="bg-blue-500 p-2 rounded-lg"
-                          onPress={addRecipeToMealPlan}
-                        >
-                          <Text className="text-white text-center">
-                            Add {selectedRecipe.title}
-                          </Text>
-                        </TouchableOpacity>
-                      </View>
-                    )}
-                  </View>
-                  {/* existing meal items */}
-                  {meal.items.map((food, index) => (
-                    <View
-                      key={`${food.id}-${index}`}
-                      className="bg-white p-2 rounded mb-2"
-                    >
+                  {selectedRecipe && (
+                    <View className="mt-4">
+                      <TextInput
+                        className="border rounded-lg p-2 mb-2"
+                        placeholder="Amount"
+                        value={amount}
+                        onChangeText={setAmount}
+                        keyboardType="numeric"
+                      />
+                      <TouchableOpacity
+                        className="bg-blue-500 p-2 rounded-lg"
+                        onPress={addRecipeToMealPlan}
+                      >
+                        <Text className="text-white text-center">
+                          Add {selectedRecipe.title}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  )}
+                </View>
+                {/* existing meal items */}
+                {meal.items.map((food, index) => (
+                  <View
+                    key={`${food.id}-${index}`}
+                    className="bg-white p-2 rounded mb-2 flex-row justify-between items-center shadow-sm border border-gray-200"
+                  >
+                    <View>
                       <Text className="text-slate-800">{food.name}</Text>
                       <Text className="text-slate-500 text-sm">
                         {food.calories} cal • {food.protein}g protein
                       </Text>
                     </View>
-                  ))}
-                </View>
-              )}
+                    <TouchableOpacity
+                      className="bg-red-500 px-3 py-1 rounded"
+                      onPress={() =>
+                        deleteMealItem(item.date, mealType as MealType, food.id)
+                      }
+                    >
+                      <Text className="text-white text-sm font-bold">
+                        Delete
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </View>
             </View>
           ))}
         </View>
