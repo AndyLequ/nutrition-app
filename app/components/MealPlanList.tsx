@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   TextInput,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import type { MealType } from "../../services/types";
 import { foodApi } from "../../services/api";
@@ -206,6 +207,30 @@ const MealPlanList = () => {
     );
   };
 
+  const clearAllMeals = async () => {
+    try {
+      await AsyncStorage.removeItem(STORAGE_KEY);
+      setMealPlans(initialMealData);
+      //reset any related states
+      setSelectedRecipe(null);
+      setSearchResults([]);
+      setSearchQuery("");
+    } catch (error) {
+      console.error("Failed to clear meal plans:", error);
+    }
+  };
+
+  const confirmClear = () => {
+    Alert.alert(
+      "Clear All Meals",
+      "Are you sure you want to delete all meal entries?",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Clear All", onPress: clearAllMeals, style: "destructive" },
+      ]
+    );
+  };
+
   const renderDay = ({ item }: { item: (typeof mealPlans)[0] }) => (
     <View className="bg-white rounded-lg p-4 mb-3 shadow-sm">
       <TouchableOpacity
@@ -329,6 +354,7 @@ const MealPlanList = () => {
       <Text className="text-2xl font-bold text-center text-slate-800 mb-4">
         Weekly Meal Plan
       </Text>
+
       <FlatList
         data={mealPlans}
         renderItem={renderDay}
@@ -339,6 +365,12 @@ const MealPlanList = () => {
           </Text>
         }
       />
+      <TouchableOpacity
+        onPress={confirmClear}
+        className="bg-red-500 px-4 py-2 rounded-lg justify-center items-center"
+      >
+        <Text className="text-white font-medium">Clear All</Text>
+      </TouchableOpacity>
     </View>
   );
 };

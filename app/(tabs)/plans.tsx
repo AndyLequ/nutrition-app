@@ -68,7 +68,7 @@ const mealConfigurations: MealConfig[] = [
 export default function Plans() {
   const [selectedConfigs, setSelectedConfigs] = useState<SelectedConfigs>({});
   const [expandedMeal, setExpandedMeal] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"config" | "plan">("config");
+  const [activeTab, setActiveTab] = useState<"config" | "plan">("plan");
 
   const toggleMeal = (meal: string) => {
     setExpandedMeal((current) => (current === meal ? null : meal));
@@ -90,21 +90,6 @@ export default function Plans() {
       <View className="flex-row justify-around bg-white mx-4 p-2 rounded-lg shadow-sm">
         <TouchableOpacity
           className={`px-4 py-2 rounded-full ${
-            activeTab === "config" ? "bg-indigo-600" : "bg-transparent"
-          }`}
-          onPress={() => setActiveTab("config")}
-        >
-          <Text
-            className={`font-medium ${
-              activeTab === "config" ? "text-white" : "text-slate-600"
-            }`}
-          >
-            Configure Meals
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          className={`px-4 py-2 rounded-full ${
             activeTab === "plan" ? "bg-indigo-600" : "bg-transparent"
           }`}
           onPress={() => setActiveTab("plan")}
@@ -115,6 +100,20 @@ export default function Plans() {
             }`}
           >
             View Weekly Plan
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          className={`px-4 py-2 rounded-full ${
+            activeTab === "config" ? "bg-indigo-600" : "bg-transparent"
+          }`}
+          onPress={() => setActiveTab("config")}
+        >
+          <Text
+            className={`font-medium ${
+              activeTab === "config" ? "text-white" : "text-slate-600"
+            }`}
+          >
+            Suggestions
           </Text>
         </TouchableOpacity>
       </View>
