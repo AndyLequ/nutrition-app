@@ -33,3 +33,15 @@ export type UnifiedFoodItem = {
   fat?: number;
 };
 
+export type MealPlan = {
+  date: string;
+  meals: {
+    [key in MealType]: {
+      items: FoodItem[];
+      totalCalories: number;
+      totalProtein: number;
+    };
+  };
+  notes?: string;
+};
+
