@@ -86,7 +86,7 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.nutritionapp"
+    namespace 'android.v1'
     defaultConfig {
         applicationId 'android.v1'
         minSdkVersion rootProject.ext.minSdkVersion

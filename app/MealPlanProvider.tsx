@@ -218,7 +218,7 @@ export const MealPlanProvider: React.FX<{ children: React.ReactNode }> = ({
   }, []);
 
   const deleteMealPlan = useCallback(async (date: string) => {
-    setMealPlans((prev) => prev.filter((plan) => plan.date === date));
+    setMealPlans((prev) => prev.filter((plan) => plan.date !== date));
   }, []);
 
   const getMealPlanByDate = useCallback(
