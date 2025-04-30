@@ -64,7 +64,7 @@ const MealPlanList = () => {
   const [amount, setAmount] = useState("1");
   const displayPlans = mealPlans.length > 0 ? mealPlans : initialMealData;
 
-  const STORAGE_KEY = "@mealPlans";
+  const STORAGE_KEY = "@MealPlanList:mealPlans";
 
   useEffect(() => {
     const loadMealPlans = async () => {
@@ -116,6 +116,7 @@ const MealPlanList = () => {
   //handle recipe select
   const handleRecipeSelect = async (recipe: Recipe) => {
     try {
+      setError(null);
       const nutrition = await foodApi.getRecipeNutrition(recipe.id);
       setSelectedRecipe({
         ...recipe,
@@ -268,14 +269,13 @@ const MealPlanList = () => {
 
               <View className="ml-2 mt-2">
                 {/* search section */}
+                <TextInput
+                  className="border rounded-lg p-2 mb-2"
+                  placeholder="Search for recipes..."
+                  value={searchQuery}
+                  onChangeText={setSearchQuery}
+                />
                 <View className="mb-4">
-                  <TextInput
-                    className="border rounded-lg p-2 mb-2"
-                    placeholder="Search for recipes..."
-                    value={searchQuery}
-                    onChangeText={setSearchQuery}
-                  />
-
                   {loading && <ActivityIndicator size="small" />}
                   {error && (
                     <Text className="text-red-500 text-sm">{error}</Text>
