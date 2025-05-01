@@ -28,20 +28,18 @@ const TopTab = createMaterialTopTabNavigator();
 
 const AddFood = () => {
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <TopTab.Navigator
-        screenOptions={{
-          swipeEnabled: true,
-          animationEnabled: true,
-          tabBarLabelStyle: { fontSize: 12 },
-          tabBarItemStyle: { width: 100 },
-          tabBarStyle: { backgroundColor: "#f1f5f9" },
-        }}
-      >
-        <TopTab.Screen name="Add Food" component={SearchFood} />
-        <TopTab.Screen name="Custom Food" component={CustomFood} />
-      </TopTab.Navigator>
-    </GestureHandlerRootView>
+    <TopTab.Navigator
+      screenOptions={{
+        swipeEnabled: true,
+        animationEnabled: true,
+        tabBarLabelStyle: { fontSize: 12 },
+        tabBarItemStyle: { width: 100 },
+        tabBarStyle: { backgroundColor: "#f1f5f9" },
+      }}
+    >
+      <TopTab.Screen name="Add Food" component={SearchFood} />
+      <TopTab.Screen name="Custom Food" component={CustomFood} />
+    </TopTab.Navigator>
   );
 };
 

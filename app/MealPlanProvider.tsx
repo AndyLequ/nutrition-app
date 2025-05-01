@@ -8,7 +8,7 @@ import React, {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AppState } from "react-native";
 
-export type MealType = "breakfast" | "lunch" | "dinner";
+export type MealType = "breakfast" | "lunch" | "dinner" | "snacks";
 
 type MealPlan = {
   date: string;
@@ -43,6 +43,7 @@ const MealPlanContext = createContext<MealPlanContextType>({
       breakfast: { items: [], totalCalories: 0, totalProtein: 0 },
       lunch: { items: [], totalCalories: 0, totalProtein: 0 },
       dinner: { items: [], totalCalories: 0, totalProtein: 0 },
+      snacks: { items: [], totalCalories: 0, totalProtein: 0 },
     },
   }),
 });
@@ -150,7 +151,7 @@ const initialMealData = [
   // Add more days as needed...
 ];
 
-export const MealPlanProvider: React.FX<{ children: React.ReactNode }> = ({
+export const MealPlanProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [mealPlans, setMealPlans] = useState<MealPlan[]>(initialMealData);
@@ -184,9 +185,10 @@ export const MealPlanProvider: React.FX<{ children: React.ReactNode }> = ({
         const parsedPlans = savedPlans ? JSON.parse(savedPlans) : [];
 
         //validate and sanitize data
-        const validPlans = parsedPlans.filter((plan: any) => {
-          plan.date && typeof plan.date === "string" && plan.meals;
-        });
+        const validPlans = parsedPlans.filter(
+          (plan: any) =>
+            plan.date && typeof plan.date === "string" && plan.meals
+        );
 
         setMealPlans(validPlans);
       } catch (error) {
@@ -218,7 +220,7 @@ export const MealPlanProvider: React.FX<{ children: React.ReactNode }> = ({
   }, []);
 
   const deleteMealPlan = useCallback(async (date: string) => {
-    setMealPlans((prev) => prev.filter((plan) => plan.date === date));
+    setMealPlans((prev) => prev.filter((plan) => plan.date !== date));
   }, []);
 
   const getMealPlanByDate = useCallback(
@@ -236,6 +238,7 @@ export const MealPlanProvider: React.FX<{ children: React.ReactNode }> = ({
         deleteMealPlan,
         getMealPlanByDate,
         loading,
+        getOrCreateDailyPlan,
       }}
     >
       {children}

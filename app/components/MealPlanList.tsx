@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   Alert,
 } from "react-native";
+import { Picker } from "@react-native-picker/picker";
 import type { MealType } from "../../services/types";
 import { foodApi } from "../../services/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -51,9 +52,9 @@ const initialMealData = generateWeek();
 
 const MealPlanList = () => {
   const [expandedDay, setExpandedDay] = useState<string | null>(null);
-  const [selectedMealType, setSelectedMealType] = useState<MealType | null>(
-    null
-  );
+  const [selectedMealType, setSelectedMealType] = useState<{
+    [date: string]: MealType;
+  }>({});
   const [mealPlans, setMealPlans] = useState(initialMealData);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<Recipe[]>([]);
@@ -64,13 +65,16 @@ const MealPlanList = () => {
   const [amount, setAmount] = useState("1");
   const displayPlans = mealPlans.length > 0 ? mealPlans : initialMealData;
 
-  const STORAGE_KEY = "@mealPlans";
+  const STORAGE_KEY = "@MealPlanList:mealPlans";
 
   useEffect(() => {
     const loadMealPlans = async () => {
+      console.log("[DEBUG] Loading meal plans from storage...");
       try {
         const storedMealPlans = await AsyncStorage.getItem(STORAGE_KEY);
+        console.log("[DEBUG] Stored meal plans:", storedMealPlans);
         if (storedMealPlans) {
+          console.log("[DEBUG] Meal plans loaded successfully.");
           setMealPlans(JSON.parse(storedMealPlans));
         }
       } catch (error) {
@@ -82,8 +86,10 @@ const MealPlanList = () => {
 
   useEffect(() => {
     const saveMealPlans = async () => {
+      console.log("[DEBUG] Saving meal plans to storage...", mealPlans);
       try {
         await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(mealPlans));
+        console.log("[DEBUG] Meal plans saved successfully.");
       } catch (error) {
         console.error("Failed to save meal plans to storage:", error);
       }
@@ -95,12 +101,14 @@ const MealPlanList = () => {
   useEffect(() => {
     const searchRecipes = async () => {
       if (searchQuery.length > 2) {
+        console.log("[DEBUG] Searching for recipes:", searchQuery);
         setLoading(true);
         try {
           const response = await foodApi.searchRecipes({
             query: searchQuery,
             limit: 1,
           });
+          console.log("[DEBUG] Search results:", response);
           setSearchResults(response);
         } catch (err) {
           setError("Failed to fetch recipes. Please try again.");
@@ -115,8 +123,12 @@ const MealPlanList = () => {
 
   //handle recipe select
   const handleRecipeSelect = async (recipe: Recipe) => {
+    console.log("[DEBUG] Recipe selected:", recipe);
     try {
+      setError(null);
+      console.log("[DEBUG] Fetching recipe nutrition for:", recipe.id);
       const nutrition = await foodApi.getRecipeNutrition(recipe.id);
+      console.log("[DEBUG] Recipe nutrition:", nutrition);
       setSelectedRecipe({
         ...recipe,
         nutrition: {
@@ -134,38 +146,53 @@ const MealPlanList = () => {
   //add recipe to meal plan
   const addRecipeToMealPlan = async () => {
     if (!selectedRecipe?.nutrition || !selectedDay || !selectedMealType) return;
+    console.log("[DEBUG] Adding recipe to meal plan:", selectedRecipe);
+    console.log("[DEBUG] Current state:", {
+      selectedRecipe,
+      selectedDay,
+      selectedMealType,
+      amount,
+    });
 
-    const parsedAmount = parseFloat(amount) || 1;
-    const newItem = {
-      id: `recipe-${selectedRecipe.id}`,
-      name: selectedRecipe.title,
-      calories: selectedRecipe.nutrition.calories * parsedAmount,
-      protein: selectedRecipe.nutrition.protein * parsedAmount,
-    };
+    try {
+      const parsedAmount = parseFloat(amount) || 1;
+      console.log("[DEBUG] Parsed amount:", parsedAmount);
+      const newItem = {
+        id: `recipe-${selectedRecipe.id}`,
+        name: selectedRecipe.title,
+        calories: selectedRecipe.nutrition.calories * parsedAmount,
+        protein: selectedRecipe.nutrition.protein * parsedAmount,
+      };
+      console.log("[DEBUG] New meal item:", newItem);
 
-    setMealPlans((prev) =>
-      prev.map((day) => {
-        if (day.date === selectedDay) {
-          return {
-            ...day,
-            meals: {
-              ...day.meals,
-              [selectedMealType]: {
-                ...day.meals[selectedMealType],
-                items: [...day.meals[selectedMealType].items, newItem],
-                totalCalories:
-                  day.meals[selectedMealType].totalCalories + newItem.calories,
-                totalProtein:
-                  day.meals[selectedMealType].totalProtein + newItem.protein,
+      setMealPlans((prev) =>
+        prev.map((day) => {
+          if (day.date === selectedDay) {
+            return {
+              ...day,
+              meals: {
+                ...day.meals,
+                [selectedMealType]: {
+                  ...day.meals[selectedMealType],
+                  items: [...day.meals[selectedMealType].items, newItem],
+                  totalCalories:
+                    day.meals[selectedMealType].totalCalories +
+                    newItem.calories,
+                  totalProtein:
+                    day.meals[selectedMealType].totalProtein + newItem.protein,
+                },
               },
-            },
-          };
-        }
-        return day;
-      })
-    );
-    setSelectedRecipe(null);
-    setSearchResults([]);
+            };
+          }
+          return day;
+        })
+      );
+      setSelectedRecipe(null);
+      setSearchResults([]);
+    } catch (error) {
+      console.log("[DEBUG] Error adding recipe to meal plan:", error);
+      setError("Failed to add recipe to meal plan. Please try again.");
+    }
   };
 
   const toggleDay = (date: string) => {
@@ -255,93 +282,94 @@ const MealPlanList = () => {
 
       {expandedDay === item.date && (
         <View className="mt-3">
-          {Object.entries(item.meals).map(([mealType, meal]) => (
-            <View key={mealType} className="mb-4">
-              <TouchableOpacity
-                className="flex-row justify-between items-center bg-slate-50 p-2 rounded"
-                onPress={() => setSelectedMealType(mealType as MealType)}
+          <View className="mb-4">
+            <TextInput
+              className="border rounded-lg p-2 mb-2"
+              placeholder="Search for recipes..."
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+            />
+            <View className="border rounded-lg overflow-hidden">
+              <Picker
+                selectedValue={selectedMealType}
+                onValueChange={(itemValue) => setSelectedMealType(itemValue)}
+                className="bg-white border rounded-lg p-2 mb-2"
               >
-                <Text className="font-medium text-slate-800">{mealType}</Text>
+                <Picker.Item label="Select Meal Type" value="" />
+                <Picker.Item label="Breakfast" value="breakfast" />
+                <Picker.Item label="Lunch" value="lunch" />
+                <Picker.Item label="Dinner" value="dinner" />
+                <Picker.Item label="Snacks" value="snacks" />
+              </Picker>
+            </View>
+            {loading && <ActivityIndicator size="small" />}
+            {error && <Text className="text-red-500 text-sm">{error}</Text>}
+          </View>
+          {/* search results */}
+          <FlatList
+            data={searchResults}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                className="p-2 border-b border-gray-100"
+                onPress={() => handleRecipeSelect(item)}
+              >
+                <Text className="text-base">{item.title}</Text>
+                <Text className="text-sm text-gray-500">
+                  {item.servings} servings
+                </Text>
               </TouchableOpacity>
+            )}
+          />
 
-              {/* new block here */}
+          {selectedRecipe && (
+            <View className="mt-4">
+              <TextInput
+                className="border rounded-lg p-2 mb-2"
+                placeholder="Amount"
+                value={amount}
+                onChangeText={setAmount}
+                keyboardType="numeric"
+              />
+              <TouchableOpacity
+                className="bg-blue-500 p-2 rounded-lg"
+                onPress={addRecipeToMealPlan}
+              >
+                <Text className="text-white text-center">
+                  Add {selectedRecipe.title}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
 
-              <View className="ml-2 mt-2">
-                {/* search section */}
-                <View className="mb-4">
-                  <TextInput
-                    className="border rounded-lg p-2 mb-2"
-                    placeholder="Search for recipes..."
-                    value={searchQuery}
-                    onChangeText={setSearchQuery}
-                  />
+          {/* Meal Items List */}
+          {Object.entries(item.meals).map(([mealType, meal]) => (
+            <View key={mealType} className="mt-4">
+              <Text className="font-medium text-slate-800 mb-2">
+                {mealType.charAt(0).toUpperCase() + mealType.slice(1)}:
+              </Text>
 
-                  {loading && <ActivityIndicator size="small" />}
-                  {error && (
-                    <Text className="text-red-500 text-sm">{error}</Text>
-                  )}
-
-                  <FlatList
-                    data={searchResults}
-                    keyExtractor={(item) => item.id.toString()}
-                    renderItem={({ item }) => (
-                      <TouchableOpacity
-                        className="p-2 border-b border-gray-100"
-                        onPress={() => handleRecipeSelect(item)}
-                      >
-                        <Text className="text-base">{item.title}</Text>
-                        <Text className="text-sm text-gray-500">
-                          {item.servings} servings
-                        </Text>
-                      </TouchableOpacity>
-                    )}
-                  />
-
-                  {selectedRecipe && (
-                    <View className="mt-4">
-                      <TextInput
-                        className="border rounded-lg p-2 mb-2"
-                        placeholder="Amount"
-                        value={amount}
-                        onChangeText={setAmount}
-                        keyboardType="numeric"
-                      />
-                      <TouchableOpacity
-                        className="bg-blue-500 p-2 rounded-lg"
-                        onPress={addRecipeToMealPlan}
-                      >
-                        <Text className="text-white text-center">
-                          Add {selectedRecipe.title}
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                  )}
-                </View>
-                {/* existing meal items */}
-                {meal.items.map((food, index) => (
-                  <View
-                    key={`${food.id}-${index}`}
-                    className="bg-white p-2 rounded mb-2 flex-row justify-between items-center shadow-sm border border-gray-200"
-                  >
-                    <View>
-                      <Text className="text-slate-800">{food.name}</Text>
-                      <Text className="text-slate-500 text-sm">
-                        {food.calories} cal • {food.protein}g protein
-                      </Text>
-                    </View>
-                    <TouchableOpacity
-                      className="bg-red-500 px-3 py-1 rounded"
-                      onPress={() =>
-                        deleteMealItem(item.date, mealType as MealType, food.id)
-                      }
-                    >
-                      <Text className="text-white text-sm font-bold">
-                        Delete
-                      </Text>
-                    </TouchableOpacity>
+              {meal.items.map((food, index) => (
+                <View
+                  key={`${food.id}-${index}`}
+                  className="bg-white p-2 rounded mb-2 flex-row justify-between items-center shadow-sm border border-gray-200"
+                >
+                  <View>
+                    <Text className="text-slate-800">{food.name}</Text>
+                    <Text className="text-slate-500 text-sm">
+                      {food.calories} cal • {food.protein}g protein
+                    </Text>
                   </View>
-                ))}
-              </View>
+                  <TouchableOpacity
+                    className="bg-red-500 px-3 py-1 rounded"
+                    onPress={() =>
+                      deleteMealItem(item.date, mealType as MealType, food.id)
+                    }
+                  >
+                    <Text className="text-white text-sm font-bold">Delete</Text>
+                  </TouchableOpacity>
+                </View>
+              ))}
             </View>
           ))}
         </View>
