@@ -20,9 +20,6 @@ import axios from "axios";
 import { foodApi } from "../../services/api";
 import DropDownPicker from "react-native-dropdown-picker";
 
-import { UnifiedFoodItem } from "../../services/types"; // Adjust the import path as necessary
-import { FoodItem } from "../FoodProvider";
-
 interface UnifiedSearchResult {
   id: number;
   name: string;
@@ -245,7 +242,7 @@ export const SearchFood = () => {
       setUnitItems([
         { label: "g", value: "g" },
         { label: "oz", value: "oz" },
-        { label: "oz", value: "oz" },
+        { label: "ml", value: "ml" },
       ]);
     }
   }, [selectedFood?.type]);
