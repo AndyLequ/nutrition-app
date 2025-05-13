@@ -36,8 +36,10 @@ interface RecipeSearchParams {
   sortDirection?: 'asc' | 'desc';
 }
 
+const API_BASE_URL = 'https://nutrition-app-backend-4795.onrender.com'
+
 const api = axios.create({
-  baseURL: `http://10.0.2.2:3000`, // or replace with your deployed server URL
+  baseURL: API_BASE_URL, // or replace with your deployed server URL
 });
 
 export const foodApi = {
