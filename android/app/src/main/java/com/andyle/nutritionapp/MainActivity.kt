@@ -1,4 +1,4 @@
-package android.v1
+package com.andyle.nutritionapp
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build
