@@ -200,7 +200,13 @@ export const CustomFood = () => {
               />
             </View>
 
-            <View style={{ zIndex: 1000, elevation: 1000 }}>
+            <View
+              style={{
+                zIndex: unitOpen ? 10 : 1,
+                elevation: unitOpen ? 10 : 1,
+                marginBottom: unitOpen ? 20 : 0,
+              }}
+            >
               <Text className="text-sm text-gray-600 mb-2">Units</Text>
 
               <DropDownPicker
@@ -224,7 +230,13 @@ export const CustomFood = () => {
             </View>
 
             {/* Meal Type Dropdown */}
-            <View style={{ zIndex: 999, elevation: 999 }}>
+            <View
+              style={{
+                zIndex: mealTypeOpen ? 1000 : 1,
+                elevation: mealTypeOpen ? 1000 : 1,
+                marginBottom: mealTypeOpen ? 1 : 0,
+              }}
+            >
               <Text className="text-sm text-gray-600 mb-2">Meal Type</Text>
               <DropDownPicker
                 open={mealTypeOpen}
