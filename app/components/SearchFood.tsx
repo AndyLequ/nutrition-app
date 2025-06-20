@@ -63,6 +63,8 @@ export const SearchFood = () => {
     (UnifiedSearchResult & { servingSizeGrams?: number }) | null
   >(null);
 
+  const [showSuccess, setShowSuccess] = useState(false);
+
   // these states are for later use, not important right now
   // const [submittedFoods, setSubmittedFoods] = useState([]);
   // const [showFoodList, setShowFoodList] = useState(false);
@@ -221,6 +223,10 @@ export const SearchFood = () => {
       setUnit("g");
       setMealType("breakfast");
       setSelectedFood(null);
+      setShowSuccess(true);
+      setTimeout(() => {
+        setShowSuccess(false);
+      }, 2000); // Hide success message after 2 seconds
 
       await AsyncStorage.removeItem("@inputs"); // Clear saved data
 
@@ -432,6 +438,15 @@ export const SearchFood = () => {
                   Submit
                 </Text>
               </TouchableOpacity>
+
+              {showSuccess && (
+                <View className="mt-2 p-2 bg-green-100 rounded-md">
+                  <Text>
+                    Food added successfully!{" "}
+                    <Text className="text-green-500">✓</Text>
+                  </Text>
+                </View>
+              )}
             </View>
           </View>
         </View>

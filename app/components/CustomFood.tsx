@@ -60,6 +60,8 @@ export const CustomFood = () => {
     { label: "Snacks", value: "snacks" },
   ]);
 
+  const [showSuccess, setShowSuccess] = useState(false);
+
   const { addFood } = useFood();
 
   const dismissKeyboardAndCloseDropdowns = () => {
@@ -104,6 +106,10 @@ export const CustomFood = () => {
       console.error("Error adding food:", error);
       Alert.alert("Error adding food. Please try again.");
     } finally {
+      setShowSuccess(true);
+      setTimeout(() => {
+        setShowSuccess(false);
+      }, 2000); // Hide success message after 2 seconds
       setFoodName("");
       setAmount("");
       setProtein("");
@@ -255,6 +261,15 @@ export const CustomFood = () => {
                   Submit
                 </Text>
               </TouchableOpacity>
+
+              {showSuccess && (
+                <View className="mt-2 p-2 bg-green-100 rounded-md">
+                  <Text>
+                    Food added successfully!{" "}
+                    <Text className="text-green-500">✓</Text>
+                  </Text>
+                </View>
+              )}
             </View>
           </View>
         </View>
