@@ -42,6 +42,20 @@ interface FatSecretFood {
   name: string;
 }
 
+interface FatSecretFoodDetails {
+  id: string;
+  name: string;
+  type: string;
+  url: string;
+  brand: string;
+  protein: number;
+  calories: number;
+  carbs: number;
+  fat: number;
+  amount: number;
+  unit: string;
+}
+
 interface FatSecretServing {
   protein: string;
   calories: string;
