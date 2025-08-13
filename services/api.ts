@@ -142,7 +142,6 @@ export const foodApi = {
     return response.data;
   },
 
-
   /* This section is for fatsecret endpoint integration*/
   getFatSecretFoods: async({
     query,
@@ -151,8 +150,6 @@ export const foodApi = {
   }: FatSecretSearchParams): Promise<FatSecretFood[]> => {
     
     try {
-      
-
       const response = await fatsecretApi.get('/api/fatsecret/search-foods', {
         params: {
           query,
@@ -161,16 +158,7 @@ export const foodApi = {
         }
       });
 
-      
-
-      // Handle FatSecret's response format
-      const foods = response.data.foods?.food;
-      if(!foods) return [];
-
-      // Normalize single result to array
-      const result = Array.isArray(foods) ? foods : [foods];
-
-      return result
+      return response.data
     } catch (error) {
       console.error('Error fetching FatSecret foods:', error);
       throw error;
@@ -178,7 +166,16 @@ export const foodApi = {
   },
 
   getFatSecretFoodById: async (foodId: string): Promise<FatSecretFood> => {
+    try {
+      
+      const response = await fatsecretApi.get(`/api/fatsecret/food/${foodId}`);
 
+      const food = response.data.food;
+
+      return food
+    } catch (error) {
+      
+    }
   }
 
 };
