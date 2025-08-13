@@ -40,7 +40,6 @@ interface RecipeSearchParams {
 interface FatSecretFood {
   id: number;
   name: string;
-  image: string;
 }
 
 interface FatSecretServing {
@@ -152,12 +151,7 @@ export const foodApi = {
   }: FatSecretSearchParams): Promise<FatSecretFood[]> => {
     
     try {
-      // debug log
-      console.log("Calling FatSecret endpoint with:", {
-        query,
-        maxResults,
-        pageNumber
-      });
+      
 
       const response = await fatsecretApi.get('/api/fatsecret/search-foods', {
         params: {
@@ -167,8 +161,7 @@ export const foodApi = {
         }
       });
 
-      // response debug log
-      console.log("FatSecret raw response:", response.data);  
+      
 
       // Handle FatSecret's response format
       const foods = response.data.foods?.food;
@@ -177,15 +170,16 @@ export const foodApi = {
       // Normalize single result to array
       const result = Array.isArray(foods) ? foods : [foods];
 
-      // final result debug log
-      console.log("returning foods:", result);
       return result
-
     } catch (error) {
       console.error('Error fetching FatSecret foods:', error);
       throw error;
     }
   },
+
+  getFatSecretFoodById: async (foodId: string): Promise<FatSecretFood> => {
+
+  }
 
 };
 
