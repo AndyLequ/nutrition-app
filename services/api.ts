@@ -36,10 +36,65 @@ interface RecipeSearchParams {
   sortDirection?: 'asc' | 'desc';
 }
 
+//FatSecret API types
+interface FatSecretFood {
+  id: number;
+  name: string;
+  image: string;
+}
+
+interface FatSecretServing {
+  protein: string;
+  calories: string;
+  carbohydrate: string;
+  fat: string;
+  metric_serving_amount: string;
+  metric_serving_unit: string;
+}
+
+interface FatSecretRecipe {
+  recipe_id: string;
+  recipe_name: string;
+  recipe_image?: string;
+  recipe_url?: string;
+  recipe_description?: string;
+  ingredients?: {
+    ingredient: FatSecretIngredient | FatSecretIngredient[];
+  }
+  recipe_nutrition?: {
+    protein: string;
+    calories: string;
+    carbohydrate: string;
+    fat: string;
+  }
+  number_of_servings?: string;
+}
+
+
+interface FatSecretIngredient {
+  food_id?: string;
+  ingredient_name: string;
+  ingredient_description: string;
+}
+
+interface FatSecretSearchParams {
+  query: string;
+  maxResults?: number;
+  pageNumber?: number;
+}
+
+
 const API_BASE_URL = 'https://nutrition-app-backend-4795.onrender.com'
+
+// testing for fatsecret endpoint integration
+const FATSECRET_BASE_URL = 'http://localhost:3000'
 
 const api = axios.create({
   baseURL: API_BASE_URL, // or replace with your deployed server URL
+});
+
+const fatsecretApi = axios.create({
+  baseURL: FATSECRET_BASE_URL, // or replace with your deployed server URL
 });
 
 export const foodApi = {
@@ -86,5 +141,54 @@ export const foodApi = {
   getRecipeNutrition: async (recipeId: number): Promise<NutritionInfo> => {
     const response = await api.get(`/api/recipes/${recipeId}/nutrition`);
     return response.data;
-  }
+  },
+
+
+  /* This section is for fatsecret endpoint integration*/
+  getFatSecretFoods: async({
+    query,
+    maxResults = 2,
+    pageNumber = 0
+  }: FatSecretSearchParams): Promise<FatSecretFood[]> => {
+    
+    try {
+      // debug log
+      console.log("Calling FatSecret endpoint with:", {
+        query,
+        maxResults,
+        pageNumber
+      });
+
+      const response = await fatsecretApi.get('/api/fatsecret/search-foods', {
+        params: {
+          query,
+          maxResults,
+          pageNumber
+        }
+      });
+
+      // response debug log
+      console.log("FatSecret raw response:", response.data);  
+
+      // Handle FatSecret's response format
+      const foods = response.data.foods?.food;
+      if(!foods) return [];
+
+      // Normalize single result to array
+      const result = Array.isArray(foods) ? foods : [foods];
+
+      // final result debug log
+      console.log("returning foods:", result);
+      return result
+
+    } catch (error) {
+      console.error('Error fetching FatSecret foods:', error);
+      throw error;
+    }
+  },
+
 };
+
+if(typeof window !== 'undefined') {
+(window as any).foodApi = foodApi; // For debugging in browser
+}
