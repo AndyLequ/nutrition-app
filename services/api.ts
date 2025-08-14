@@ -204,6 +204,16 @@ export const foodApi = {
     }
   },
 
+  // WIP getting recipe details from fatsecret
+  getFatSecretRecipeById: async (recipeId: string): Promise<FatSecretRecipe> => {
+    try {
+      const response = await fatsecretApi.get(`/api/fatsecret/recipe/${recipeId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching FatSecret recipe by ID:', error);
+      throw error;
+    }
+  }
 
 
 };
