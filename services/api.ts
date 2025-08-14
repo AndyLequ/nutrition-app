@@ -179,18 +179,19 @@ export const foodApi = {
     }
   },
 
-  getFatSecretFoodById: async (foodId: string): Promise<FatSecretFood> => {
+  getFatSecretFoodById: async (foodId: string): Promise<FatSecretFoodDetails> => {
     try {
       
       const response = await fatsecretApi.get(`/api/fatsecret/food/${foodId}`);
-
-      const food = response.data.food;
-
-      return food
+    
+      return response.data
     } catch (error) {
-      
+      console.error('Error fetching food details', error)
+      throw error;
     }
   }
+
+
 
 };
 

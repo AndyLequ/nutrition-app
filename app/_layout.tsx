@@ -6,20 +6,18 @@ import { FoodProvider } from "./FoodProvider";
 import { foodApi } from "../services/api";
 
 export default function RootLayout() {
+  const testFoodId = "33691"; // Replace with a valid food ID for testing
 
   useEffect(() => {
-    const testApi = async() => {
+    const testApi = async () => {
       try {
         console.log("Testing FatSecret API...");
-        const results = await foodApi.getFatSecretFoods({
-          query: "chicken",
-          maxResults: 2,
-        })
-        console.log('API Results:', results);
+        const results = await foodApi.getFatSecretFoodById(testFoodId);
+        console.log("API Results:", results);
       } catch (error) {
         console.error("API Test Error:", error);
       }
-    }
+    };
     testApi();
   }, []);
 
