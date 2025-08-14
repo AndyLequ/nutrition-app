@@ -189,7 +189,20 @@ export const foodApi = {
       console.error('Error fetching food details', error)
       throw error;
     }
-  }
+  },
+
+  // WIP getting list of recipe(s) from fatsecret
+  getFatSecretRecipes: async (query: string): Promise<FatSecretRecipe[]> => {
+    try {
+      const response = await fatsecretApi.get('/api/fatsecret/search-recipes', {
+        params: { query }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching FatSecret recipes:', error);
+      throw error;
+    }
+  },
 
 
 
