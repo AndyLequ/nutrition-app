@@ -1,100 +1,16 @@
 import axios from 'axios';
+import {
+  Recipe,
+  Ingredient,
+  NutritionInfo,
+  IngredientSearchParams,
+  RecipeSearchParams,
+  FatSecretFood,
+  FatSecretFoodDetails,
+  FatSecretRecipe,
+  FatSecretSearchParams
+} from './interfaces';
 
-interface Recipe {
-  id: number;
-  title: string;
-  image: string;
-  [key: string]: any;
-}
-
-interface Ingredient {
-  id: number;
-  name: string;
-  image: string;
-}
-
-interface NutritionInfo {
-  protein: number;
-  calories: number;
-  carbs: number;
-  fat: number;
-  amount: number;
-  unit: string;
-}
-
-interface IngredientSearchParams {
-  query: string;
-  limit?: number;
-  sort?: string;
-  sortDirection?: 'asc' | 'desc';
-}
-
-interface RecipeSearchParams {
-  query: string;
-  limit?: number;
-  sort?: string;
-  sortDirection?: 'asc' | 'desc';
-}
-
-//FatSecret API types
-interface FatSecretFood {
-  id: number;
-  name: string;
-}
-
-interface FatSecretFoodDetails {
-  id: string;
-  name: string;
-  type: string;
-  url: string;
-  brand: string;
-  protein: number;
-  calories: number;
-  carbs: number;
-  fat: number;
-  amount: number;
-  unit: string;
-}
-
-interface FatSecretServing {
-  protein: string;
-  calories: string;
-  carbohydrate: string;
-  fat: string;
-  metric_serving_amount: string;
-  metric_serving_unit: string;
-}
-
-interface FatSecretRecipe {
-  recipe_id: string;
-  recipe_name: string;
-  recipe_image?: string;
-  recipe_url?: string;
-  recipe_description?: string;
-  ingredients?: {
-    ingredient: FatSecretIngredient | FatSecretIngredient[];
-  }
-  recipe_nutrition?: {
-    protein: string;
-    calories: string;
-    carbohydrate: string;
-    fat: string;
-  }
-  number_of_servings?: string;
-}
-
-
-interface FatSecretIngredient {
-  food_id?: string;
-  ingredient_name: string;
-  ingredient_description: string;
-}
-
-interface FatSecretSearchParams {
-  query: string;
-  maxResults?: number;
-  pageNumber?: number;
-}
 
 
 const API_BASE_URL = 'https://nutrition-app-backend-4795.onrender.com'
@@ -192,10 +108,14 @@ export const foodApi = {
   },
 
   // WIP getting list of recipe(s) from fatsecret
-  getFatSecretRecipes: async (query: string): Promise<FatSecretRecipe[]> => {
+  getFatSecretRecipes: async (
+    query: string,
+    maxResults: number = 3,
+    pageNumber: number = 0
+  ): Promise<FatSecretRecipe[]> => {
     try {
-      const response = await fatsecretApi.get('/api/fatsecret/search-recipes', {
-        params: { query }
+      const response = await fatsecretApi.get('/api/fatsecret/recipes', {
+        params: { query, maxResults, pageNumber }
       });
       return response.data;
     } catch (error) {
