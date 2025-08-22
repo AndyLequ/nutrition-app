@@ -7,25 +7,30 @@ import { foodApi } from "../services/api";
 
 export default function RootLayout() {
   useEffect(() => {
-    const testRecipeSearch = async () => {
+    const testApiConnection = async () => {
+      console.log("Testing FatSecret API connection...");
+      const testRecipeId = "106050235"; // Example recipe ID for testing
       try {
-        const recipes = await foodApi.getFatSecretRecipes("chicken", 3, 0);
-        console.log("API call successful! Recieved recipes:", recipes);
+        const recipe = await foodApi.getFatSecretRecipeById(testRecipeId);
+        console.log("API call successful! Recieved recipes:", recipe);
 
-        if (recipes && Array.isArray(recipes)) {
-          console.log(`Received ${recipes.length} recipes`);
-          recipes.forEach((recipe) => {
-            console.log(`- ${recipe.recipe_name} (ID: ${recipe.recipe_id})`);
+        if (recipe && recipe.recipe_id) {
+          console.log(`Recipe details:`, {
+            name: recipe.recipe_name,
+            calories: recipe.recipe_nutrition?.calories,
+            protein: recipe.recipe_nutrition?.protein,
+            carbs: recipe.recipe_nutrition?.carbohydrate,
+            fat: recipe.recipe_nutrition?.fat,
           });
         } else {
-          console.error("Unexpected response format:", recipes);
+          console.error("Unexpected response format:", recipe);
         }
       } catch (error) {
         console.error("API call failed:", error);
       }
     };
 
-    testRecipeSearch();
+    testApiConnection();
   }, []);
 
   return (
