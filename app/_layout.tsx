@@ -5,32 +5,44 @@ import "@/global.css";
 import { FoodProvider } from "./FoodProvider";
 import { foodApi } from "../services/api";
 
+interface NutritionInfo {
+  protein: number;
+  calories: number;
+  carbs: number;
+  fat: number;
+  amount: number;
+  unit: string;
+}
+
+interface RecipeData {
+  id: string;
+  name: string;
+  nutritionPerServing: NutritionInfo;
+  nutritionPerGram: NutritionInfo;
+}
+
 export default function RootLayout() {
   useEffect(() => {
-    const testApiConnection = async () => {
-      console.log("Testing FatSecret API connection...");
-      const testRecipeId = "106050235"; // Example recipe ID for testing
-      try {
-        const recipe = await foodApi.getFatSecretRecipeById(testRecipeId);
-        console.log("API call successful! Recieved recipes:", recipe);
+    const logRecipeData = async () => {
+      console.log("Testing FatSecret recipe API connection...");
 
-        if (recipe && recipe.recipe_id) {
-          console.log(`Recipe details:`, {
-            name: recipe.recipe_name,
-            calories: recipe.recipe_nutrition?.calories,
-            protein: recipe.recipe_nutrition?.protein,
-            carbs: recipe.recipe_nutrition?.carbohydrate,
-            fat: recipe.recipe_nutrition?.fat,
-          });
-        } else {
-          console.error("Unexpected response format:", recipe);
-        }
+      try {
+        const testRecipeId = "106050235";
+        // Add type assertion here
+        const recipeData = (await foodApi.getFatSecretRecipeById(
+          testRecipeId
+        )) as unknown as RecipeData;
+
+        console.log("=== RECIPE DATA ===");
+        console.log("ID:", recipeData.id);
+        console.log("Name:", recipeData.name);
+        // ... rest of your logging code
       } catch (error) {
         console.error("API call failed:", error);
       }
     };
 
-    testApiConnection();
+    logRecipeData();
   }, []);
 
   return (
