@@ -89,10 +89,16 @@ export const SearchFood = () => {
 
   // function for searching for food, will be called when the user types in the search bar
   // this function will be debounced to avoid making too many requests to the API
+  // ADDING fatsecret API search here too
   const debouncedSearch = debounce(async (query) => {
     if (query.length > 2) {
       try {
-        const [ingredientsResponse, recipesResponse] = await Promise.all([
+        const [
+          ingredientsResponse,
+          recipesResponse,
+          fatSecretFoodsResponse,
+          fatSecretRecipesResponse,
+        ] = await Promise.all([
           foodApi.searchIngredients({
             query,
             limit: 1,
@@ -105,6 +111,8 @@ export const SearchFood = () => {
             sort: "calories",
             sortDirection: "desc",
           }),
+          foodApi.getFatSecretFoods({ query, maxResults: 1, pageNumber: 0 }),
+          foodApi.getFatSecretRecipes({ query, maxResults: 1, pageNumber: 0 }),
         ]);
         const ingredientResults = ingredientsResponse.map((item) => ({
           id: item.id,
