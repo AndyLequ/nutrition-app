@@ -101,7 +101,20 @@ interface FatSecretFood {
   name: string;
 }
 
-interface FatSecretFoodById {}
+interface MappedFatSecretRecipe {
+  id: number;
+  name: string;
+  type: "recipe";
+  nutrition: {
+    calories: number;
+    protein: number;
+    carbs: number;
+    fat: number;
+    amount: number;
+    unit: string;
+  };
+  categories: string[];
+}
 
 interface FatSecretServing {
   protein: string;
@@ -137,6 +150,7 @@ interface FatSecretIngredient {
 }
 
 export {
+  MappedFatSecretRecipe,
   Recipe,
   Ingredient,
   IngredientResponse,

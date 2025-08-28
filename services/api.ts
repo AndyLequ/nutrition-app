@@ -9,6 +9,7 @@ import {
   FatSecretFoodDetails,
   FatSecretRecipe,
   FatSecretSearchParams,
+  MappedFatSecretRecipe,
 } from "./interfaces";
 
 const API_BASE_URL = "https://nutrition-app-backend-4795.onrender.com";
@@ -113,7 +114,7 @@ export const foodApi = {
     query,
     maxResults = 3,
     pageNumber = 0,
-  }: FatSecretSearchParams): Promise<FatSecretRecipe[]> => {
+  }: FatSecretSearchParams): Promise<MappedFatSecretRecipe[]> => {
     try {
       const response = await fatsecretApi.get("/api/fatsecret/recipes", {
         params: { query, maxResults, pageNumber },

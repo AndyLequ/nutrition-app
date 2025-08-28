@@ -114,6 +114,7 @@ export const SearchFood = () => {
           foodApi.getFatSecretFoods({ query, maxResults: 1, pageNumber: 0 }),
           foodApi.getFatSecretRecipes({ query, maxResults: 1, pageNumber: 0 }),
         ]);
+        // spoonacular results
         const ingredientResults = ingredientsResponse.map((item) => ({
           id: item.id,
           name: item.name,
@@ -127,6 +128,22 @@ export const SearchFood = () => {
           name: item.title,
           type: "recipe",
           servings: item.servings,
+          nutrition: item.nutrition,
+        }));
+
+        // fatsecret results
+        const fatSecretResults = fatSecretFoodsResponse.map((item) => ({
+          id: item.id,
+          name: item.name,
+          type: "food",
+          baseAmount: 100,
+          baseUnit: "g",
+        }));
+
+        const fatSecretRecipeResults = fatSecretRecipesResponse.map((item) => ({
+          id: item.id,
+          name: item.name,
+          type: item.type,
           nutrition: item.nutrition,
         }));
 
