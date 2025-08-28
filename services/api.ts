@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from "axios";
 import {
   Recipe,
   Ingredient,
@@ -8,15 +8,13 @@ import {
   FatSecretFood,
   FatSecretFoodDetails,
   FatSecretRecipe,
-  FatSecretSearchParams
-} from './interfaces';
+  FatSecretSearchParams,
+} from "./interfaces";
 
-
-
-const API_BASE_URL = 'https://nutrition-app-backend-4795.onrender.com'
+const API_BASE_URL = "https://nutrition-app-backend-4795.onrender.com";
 
 // testing for fatsecret endpoint integration
-const FATSECRET_BASE_URL = 'http://localhost:3000'
+const FATSECRET_BASE_URL = "http://localhost:3000";
 
 const api = axios.create({
   baseURL: API_BASE_URL, // or replace with your deployed server URL
@@ -30,11 +28,11 @@ export const foodApi = {
   searchIngredients: async ({
     query,
     limit = 3,
-    sort = 'calories',
-    sortDirection = 'desc'
+    sort = "calories",
+    sortDirection = "desc",
   }: IngredientSearchParams): Promise<Ingredient[]> => {
-    const response = await api.get('/api/ingredients', {
-      params: { query, limit, sort, sortDirection }
+    const response = await api.get("/api/ingredients", {
+      params: { query, limit, sort, sortDirection },
     });
     return response.data;
   },
@@ -42,11 +40,11 @@ export const foodApi = {
   searchRecipes: async ({
     query,
     limit = 3,
-    sort = 'calories',
-    sortDirection = 'desc'
+    sort = "calories",
+    sortDirection = "desc",
   }: RecipeSearchParams): Promise<Recipe[]> => {
-    const response = await api.get('/api/recipes', {
-      params: { query, limit, sort, sortDirection }
+    const response = await api.get("/api/recipes", {
+      params: { query, limit, sort, sortDirection },
     });
     return response.data;
   },
@@ -56,9 +54,12 @@ export const foodApi = {
     amount: number,
     unit: string
   ): Promise<NutritionInfo & { name: string }> => {
-    const response = await api.get(`/api/ingredients/${ingredientId}/nutrition`, {
-      params: { amount, unit }
-    });
+    const response = await api.get(
+      `/api/ingredients/${ingredientId}/nutrition`,
+      {
+        params: { amount, unit },
+      }
+    );
     return response.data;
   },
 
@@ -73,71 +74,73 @@ export const foodApi = {
   },
 
   /* This section is for fatsecret endpoint integration*/
-  getFatSecretFoods: async({
+  getFatSecretFoods: async ({
     query,
     maxResults = 2,
-    pageNumber = 0
+    pageNumber = 0,
   }: FatSecretSearchParams): Promise<FatSecretFood[]> => {
-    
     try {
-      const response = await fatsecretApi.get('/api/fatsecret/search-foods', {
+      const response = await fatsecretApi.get("/api/fatsecret/search-foods", {
         params: {
           query,
           maxResults,
-          pageNumber
-        }
+          pageNumber,
+        },
       });
 
-      return response.data
+      return response.data;
     } catch (error) {
-      console.error('Error fetching FatSecret foods:', error);
+      console.error("Error fetching FatSecret foods:", error);
       throw error;
     }
   },
 
-  getFatSecretFoodById: async (foodId: string): Promise<FatSecretFoodDetails> => {
+  getFatSecretFoodById: async (
+    foodId: string
+  ): Promise<FatSecretFoodDetails> => {
     try {
-      
       const response = await fatsecretApi.get(`/api/fatsecret/food/${foodId}`);
-    
-      return response.data
+
+      return response.data;
     } catch (error) {
-      console.error('Error fetching food details', error)
+      console.error("Error fetching food details", error);
       throw error;
     }
   },
 
   // WIP getting list of recipe(s) from fatsecret
-  getFatSecretRecipes: async (
-    query: string,
-    maxResults: number = 3,
-    pageNumber: number = 0
-  ): Promise<FatSecretRecipe[]> => {
+  getFatSecretRecipes: async ({
+    query,
+    maxResults = 3,
+    pageNumber = 0,
+  }: FatSecretSearchParams): Promise<FatSecretRecipe[]> => {
     try {
-      const response = await fatsecretApi.get('/api/fatsecret/recipes', {
-        params: { query, maxResults, pageNumber }
+      const response = await fatsecretApi.get("/api/fatsecret/recipes", {
+        params: { query, maxResults, pageNumber },
       });
       return response.data;
     } catch (error) {
-      console.error('Error fetching FatSecret recipes:', error);
+      console.error("Error fetching FatSecret recipes:", error);
       throw error;
     }
   },
 
   // WIP getting recipe details from fatsecret
-  getFatSecretRecipeById: async (recipeId: string): Promise<FatSecretRecipe> => {
+  getFatSecretRecipeById: async (
+    recipeId: string
+  ): Promise<FatSecretRecipe> => {
     try {
-      const response = await fatsecretApi.get(`/api/fatsecret/recipe/${recipeId}`);
+      const response = await fatsecretApi.get(
+        `/api/fatsecret/recipe/${recipeId}`
+      );
       return response.data;
     } catch (error) {
-      console.error('Error fetching FatSecret recipe by ID:', error);
+      console.error("Error fetching FatSecret recipe by ID:", error);
       throw error;
     }
-  }
-
-
+  },
 };
 
-if(typeof window !== 'undefined') {
-(window as any).foodApi = foodApi; // For debugging in browser
+if (typeof window !== "undefined") {
+  (window as any).foodApi = foodApi; // For debugging in browser
 }
