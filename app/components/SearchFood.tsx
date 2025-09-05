@@ -24,10 +24,12 @@ interface UnifiedSearchResult {
   id: number;
   name: string;
   type: "ingredient" | "recipe";
+  source?: "spoonacular" | "fatsecret";
   baseAmount?: number;
   baseUnit?: string;
   servings?: number;
   nutrition?: any; // Adjust this type based on your API response
+  fatSecretData?: any;
 }
 
 export const SearchFood = () => {
@@ -135,7 +137,8 @@ export const SearchFood = () => {
         const fatSecretResults = fatSecretFoodsResponse.map((item) => ({
           id: item.id,
           name: item.name,
-          type: "food",
+          type: "ingredient" as const, // mapping fatsecret foods to "ingredient" type
+          source: "fatsecret", //adding a source field to distinguish
           baseAmount: 100,
           baseUnit: "g",
         }));
@@ -143,11 +146,18 @@ export const SearchFood = () => {
         const fatSecretRecipeResults = fatSecretRecipesResponse.map((item) => ({
           id: item.id,
           name: item.name,
-          type: item.type,
+          type: "recipe" as const, // mapping fatsecret recipes to "recipe" type,
+          source: "fatsecret" as const, // adding a source field to distinguish
           nutrition: item.nutrition,
+          servings: 1,
         }));
 
-        setSearchResults([...ingredientResults, ...recipeResults]);
+        setSearchResults([
+          ...ingredientResults,
+          ...recipeResults,
+          ...fatSecretResults,
+          ...fatSecretRecipeResults,
+        ]);
       } catch (error) {
         console.error("Error fetching data from spoonacular API", error);
         setSearchResults([]);
@@ -175,7 +185,28 @@ export const SearchFood = () => {
     setSelectedFood(food);
     setSearchQuery(food.name);
     setSearchResults([]);
-    if (food.type === "recipe") {
+
+    // new logic for handling both spoonacular and fatsecret APIs
+    if (food.source === "fatsecret" && food.type === "recipe") {
+      setSelectedFood({
+        ...food,
+        servingSizeGrams: 100, // assuming 100g for fatsecret recipes, adjust as needed
+      });
+    }
+    // for fatsecret ingredients, need to fetch details
+    else if (food.source === "fatsecret" && food.type === "ingredient") {
+      try {
+        const foodDetails = await foodApi.getFatSecretFoodById(
+          food.id.toString()
+        );
+        setSelectedFood({
+          ...food,
+        });
+      } catch (error) {
+        console.error("Error fetching FatSecret food details", error);
+        setSelectedFood(food);
+      }
+    } else if (food.type === "recipe") {
       try {
         const recipeInfo = await foodApi.getRecipeInformation(food.id);
         setSelectedFood({
@@ -188,10 +219,27 @@ export const SearchFood = () => {
     } else {
       setSelectedFood(food);
     }
-    setUnit(food.type === "recipe" ? "serving" : "g");
-    console.log("Selected food:", food);
-  };
 
+    setUnit(food.type === "recipe" ? "serving" : "g");
+
+    //   // original logic for when only spoonacular API was used
+    //   if (food.type === "recipe") {
+    //     try {
+    //       const recipeInfo = await foodApi.getRecipeInformation(food.id);
+    //       setSelectedFood({
+    //         ...food,
+    //         servingSizeGrams: recipeInfo.servingSizeGrams,
+    //       });
+    //     } catch (error) {
+    //       setSelectedFood(food);
+    //     }
+    //   } else {
+    //     setSelectedFood(food);
+    //   }
+    //   setUnit(food.type === "recipe" ? "serving" : "g");
+    //   console.log("Selected food:", food);
+    //
+  };
   const parseNutritionValue = (value: string) => {
     parseFloat(value.replace(/[^\d.]/g, ""));
   };
@@ -204,8 +252,16 @@ export const SearchFood = () => {
 
     try {
       let nutrition;
-      // Get final nutrition for actual amount
-      if (selectedFood.type === "ingredient") {
+
+      if (selectedFood.source === "fatsecret") {
+        // Handle fatsecret items
+        const servings = convertToServings(
+          parseFloat(amount),
+          unit,
+          selectedFood.servingSizeGrams || 100
+        );
+
+        // Use nutrition data from FatSecret
         nutrition = await foodApi.getNutrition(
           selectedFood.id,
           parseFloat(amount),
