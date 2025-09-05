@@ -147,8 +147,10 @@ export const SearchFood = () => {
         const fatSecretRecipeResults = fatSecretRecipesResponse.map((item) => ({
           id: item.id,
           name: item.name,
-          type: item.type,
+          type: "recipe" as const, // mapping fatsecret recipes to "recipe" type,
+          source: "fatsecret", // adding a source field to distinguish
           nutrition: item.nutrition,
+          fatSecretData: item, // keep the original data for further use
         }));
 
         setSearchResults([
