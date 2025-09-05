@@ -141,16 +141,15 @@ export const SearchFood = () => {
           source: "fatsecret", //adding a source field to distinguish
           baseAmount: 100,
           baseUnit: "g",
-          fatSecretData: item, // keep the original data for further use
         }));
 
         const fatSecretRecipeResults = fatSecretRecipesResponse.map((item) => ({
           id: item.id,
           name: item.name,
           type: "recipe" as const, // mapping fatsecret recipes to "recipe" type,
-          source: "fatsecret", // adding a source field to distinguish
+          source: "fatsecret" as const, // adding a source field to distinguish
           nutrition: item.nutrition,
-          fatSecretData: item, // keep the original data for further use
+          servings: 1,
         }));
 
         setSearchResults([
@@ -188,24 +187,40 @@ export const SearchFood = () => {
     setSearchResults([]);
 
     // new logic for handling both spoonacular and fatsecret APIs
-    if (food.source === "fatsecret") {
+    if (food.source === "fatsecret" && food.type === "recipe") {
+      setSelectedFood({
+        ...food,
+        servingSizeGrams: 100, // assuming 100g for fatsecret recipes, adjust as needed
+      });
+    }
+    // for fatsecret ingredients, need to fetch details
+    else if (food.source === "fatsecret" && food.type === "ingredient") {
+      try {
+        const foodDetails = await foodApi.getFatSecretFoodById(
+          food.id.toString()
+        );
+        setSelectedFood({
+          ...food,
+        });
+      } catch (error) {
+        console.error("Error fetching FatSecret food details", error);
+        setSelectedFood(food);
+      }
+    } else if (food.type === "recipe") {
+      try {
+        const recipeInfo = await foodApi.getRecipeInformation(food.id);
+        setSelectedFood({
+          ...food,
+          servingSizeGrams: recipeInfo.servingSizeGrams,
+        });
+      } catch (error) {
+        setSelectedFood(food);
+      }
+    } else {
+      setSelectedFood(food);
+    }
 
-      // for fatsecret items, fetching detailed information
-      try{
-          if(food.type === "ingredient"){
-            const foodDetails = await foodApi.getFatSecretFoodById(food.id.toString());
-            setSelectedFood({
-              ...food,
-              servingSizeGrams: foodDetails.serving_size_g, // use actual property name from API
-            })
-          } 
-        }catch(error){
-            console.error("Error fetching FatSecret food details", error);
-            setSelectedFood(food);
-          }
-
-
-
+    setUnit(food.type === "recipe" ? "serving" : "g");
 
     //   // original logic for when only spoonacular API was used
     //   if (food.type === "recipe") {
@@ -244,8 +259,8 @@ export const SearchFood = () => {
           parseFloat(amount),
           unit,
           selectedFood.servingSizeGrams || 100
-        )
-        
+        );
+
         // Use nutrition data from FatSecret
         nutrition = await foodApi.getNutrition(
           selectedFood.id,
