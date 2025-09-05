@@ -24,10 +24,12 @@ interface UnifiedSearchResult {
   id: number;
   name: string;
   type: "ingredient" | "recipe";
+  source?: "spoonacular" | "fatsecret";
   baseAmount?: number;
   baseUnit?: string;
   servings?: number;
   nutrition?: any; // Adjust this type based on your API response
+  fatSecretData?: any;
 }
 
 export const SearchFood = () => {
@@ -147,7 +149,7 @@ export const SearchFood = () => {
           nutrition: item.nutrition,
         }));
 
-        setSearchResults([...ingredientResults, ...recipeResults]);
+        setSearchResults([...ingredientResults, ...recipeResults, ...fatSecretResults, ...fatSecretRecipeResults]);
       } catch (error) {
         console.error("Error fetching data from spoonacular API", error);
         setSearchResults([]);
