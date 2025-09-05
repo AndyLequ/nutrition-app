@@ -186,6 +186,29 @@ export const SearchFood = () => {
     setSelectedFood(food);
     setSearchQuery(food.name);
     setSearchResults([]);
+
+    // new logic for handling both spoonacular and fatsecret APIs
+    if (handleFoodSelect.source === "fatsecret") {
+      setSelectedFood({
+        ...food,
+        servingSizeGrams: food.fatSecretData?.serving_size_g || 100,
+      });
+    } else if (food.type === "recipe") {
+      try {
+        const recipeInfo = await foodApi.getRecipeInformation(food.id);
+        setSelectedFood({
+          ...food,
+          servingSizeGrams: recipeInfo.servingSizeGrams,
+        });
+      } catch (error) {
+        setSelectedFood(food);
+      }
+    } else {
+      setSelectedFood(food);
+    }
+    setUnit(food.type === "recipe" ? "serving" : "g");
+
+    // original logic for when only spoonacular API was used
     if (food.type === "recipe") {
       try {
         const recipeInfo = await foodApi.getRecipeInformation(food.id);
