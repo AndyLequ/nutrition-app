@@ -137,9 +137,11 @@ export const SearchFood = () => {
         const fatSecretResults = fatSecretFoodsResponse.map((item) => ({
           id: item.id,
           name: item.name,
-          type: "food",
+          type: "ingredient" as const, // mapping fatsecret foods to "ingredient" type
+          source: "fatsecret", //adding a source field to distinguish
           baseAmount: 100,
           baseUnit: "g",
+          fatSecretData: item, // keep the original data for further use
         }));
 
         const fatSecretRecipeResults = fatSecretRecipesResponse.map((item) => ({
@@ -149,7 +151,12 @@ export const SearchFood = () => {
           nutrition: item.nutrition,
         }));
 
-        setSearchResults([...ingredientResults, ...recipeResults, ...fatSecretResults, ...fatSecretRecipeResults]);
+        setSearchResults([
+          ...ingredientResults,
+          ...recipeResults,
+          ...fatSecretResults,
+          ...fatSecretRecipeResults,
+        ]);
       } catch (error) {
         console.error("Error fetching data from spoonacular API", error);
         setSearchResults([]);
