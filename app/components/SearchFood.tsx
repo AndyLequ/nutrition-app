@@ -244,6 +244,22 @@ export const SearchFood = () => {
     parseFloat(value.replace(/[^\d.]/g, ""));
   };
 
+  // helper function to convert various units to grams
+  const convertToGrams = (amount: number, unit: string): number => {
+    const conversions: { [key: string]: number } = {
+      g: 1,
+      oz: 28.3495,
+      ml: 1, // assuming density similar to water for simplicity
+      serving: selectedFood?.baseAmount
+        ? selectedFood.baseAmount
+        : 100, // default to 100g if baseAmount not available
+    };
+    return conversions[unit] ? amount * conversions[unit] : amount;
+  };
+
+  
+
+
   // function to handle form submission
   // this function will be called when the user clicks the submit button
   // this needs to be changed to account for the nutrition data being fetched from the API
@@ -260,6 +276,16 @@ export const SearchFood = () => {
           try {
             const foodDetails = await foodApi.getFatSecretFoodById(selectedFood.id.toString());
 
+            const amountInGrams = convertToGrams(parseFloat(amount), unit);
+
+            nutrition = {
+              protein: foodDetails.perGram.protein * amountInGrams,
+              calories: foodDetails.perGram.calories * amountInGrams,
+              carbs: foodDetails.perGram.carbs * amountInGrams,
+              fat: foodDetails.perGram.fat * amountInGrams,
+              amount: parseFloat(amount),
+              unit,
+            }
 
           } catch (error) {
             console.error("Error fetching FatSecret food details", error);
@@ -310,37 +336,7 @@ export const SearchFood = () => {
         };
       }
 
-
-
-        // Handle fatsecret items
-        const servings = convertToServings(
-          parseFloat(amount),
-          unit,
-          selectedFood.servingSizeGrams || 100
-        );
-
-        // Use nutrition data from FatSecret
-        nutrition = await foodApi.getNutrition(
-          selectedFood.id,
-          parseFloat(amount),
-          unit
-        );
-      } else {
-        const servings = convertToServings(
-          parseFloat(amount),
-          unit,
-          selectedFood.servingSizeGrams || 100
-        );
-        const baseNutrition = await foodApi.getRecipeNutrition(selectedFood.id);
-        nutrition = {
-          calories: baseNutrition.calories * servings,
-          protein: baseNutrition.protein * servings,
-          carbs: baseNutrition.carbs * servings,
-          fat: baseNutrition.fat * servings,
-          amount: parseFloat(amount),
-          unit,
-        };
-      }
+      // adding the food to the daily log
 
       await addFood({
         name: selectedFood.name,
