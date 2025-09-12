@@ -284,7 +284,33 @@ export const SearchFood = () => {
         };
         }
 
+      } else if (selectedFood.type === "ingredient") {
+        // original logic for spoonacular ingredients
+        nutrition = await foodApi.getNutrition(
+          selectedFood.id,
+          parseFloat(amount),
+          unit
+        )
       }
+      else {
+        // original logic for spoonacular recipes
+        const servings = convertToServings(
+          parseFloat(amount),
+          unit,
+          selectedFood.servingSizeGrams || 100
+        );
+        const baseNutrition = await foodApi.getRecipeNutrition(selectedFood.id);
+        nutrition = {
+          calories: baseNutrition.calories * servings,
+          protein: baseNutrition.protein * servings,
+          carbs: baseNutrition.carbs * servings,
+          fat: baseNutrition.fat * servings,
+          amount: parseFloat(amount),
+          unit,
+        };
+      }
+
+
 
         // Handle fatsecret items
         const servings = convertToServings(
