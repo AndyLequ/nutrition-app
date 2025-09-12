@@ -260,11 +260,31 @@ export const SearchFood = () => {
           try {
             const foodDetails = await foodApi.getFatSecretFoodById(selectedFood.id.toString());
 
-            
+
           } catch (error) {
-            
+            console.error("Error fetching FatSecret food details", error);
+            throw new Error("Failed to fetch food details");
           }
+        } else {
+          // for fatsecret recipes
+          const servings = convertToServings(
+            parseFloat(amount),
+            unit,
+            selectedFood.servingSizeGrams || 100
+        )
+      
+        // use the nutrition data from fatsecret
+        nutrition = {
+          calories: selectedFood.nutrition.calories * servings,
+          protein: selectedFood.nutrition.protein * servings,
+          carbs: selectedFood.nutrition.carbs * servings,
+          fat: selectedFood.nutrition.fat * servings,
+          amount: parseFloat(amount),
+          unit,
+        };
         }
+
+      }
 
         // Handle fatsecret items
         const servings = convertToServings(
