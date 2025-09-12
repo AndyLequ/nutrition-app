@@ -149,6 +149,21 @@ interface FatSecretIngredient {
   ingredient_description: string;
 }
 
+export interface FatSecretFoodDetails {
+  id: string;
+  name: string;
+  serving: fatsecretNutritionInfo;
+  perGram: fatsecretNutritionInfo;
+  servingSizeGrams?: number;
+}
+
+export interface FatSecretRecipeDetails {
+  id: string;
+  name: string;
+  servingSizeGrams: number;
+  nutritionPerServing: NutritionInfo;
+  nutritionPerGram: NutritionInfo;
+}
 export {
   MappedFatSecretRecipe,
   Recipe,

@@ -201,20 +201,30 @@ export const SearchFood = () => {
         );
         setSelectedFood({
           ...food,
+          fatSecretData: foodDetails,
         });
       } catch (error) {
         console.error("Error fetching FatSecret food details", error);
         setSelectedFood(food);
       }
-    } else if (food.type === "recipe") {
+    }
+    // fatsecret recipes
+    else if (food.source === "fatsecret" && food.type === "recipe") {
       try {
-        const recipeInfo = await foodApi.getRecipeInformation(food.id);
+        const recipeDetails = await foodApi.getFatSecretRecipeById(
+          food.id.toString()
+        );
         setSelectedFood({
           ...food,
-          servingSizeGrams: recipeInfo.servingSizeGrams,
+          fatSecretData: recipeDetails,
+          servingSizeGrams: recipeDetails.servingSizeGrams 
         });
       } catch (error) {
-        setSelectedFood(food);
+        console.error("Error fetching FatSecret recipe details", error);
+        setSelectedFood({
+          ...food,
+          servingSizeGrams: 100, //default fallback
+        })
       }
     } else {
       setSelectedFood(food);
@@ -257,7 +267,6 @@ export const SearchFood = () => {
     return conversions[unit] ? amount * conversions[unit] : amount;
   };
 
-  
 
 
   // function to handle form submission
@@ -307,7 +316,7 @@ export const SearchFood = () => {
           fat: selectedFood.nutrition.fat * servings,
           amount: parseFloat(amount),
           unit,
-        };
+          };
         }
 
       } else if (selectedFood.type === "ingredient") {
