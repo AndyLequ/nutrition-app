@@ -222,7 +222,7 @@ export const SearchFood = () => {
 
     setUnit(food.type === "recipe" ? "serving" : "g");
 
-    //   // original logic for when only spoonacular API was used
+    // original logic for when only spoonacular API was used
     //   if (food.type === "recipe") {
     //     try {
     //       const recipeInfo = await foodApi.getRecipeInformation(food.id);
@@ -250,10 +250,22 @@ export const SearchFood = () => {
   const handleSubmit = async () => {
     if (!selectedFood || !amount) return;
 
+
     try {
       let nutrition;
 
       if (selectedFood.source === "fatsecret") {
+        if(selectedFood.type === "ingredient"){
+          // For FatSecret ingredients, we need to get detailed nutrition info
+          try {
+            const foodDetails = await foodApi.getFatSecretFoodById(selectedFood.id.toString());
+
+            
+          } catch (error) {
+            
+          }
+        }
+
         // Handle fatsecret items
         const servings = convertToServings(
           parseFloat(amount),
