@@ -201,20 +201,30 @@ export const SearchFood = () => {
         );
         setSelectedFood({
           ...food,
+          fatSecretData: foodDetails,
         });
       } catch (error) {
         console.error("Error fetching FatSecret food details", error);
         setSelectedFood(food);
       }
-    } else if (food.type === "recipe") {
+    }
+    // fatsecret recipes
+    else if (food.source === "fatsecret" && food.type === "recipe") {
       try {
-        const recipeInfo = await foodApi.getRecipeInformation(food.id);
+        const recipeDetails = await foodApi.getFatSecretRecipeById(
+          food.id.toString()
+        );
         setSelectedFood({
           ...food,
-          servingSizeGrams: recipeInfo.servingSizeGrams,
+          fatSecretData: recipeDetails,
+          servingSizeGrams: recipeDetails.servingSizeGrams 
         });
       } catch (error) {
-        setSelectedFood(food);
+        console.error("Error fetching FatSecret recipe details", error);
+        setSelectedFood({
+          ...food,
+          servingSizeGrams: 100, //default fallback
+        })
       }
     } else {
       setSelectedFood(food);
@@ -222,7 +232,7 @@ export const SearchFood = () => {
 
     setUnit(food.type === "recipe" ? "serving" : "g");
 
-    //   // original logic for when only spoonacular API was used
+    // original logic for when only spoonacular API was used
     //   if (food.type === "recipe") {
     //     try {
     //       const recipeInfo = await foodApi.getRecipeInformation(food.id);
@@ -244,30 +254,81 @@ export const SearchFood = () => {
     parseFloat(value.replace(/[^\d.]/g, ""));
   };
 
+  // helper function to convert various units to grams
+  const convertToGrams = (amount: number, unit: string): number => {
+    const conversions: { [key: string]: number } = {
+      g: 1,
+      oz: 28.3495,
+      ml: 1, // assuming density similar to water for simplicity
+      serving: selectedFood?.baseAmount
+        ? selectedFood.baseAmount
+        : 100, // default to 100g if baseAmount not available
+    };
+    return conversions[unit] ? amount * conversions[unit] : amount;
+  };
+
+
+
   // function to handle form submission
   // this function will be called when the user clicks the submit button
   // this needs to be changed to account for the nutrition data being fetched from the API
   const handleSubmit = async () => {
     if (!selectedFood || !amount) return;
 
+
     try {
       let nutrition;
 
       if (selectedFood.source === "fatsecret") {
-        // Handle fatsecret items
-        const servings = convertToServings(
-          parseFloat(amount),
-          unit,
-          selectedFood.servingSizeGrams || 100
-        );
+        if(selectedFood.type === "ingredient"){
+          // For FatSecret ingredients, we need to get detailed nutrition info
+          try {
+            const foodDetails = await foodApi.getFatSecretFoodById(selectedFood.id.toString());
 
-        // Use nutrition data from FatSecret
+            const amountInGrams = convertToGrams(parseFloat(amount), unit);
+
+            nutrition = {
+              protein: foodDetails.perGram.protein * amountInGrams,
+              calories: foodDetails.perGram.calories * amountInGrams,
+              carbs: foodDetails.perGram.carbs * amountInGrams,
+              fat: foodDetails.perGram.fat * amountInGrams,
+              amount: parseFloat(amount),
+              unit,
+            }
+
+          } catch (error) {
+            console.error("Error fetching FatSecret food details", error);
+            throw new Error("Failed to fetch food details");
+          }
+        } else {
+          // for fatsecret recipes
+          const servings = convertToServings(
+            parseFloat(amount),
+            unit,
+            selectedFood.servingSizeGrams || 100
+        )
+      
+        // use the nutrition data from fatsecret
+        nutrition = {
+          calories: selectedFood.nutrition.calories * servings,
+          protein: selectedFood.nutrition.protein * servings,
+          carbs: selectedFood.nutrition.carbs * servings,
+          fat: selectedFood.nutrition.fat * servings,
+          amount: parseFloat(amount),
+          unit,
+          };
+        }
+
+      } else if (selectedFood.type === "ingredient") {
+        // original logic for spoonacular ingredients
         nutrition = await foodApi.getNutrition(
           selectedFood.id,
           parseFloat(amount),
           unit
-        );
-      } else {
+        )
+      }
+      else {
+        // original logic for spoonacular recipes
         const servings = convertToServings(
           parseFloat(amount),
           unit,
@@ -283,6 +344,8 @@ export const SearchFood = () => {
           unit,
         };
       }
+
+      // adding the food to the daily log
 
       await addFood({
         name: selectedFood.name,
