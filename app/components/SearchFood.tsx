@@ -207,9 +207,7 @@ export const SearchFood = () => {
     // for fatsecret ingredients, need to fetch details
     else if (food.source === "fatsecret" && food.type === "ingredient") {
       try {
-        const foodDetails = await foodApi.getFatSecretFoodById(
-          food.id.toString()
-        );
+        const foodDetails = selectedFood.fatSecretData;
         setSelectedFood({
           ...food,
           fatSecretData: foodDetails,
@@ -276,7 +274,7 @@ export const SearchFood = () => {
         if(selectedFood.type === "ingredient"){
           // For FatSecret ingredients, we need to get detailed nutrition info
           try {
-            const foodDetails = await foodApi.getFatSecretFoodById(selectedFood.id.toString());
+            const foodDetails = selectedFood.fatSecretData;
 
             const amountInGrams = convertToGrams(parseFloat(amount), unit);
 
