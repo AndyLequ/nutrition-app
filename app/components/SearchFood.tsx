@@ -219,25 +219,7 @@ export const SearchFood = () => {
         setSelectedFood(food);
       }
     }
-    // fatsecret recipes
-    else if (food.source === "fatsecret" && food.type === "recipe") {
-      try {
-        const recipeDetails = await foodApi.getFatSecretRecipeById(
-          food.id.toString()
-        );
-        setSelectedFood({
-          ...food,
-          fatSecretData: recipeDetails,
-          servingSizeGrams: recipeDetails.servingSizeGrams 
-        });
-      } catch (error) {
-        console.error("Error fetching FatSecret recipe details", error);
-        setSelectedFood({
-          ...food,
-          servingSizeGrams: 100, //default fallback
-        })
-      }
-    } else {
+    else {
       setSelectedFood(food);
     }
 
