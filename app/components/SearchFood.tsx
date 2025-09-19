@@ -293,18 +293,19 @@ export const SearchFood = () => {
           }
         } else {
           // for fatsecret recipes
-          const servings = convertToServings(
+          const recipeDetails = selectedFood.fatSecretData;
+          const amountInGrams = convertToGrams(
             parseFloat(amount),
             unit,
             selectedFood.servingSizeGrams || 100
-        )
+          )
       
         // use the nutrition data from fatsecret
         nutrition = {
-          calories: selectedFood.nutrition.calories * servings,
-          protein: selectedFood.nutrition.protein * servings,
-          carbs: selectedFood.nutrition.carbs * servings,
-          fat: selectedFood.nutrition.fat * servings,
+          protein: recipeDetails.nutritionPerGram.protein * amountInGrams,
+          calories: recipeDetails.nutritionPerGram.calories * amountInGrams,
+          carbs: recipeDetails.nutritionPerGram.carbs * amountInGrams,
+          fat: recipeDetails.nutritionPerGram.fat * amountInGrams,
           amount: parseFloat(amount),
           unit,
           };
