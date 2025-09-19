@@ -8,6 +8,7 @@ import {
   FatSecretFood,
   FatSecretFoodDetails,
   FatSecretRecipe,
+  FatSecretRecipeDetails,
   FatSecretSearchParams,
   MappedFatSecretRecipe,
 } from "./interfaces";
@@ -129,7 +130,7 @@ export const foodApi = {
   // WIP getting recipe details from fatsecret
   getFatSecretRecipeById: async (
     recipeId: string
-  ): Promise<FatSecretRecipe> => {
+  ): Promise<FatSecretRecipeDetails> => {
     try {
       const response = await fatsecretApi.get(
         `/api/fatsecret/recipe/${recipeId}`
