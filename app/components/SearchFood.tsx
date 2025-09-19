@@ -188,17 +188,26 @@ export const SearchFood = () => {
 
     // new logic for handling both spoonacular and fatsecret APIs
     if (food.source === "fatsecret" && food.type === "recipe") {
-      setSelectedFood({
-        ...food,
-        servingSizeGrams: 100, // assuming 100g for fatsecret recipes, adjust as needed
-      });
+      try{
+        const recipeDetails = await foodApi.getFatSecretRecipeById(food.id.toString());
+        setSelectedFood({
+          ...food,
+          fatSecretData: recipeDetails,
+          servingSizeGrams: recipeDetails.servingSizeGrams, // assuming 100g for fatsecret recipes, adjust as needed
+        });
+      } catch (error){
+        console.error("Error fetching FatSecret recipe details", error);
+        setSelectedFood({
+          ...food,
+          servingSizeGrams: 100,
+        })
+      }
+      
     }
     // for fatsecret ingredients, need to fetch details
     else if (food.source === "fatsecret" && food.type === "ingredient") {
       try {
-        const foodDetails = await foodApi.getFatSecretFoodById(
-          food.id.toString()
-        );
+        const foodDetails = selectedFood.fatSecretData;
         setSelectedFood({
           ...food,
           fatSecretData: foodDetails,
@@ -208,25 +217,7 @@ export const SearchFood = () => {
         setSelectedFood(food);
       }
     }
-    // fatsecret recipes
-    else if (food.source === "fatsecret" && food.type === "recipe") {
-      try {
-        const recipeDetails = await foodApi.getFatSecretRecipeById(
-          food.id.toString()
-        );
-        setSelectedFood({
-          ...food,
-          fatSecretData: recipeDetails,
-          servingSizeGrams: recipeDetails.servingSizeGrams 
-        });
-      } catch (error) {
-        console.error("Error fetching FatSecret recipe details", error);
-        setSelectedFood({
-          ...food,
-          servingSizeGrams: 100, //default fallback
-        })
-      }
-    } else {
+    else {
       setSelectedFood(food);
     }
 
@@ -283,7 +274,7 @@ export const SearchFood = () => {
         if(selectedFood.type === "ingredient"){
           // For FatSecret ingredients, we need to get detailed nutrition info
           try {
-            const foodDetails = await foodApi.getFatSecretFoodById(selectedFood.id.toString());
+            const foodDetails = selectedFood.fatSecretData;
 
             const amountInGrams = convertToGrams(parseFloat(amount), unit);
 
@@ -302,18 +293,19 @@ export const SearchFood = () => {
           }
         } else {
           // for fatsecret recipes
-          const servings = convertToServings(
+          const recipeDetails = selectedFood.fatSecretData;
+          const amountInGrams = convertToGrams(
             parseFloat(amount),
             unit,
             selectedFood.servingSizeGrams || 100
-        )
+          )
       
         // use the nutrition data from fatsecret
         nutrition = {
-          calories: selectedFood.nutrition.calories * servings,
-          protein: selectedFood.nutrition.protein * servings,
-          carbs: selectedFood.nutrition.carbs * servings,
-          fat: selectedFood.nutrition.fat * servings,
+          protein: recipeDetails.nutritionPerGram.protein * amountInGrams,
+          calories: recipeDetails.nutritionPerGram.calories * amountInGrams,
+          carbs: recipeDetails.nutritionPerGram.carbs * amountInGrams,
+          fat: recipeDetails.nutritionPerGram.fat * amountInGrams,
           amount: parseFloat(amount),
           unit,
           };

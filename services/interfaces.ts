@@ -93,6 +93,15 @@ interface FatSecretSearchParams {
   maxResults?: number;
   pageNumber?: number;
 }
+
+interface FatSecretRecipeDetails {
+  id: string;
+  name: string;
+  servingSizeGrams: number;
+  nutritionPerServing: NutritionInfo;
+  nutritionPerGram: NutritionInfo;
+}
+
 export type {
   Recipe,
   Ingredient,
@@ -101,6 +110,7 @@ export type {
   RecipeSearchParams,
   FatSecretFood,
   FatSecretFoodDetails,
+  FatSecretRecipeDetails,
   FatSecretServing,
   FatSecretRecipe,
   FatSecretIngredient,
