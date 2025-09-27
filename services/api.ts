@@ -7,7 +7,6 @@ import {
   RecipeSearchParams,
   FatSecretFood,
   FatSecretFoodDetails,
-  FatSecretRecipe,
   FatSecretRecipeDetails,
   FatSecretSearchParams,
   MappedFatSecretRecipe,

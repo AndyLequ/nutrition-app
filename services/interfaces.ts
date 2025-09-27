@@ -24,14 +24,14 @@ interface IngredientSearchParams {
   query: string;
   limit?: number;
   sort?: string;
-  sortDirection?: 'asc' | 'desc';
+  sortDirection?: "asc" | "desc";
 }
 
 interface RecipeSearchParams {
   query: string;
   limit?: number;
   sort?: string;
-  sortDirection?: 'asc' | 'desc';
+  sortDirection?: "asc" | "desc";
 }
 
 //FatSecret API types
@@ -71,16 +71,15 @@ interface FatSecretRecipe {
   recipe_description?: string;
   ingredients?: {
     ingredient: FatSecretIngredient | FatSecretIngredient[];
-  }
+  };
   recipe_nutrition?: {
     protein: string;
     calories: string;
     carbohydrate: string;
     fat: string;
-  }
+  };
   number_of_servings?: string;
 }
-
 
 interface FatSecretIngredient {
   food_id?: string;
@@ -102,6 +101,21 @@ interface FatSecretRecipeDetails {
   nutritionPerGram: NutritionInfo;
 }
 
+interface FatSecretFoodDetails {
+  id: string;
+  name: string;
+  type: string;
+  url: string;
+  brand: string;
+  protein: number;
+  calories: number;
+  carbs: number;
+  fat: number;
+  amount: number;
+  unit: string;
+  servingSizeGrams?: number; // ✅ Add this line
+}
+
 export type {
   Recipe,
   Ingredient,
@@ -114,5 +128,5 @@ export type {
   FatSecretServing,
   FatSecretRecipe,
   FatSecretIngredient,
-  FatSecretSearchParams
+  FatSecretSearchParams,
 };

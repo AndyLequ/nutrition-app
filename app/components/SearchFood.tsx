@@ -211,6 +211,11 @@ export const SearchFood = () => {
         const foodDetails = await foodApi.getFatSecretFoodById(
           food.id.toString()
         );
+        setSelectedFood({
+          ...food,
+          fatSecretData: foodDetails,
+          servingSizeGrams: (foodDetails as any).servingSizeGrams || 100,
+        });
       } catch (error) {
         console.error("Error fetching FatSecret food details", error);
         setSelectedFood(food);
@@ -243,6 +248,24 @@ export const SearchFood = () => {
     parseFloat(value.replace(/[^\d.]/g, ""));
   };
 
+  // helper function to calculate nutrition for fatsecret food
+  const calculateFatSecretNutrition = (
+    foodDetails: any,
+    amount: number,
+    unit: string
+  ) => {
+    const amountInGrams = convertToGrams(amount, unit);
+
+    return {
+      protein: foodDetails.perGram.protein * amountInGrams,
+      calories: foodDetails.perGram.calories * amountInGrams,
+      carbs: foodDetails.perGram.carbs * amountInGrams,
+      fat: foodDetails.perGram.fat * amountInGrams,
+      amount,
+      unit,
+    };
+  };
+
   // helper function to convert various units to grams
   const convertToGrams = (amount: number, unit: string): number => {
     const conversions: { [key: string]: number } = {
@@ -264,67 +287,15 @@ export const SearchFood = () => {
       let nutrition;
 
       if (selectedFood.source === "fatsecret") {
-        if (selectedFood.type === "ingredient") {
-          // For FatSecret ingredients, we need to get detailed nutrition info
-          try {
-            const foodDetails = selectedFood.fatSecretData;
-
-            const amountInGrams = convertToGrams(parseFloat(amount), unit);
-
-            nutrition = {
-              protein: foodDetails.perGram.protein * amountInGrams,
-              calories: foodDetails.perGram.calories * amountInGrams,
-              carbs: foodDetails.perGram.carbs * amountInGrams,
-              fat: foodDetails.perGram.fat * amountInGrams,
-              amount: parseFloat(amount),
-              unit,
-            };
-          } catch (error) {
-            console.error("Error fetching FatSecret food details", error);
-            throw new Error("Failed to fetch food details");
-          }
-        } else {
-          // for fatsecret recipes
-          const recipeDetails = selectedFood.fatSecretData;
-          const amountInGrams = convertToGrams(
-            parseFloat(amount),
-            unit,
-            selectedFood.servingSizeGrams || 100
-          );
-
-          // use the nutrition data from fatsecret
-          nutrition = {
-            protein: recipeDetails.nutritionPerGram.protein * amountInGrams,
-            calories: recipeDetails.nutritionPerGram.calories * amountInGrams,
-            carbs: recipeDetails.nutritionPerGram.carbs * amountInGrams,
-            fat: recipeDetails.nutritionPerGram.fat * amountInGrams,
-            amount: parseFloat(amount),
-            unit,
-          };
+        if (!selectedFood.fatSecretData) {
+          throw new Error("FatSecret data not available");
         }
-      } else if (selectedFood.type === "ingredient") {
-        // original logic for spoonacular ingredients
-        nutrition = await foodApi.getNutrition(
-          selectedFood.id,
+
+        nutrition = calculateFatSecretNutrition(
+          selectedFood?.fatSecretData,
           parseFloat(amount),
           unit
         );
-      } else {
-        // original logic for spoonacular recipes
-        const servings = convertToServings(
-          parseFloat(amount),
-          unit,
-          selectedFood.servingSizeGrams || 100
-        );
-        const baseNutrition = await foodApi.getRecipeNutrition(selectedFood.id);
-        nutrition = {
-          calories: baseNutrition.calories * servings,
-          protein: baseNutrition.protein * servings,
-          carbs: baseNutrition.carbs * servings,
-          fat: baseNutrition.fat * servings,
-          amount: parseFloat(amount),
-          unit,
-        };
       }
 
       // adding the food to the daily log
