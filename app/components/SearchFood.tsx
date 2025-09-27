@@ -188,36 +188,34 @@ export const SearchFood = () => {
 
     // new logic for handling both spoonacular and fatsecret APIs
     if (food.source === "fatsecret" && food.type === "recipe") {
-      try{
-        const recipeDetails = await foodApi.getFatSecretRecipeById(food.id.toString());
+      try {
+        const recipeDetails = await foodApi.getFatSecretRecipeById(
+          food.id.toString()
+        );
         setSelectedFood({
           ...food,
           fatSecretData: recipeDetails,
           servingSizeGrams: recipeDetails.servingSizeGrams, // assuming 100g for fatsecret recipes, adjust as needed
         });
-      } catch (error){
+      } catch (error) {
         console.error("Error fetching FatSecret recipe details", error);
         setSelectedFood({
           ...food,
           servingSizeGrams: 100,
-        })
+        });
       }
-      
     }
     // for fatsecret ingredients, need to fetch details
     else if (food.source === "fatsecret" && food.type === "ingredient") {
       try {
-        const foodDetails = selectedFood.fatSecretData;
-        setSelectedFood({
-          ...food,
-          fatSecretData: foodDetails,
-        });
+        const foodDetails = await foodApi.getFatSecretFoodById(
+          food.id.toString()
+        );
       } catch (error) {
         console.error("Error fetching FatSecret food details", error);
         setSelectedFood(food);
       }
-    }
-    else {
+    } else {
       setSelectedFood(food);
     }
 
@@ -251,14 +249,10 @@ export const SearchFood = () => {
       g: 1,
       oz: 28.3495,
       ml: 1, // assuming density similar to water for simplicity
-      serving: selectedFood?.baseAmount
-        ? selectedFood.baseAmount
-        : 100, // default to 100g if baseAmount not available
+      serving: selectedFood?.baseAmount ? selectedFood.baseAmount : 100, // default to 100g if baseAmount not available
     };
     return conversions[unit] ? amount * conversions[unit] : amount;
   };
-
-
 
   // function to handle form submission
   // this function will be called when the user clicks the submit button
@@ -266,12 +260,11 @@ export const SearchFood = () => {
   const handleSubmit = async () => {
     if (!selectedFood || !amount) return;
 
-
     try {
       let nutrition;
 
       if (selectedFood.source === "fatsecret") {
-        if(selectedFood.type === "ingredient"){
+        if (selectedFood.type === "ingredient") {
           // For FatSecret ingredients, we need to get detailed nutrition info
           try {
             const foodDetails = selectedFood.fatSecretData;
@@ -285,8 +278,7 @@ export const SearchFood = () => {
               fat: foodDetails.perGram.fat * amountInGrams,
               amount: parseFloat(amount),
               unit,
-            }
-
+            };
           } catch (error) {
             console.error("Error fetching FatSecret food details", error);
             throw new Error("Failed to fetch food details");
@@ -298,28 +290,26 @@ export const SearchFood = () => {
             parseFloat(amount),
             unit,
             selectedFood.servingSizeGrams || 100
-          )
-      
-        // use the nutrition data from fatsecret
-        nutrition = {
-          protein: recipeDetails.nutritionPerGram.protein * amountInGrams,
-          calories: recipeDetails.nutritionPerGram.calories * amountInGrams,
-          carbs: recipeDetails.nutritionPerGram.carbs * amountInGrams,
-          fat: recipeDetails.nutritionPerGram.fat * amountInGrams,
-          amount: parseFloat(amount),
-          unit,
+          );
+
+          // use the nutrition data from fatsecret
+          nutrition = {
+            protein: recipeDetails.nutritionPerGram.protein * amountInGrams,
+            calories: recipeDetails.nutritionPerGram.calories * amountInGrams,
+            carbs: recipeDetails.nutritionPerGram.carbs * amountInGrams,
+            fat: recipeDetails.nutritionPerGram.fat * amountInGrams,
+            amount: parseFloat(amount),
+            unit,
           };
         }
-
       } else if (selectedFood.type === "ingredient") {
         // original logic for spoonacular ingredients
         nutrition = await foodApi.getNutrition(
           selectedFood.id,
           parseFloat(amount),
           unit
-        )
-      }
-      else {
+        );
+      } else {
         // original logic for spoonacular recipes
         const servings = convertToServings(
           parseFloat(amount),
