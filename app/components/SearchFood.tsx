@@ -214,7 +214,7 @@ export const SearchFood = () => {
         setSelectedFood({
           ...food,
           fatSecretData: foodDetails,
-          servingSizeGrams: foodDetails.servingSizeGrams || 100,
+          servingSizeGrams: (foodDetails as any).servingSizeGrams || 100,
         });
       } catch (error) {
         console.error("Error fetching FatSecret food details", error);
