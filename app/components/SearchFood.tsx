@@ -248,6 +248,24 @@ export const SearchFood = () => {
     parseFloat(value.replace(/[^\d.]/g, ""));
   };
 
+  // helper function to calculate nutrition for fatsecret food
+  const calculateFatSecretNutrition = (
+    foodDetails: any,
+    amount: number,
+    unit: string
+  ) => {
+    const amountInGrams = convertToGrams(amount, unit);
+
+    return {
+      protein: foodDetails.perGram.protein * amountInGrams,
+      calories: foodDetails.perGram.calories * amountInGrams,
+      carbs: foodDetails.perGram.carbs * amountInGrams,
+      fat: foodDetails.perGram.fat * amountInGrams,
+      amount,
+      unit,
+    };
+  };
+
   // helper function to convert various units to grams
   const convertToGrams = (amount: number, unit: string): number => {
     const conversions: { [key: string]: number } = {
