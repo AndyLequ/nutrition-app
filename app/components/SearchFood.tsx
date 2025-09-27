@@ -211,6 +211,11 @@ export const SearchFood = () => {
         const foodDetails = await foodApi.getFatSecretFoodById(
           food.id.toString()
         );
+        setSelectedFood({
+          ...food,
+          fatSecretData: foodDetails,
+          servingSizeGrams: foodDetails.servingSizeGrams || 100,
+        });
       } catch (error) {
         console.error("Error fetching FatSecret food details", error);
         setSelectedFood(food);

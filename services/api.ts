@@ -10,7 +10,6 @@ import {
   FatSecretRecipe,
   FatSecretRecipeDetails,
   FatSecretSearchParams,
-  MappedFatSecretRecipe,
 } from "./interfaces";
 
 const API_BASE_URL = "https://nutrition-app-backend-4795.onrender.com";
