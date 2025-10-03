@@ -267,12 +267,16 @@ export const SearchFood = () => {
   };
 
   // helper function to convert various units to grams
-  const convertToGrams = (amount: number, unit: string): number => {
+  const convertToGrams = (
+    amount: number,
+    unit: string,
+    servingSizeGrams: number = 100
+  ): number => {
     const conversions: { [key: string]: number } = {
       g: 1,
       oz: 28.3495,
       ml: 1, // assuming density similar to water for simplicity
-      serving: selectedFood?.baseAmount ? selectedFood.baseAmount : 100, // default to 100g if baseAmount not available
+      serving: servingSizeGrams,
     };
     return conversions[unit] ? amount * conversions[unit] : amount;
   };
