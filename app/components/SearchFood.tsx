@@ -291,7 +291,7 @@ export const SearchFood = () => {
           throw new Error("FatSecret data not available");
         }
 
-        if(selectedFood.type === "ingredient") {
+        if (selectedFood.type === "ingredient") {
           // fatsecret ingredients
           const foodDetails = selectedFood.fatSecretData;
           const amountInGrams = convertToGrams(parseFloat(amount), unit);
@@ -309,9 +309,9 @@ export const SearchFood = () => {
           const recipeDetails = selectedFood.fatSecretData;
           const amountInGrams = convertToGrams(
             parseFloat(amount),
-            unit, 
+            unit,
             selectedFood.servingSizeGrams || 100
-          )
+          );
 
           nutrition = {
             protein: recipeDetails.nutritionPerGram.protein * amountInGrams,
@@ -329,19 +329,24 @@ export const SearchFood = () => {
           parseFloat(amount),
           unit
         );
-        
-      }
-
-        }
-
-
-        nutrition = calculateFatSecretNutrition(
-          selectedFood?.fatSecretData,
+      } else {
+        // spoonacular recipes
+        const servings = convertToServings(
           parseFloat(amount),
-          unit
+          unit,
+          selectedFood.servingSizeGrams || 100
         );
-      }
 
+        const baseNutrition = await foodApi.getRecipeNutrition(selectedFood.id);
+        nutrition = {
+          protein: baseNutrition.protein * servings,
+          calories: baseNutrition.calories * servings,
+          carbs: baseNutrition.calories * servings,
+          fat: baseNutrition.fat * servings,
+          amount: parseFloat(amount),
+          unit,
+        };
+      }
       // adding the food to the daily log
 
       await addFood({
