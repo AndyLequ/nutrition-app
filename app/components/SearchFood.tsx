@@ -304,6 +304,24 @@ export const SearchFood = () => {
             amount: parseFloat(amount),
             unit,
           };
+        } else {
+          // fatsecret recipes
+          const recipeDetails = selectedFood.fatSecretData;
+          const amountInGrams = convertToGrams(
+            parseFloat(amount),
+            unit, 
+            selectedFood.servingSizeGrams || 100
+          )
+
+          nutrition = {
+            protein: recipeDetails.nutritionPerGram.protein * amountInGrams,
+            calories: recipeDetails.nutritionPerGram.calories * amountInGrams,
+            carbs: recipeDetails.nutritionPerGram.calories * amountInGrams,
+            fat: recipeDetails.nutritionPerGram.fat * amountInGrams,
+            amount: parseFloat(amount),
+            unit,
+          }
+
         }
           }
         }
