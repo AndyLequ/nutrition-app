@@ -291,6 +291,24 @@ export const SearchFood = () => {
           throw new Error("FatSecret data not available");
         }
 
+        if(selectedFood.type === "ingredient") {
+          // fatsecret ingredients
+          const foodDetails = selectedFood.fatSecretData;
+          const amountInGrams = convertToGrams(parseFloat(amount), unit);
+
+          nutrition = {
+            protein: foodDetails.perGram.protein * amountInGrams,
+            calories: foodDetails.perGram.calories * amountInGrams,
+            carbs: foodDetails.perGram.calories * amountInGrams,
+            fat: foodDetails.perGram.fat * amountInGrams,
+            amount: parseFloat(amount),
+            unit,
+          };
+        }
+          }
+        }
+
+
         nutrition = calculateFatSecretNutrition(
           selectedFood?.fatSecretData,
           parseFloat(amount),
