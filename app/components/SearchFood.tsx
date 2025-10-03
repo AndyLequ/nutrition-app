@@ -248,31 +248,17 @@ export const SearchFood = () => {
     parseFloat(value.replace(/[^\d.]/g, ""));
   };
 
-  // helper function to calculate nutrition for fatsecret food
-  const calculateFatSecretNutrition = (
-    foodDetails: any,
-    amount: number,
-    unit: string
-  ) => {
-    const amountInGrams = convertToGrams(amount, unit);
-
-    return {
-      protein: foodDetails.perGram.protein * amountInGrams,
-      calories: foodDetails.perGram.calories * amountInGrams,
-      carbs: foodDetails.perGram.carbs * amountInGrams,
-      fat: foodDetails.perGram.fat * amountInGrams,
-      amount,
-      unit,
-    };
-  };
-
   // helper function to convert various units to grams
-  const convertToGrams = (amount: number, unit: string): number => {
+  const convertToGrams = (
+    amount: number,
+    unit: string,
+    servingSizeGrams: number = 100
+  ): number => {
     const conversions: { [key: string]: number } = {
       g: 1,
       oz: 28.3495,
       ml: 1, // assuming density similar to water for simplicity
-      serving: selectedFood?.baseAmount ? selectedFood.baseAmount : 100, // default to 100g if baseAmount not available
+      serving: servingSizeGrams,
     };
     return conversions[unit] ? amount * conversions[unit] : amount;
   };
@@ -291,13 +277,62 @@ export const SearchFood = () => {
           throw new Error("FatSecret data not available");
         }
 
-        nutrition = calculateFatSecretNutrition(
-          selectedFood?.fatSecretData,
+        if (selectedFood.type === "ingredient") {
+          // fatsecret ingredients
+          const foodDetails = selectedFood.fatSecretData;
+          const amountInGrams = convertToGrams(parseFloat(amount), unit);
+
+          nutrition = {
+            protein: foodDetails.perGram.protein * amountInGrams,
+            calories: foodDetails.perGram.calories * amountInGrams,
+            carbs: foodDetails.perGram.calories * amountInGrams,
+            fat: foodDetails.perGram.fat * amountInGrams,
+            amount: parseFloat(amount),
+            unit,
+          };
+        } else {
+          // fatsecret recipes
+          const recipeDetails = selectedFood.fatSecretData;
+          const amountInGrams = convertToGrams(
+            parseFloat(amount),
+            unit,
+            selectedFood.servingSizeGrams || 100
+          );
+
+          nutrition = {
+            protein: recipeDetails.nutritionPerGram.protein * amountInGrams,
+            calories: recipeDetails.nutritionPerGram.calories * amountInGrams,
+            carbs: recipeDetails.nutritionPerGram.calories * amountInGrams,
+            fat: recipeDetails.nutritionPerGram.fat * amountInGrams,
+            amount: parseFloat(amount),
+            unit,
+          };
+        }
+      } else if (selectedFood.type === "ingredient") {
+        // spoonacular ingredient
+        nutrition = await foodApi.getNutrition(
+          selectedFood.id,
           parseFloat(amount),
           unit
         );
-      }
+      } else {
+        // spoonacular recipes
+        const servings = convertToServings(
+          parseFloat(amount),
+          unit,
+          selectedFood.servingSizeGrams || 100
+        );
 
+        const baseNutrition = await foodApi.getRecipeNutrition(selectedFood.id);
+        nutrition = {
+          protein: baseNutrition.protein * servings,
+          calories: baseNutrition.calories * servings,
+          carbs: baseNutrition.calories * servings,
+          fat: baseNutrition.fat * servings,
+          amount: parseFloat(amount),
+          unit,
+        };
+      }
       // adding the food to the daily log
 
       await addFood({
