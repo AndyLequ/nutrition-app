@@ -320,10 +320,18 @@ export const SearchFood = () => {
             fat: recipeDetails.nutritionPerGram.fat * amountInGrams,
             amount: parseFloat(amount),
             unit,
-          }
-
+          };
         }
-          }
+      } else if (selectedFood.type === "ingredient") {
+        // spoonacular ingredient
+        nutrition = await foodApi.getNutrition(
+          selectedFood.id,
+          parseFloat(amount),
+          unit
+        );
+        
+      }
+
         }
 
 
