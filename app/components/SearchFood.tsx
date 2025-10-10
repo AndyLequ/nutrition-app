@@ -302,7 +302,7 @@ export const SearchFood = () => {
           nutrition = {
             protein: recipeDetails.nutritionPerGram.protein * amountInGrams,
             calories: recipeDetails.nutritionPerGram.calories * amountInGrams,
-            carbs: recipeDetails.nutritionPerGram.calories * amountInGrams,
+            carbs: recipeDetails.nutritionPerGram.carbs * amountInGrams,
             fat: recipeDetails.nutritionPerGram.fat * amountInGrams,
             amount: parseFloat(amount),
             unit,
