@@ -345,7 +345,16 @@ export const SearchFood = () => {
           unit,
         };
       }
-      // adding the food to the daily log
+
+      // debug log to verify nutrition calculation
+      console.log("Final nutrition calculation:", {
+        name: selectedFood.name,
+        source: selectedFood.source,
+        type: selectedFood.type,
+        nutrition: nutrition,
+        amount: amount,
+        unit: unit,
+      });
 
       await addFood({
         name: selectedFood.name,
