@@ -327,7 +327,7 @@ export const SearchFood = () => {
         nutrition = {
           protein: baseNutrition.protein * servings,
           calories: baseNutrition.calories * servings,
-          carbs: baseNutrition.calories * servings,
+          carbs: baseNutrition.carbs * servings,
           fat: baseNutrition.fat * servings,
           amount: parseFloat(amount),
           unit,
