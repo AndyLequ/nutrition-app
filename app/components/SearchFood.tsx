@@ -243,6 +243,18 @@ export const SearchFood = () => {
     //   setUnit(food.type === "recipe" ? "serving" : "g");
     //   console.log("Selected food:", food);
     //
+
+    console.log("Selected food:", {
+      name: food.name,
+      type: food.type,
+      source: food.source,
+      id: food.id,
+    });
+
+    // For FatSecret items, log the detailed data
+    if (food.source === "fatsecret") {
+      console.log("FatSecret details:", food.fatSecretData);
+    }
   };
   const parseNutritionValue = (value: string) => {
     parseFloat(value.replace(/[^\d.]/g, ""));
@@ -285,7 +297,7 @@ export const SearchFood = () => {
           nutrition = {
             protein: foodDetails.perGram.protein * amountInGrams,
             calories: foodDetails.perGram.calories * amountInGrams,
-            carbs: foodDetails.perGram.calories * amountInGrams,
+            carbs: foodDetails.perGram.carbs * amountInGrams,
             fat: foodDetails.perGram.fat * amountInGrams,
             amount: parseFloat(amount),
             unit,
@@ -302,7 +314,7 @@ export const SearchFood = () => {
           nutrition = {
             protein: recipeDetails.nutritionPerGram.protein * amountInGrams,
             calories: recipeDetails.nutritionPerGram.calories * amountInGrams,
-            carbs: recipeDetails.nutritionPerGram.calories * amountInGrams,
+            carbs: recipeDetails.nutritionPerGram.carbs * amountInGrams,
             fat: recipeDetails.nutritionPerGram.fat * amountInGrams,
             amount: parseFloat(amount),
             unit,
@@ -327,13 +339,22 @@ export const SearchFood = () => {
         nutrition = {
           protein: baseNutrition.protein * servings,
           calories: baseNutrition.calories * servings,
-          carbs: baseNutrition.calories * servings,
+          carbs: baseNutrition.carbs * servings,
           fat: baseNutrition.fat * servings,
           amount: parseFloat(amount),
           unit,
         };
       }
-      // adding the food to the daily log
+
+      // debug log to verify nutrition calculation
+      console.log("Final nutrition calculation:", {
+        name: selectedFood.name,
+        source: selectedFood.source,
+        type: selectedFood.type,
+        nutrition: nutrition,
+        amount: amount,
+        unit: unit,
+      });
 
       await addFood({
         name: selectedFood.name,
