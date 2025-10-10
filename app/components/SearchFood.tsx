@@ -243,6 +243,18 @@ export const SearchFood = () => {
     //   setUnit(food.type === "recipe" ? "serving" : "g");
     //   console.log("Selected food:", food);
     //
+
+    console.log("Selected food:", {
+      name: food.name,
+      type: food.type,
+      source: food.source,
+      id: food.id,
+    });
+
+    // For FatSecret items, log the detailed data
+    if (food.source === "fatsecret") {
+      console.log("FatSecret details:", food.fatSecretData);
+    }
   };
   const parseNutritionValue = (value: string) => {
     parseFloat(value.replace(/[^\d.]/g, ""));
