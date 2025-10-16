@@ -158,6 +158,18 @@ export const SearchFood = () => {
           ...fatSecretResults,
           ...fatSecretRecipeResults,
         ]);
+
+        console.log("Search results:", {
+          query,
+          spoonacularIngredients: ingredientResults.length,
+          spoonacularRecipes: recipeResults.length,
+          fatSecretFoods: fatSecretResults.length,
+          fatSecretRecipes: fatSecretRecipeResults.length,
+          allResults: searchResults
+        });
+
+        
+
       } catch (error) {
         console.error("Error fetching data from spoonacular API", error);
         setSearchResults([]);
