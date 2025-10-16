@@ -15,14 +15,14 @@ import {
 const API_BASE_URL = "https://nutrition-app-backend-4795.onrender.com";
 
 // testing for fatsecret endpoint integration
-const FATSECRET_BASE_URL = "http://localhost:3000";
+// const FATSECRET_BASE_URL = "http://localhost:3000";
 
 const api = axios.create({
   baseURL: API_BASE_URL, // or replace with your deployed server URL
 });
 
 const fatsecretApi = axios.create({
-  baseURL: FATSECRET_BASE_URL, // or replace with your deployed server URL
+  baseURL: API_BASE_URL, // or replace with your deployed server URL
 });
 
 export const foodApi = {

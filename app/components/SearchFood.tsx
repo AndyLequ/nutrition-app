@@ -286,6 +286,7 @@ export const SearchFood = () => {
           const foodDetails = selectedFood.fatSecretData;
           const amountInGrams = convertToGrams(parseFloat(amount), unit);
 
+          // debug log to verify calculation steps
           console.log("Nutrition Calculation Start:", {
             selectedFood: {
               name: selectedFood.name,
