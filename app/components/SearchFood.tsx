@@ -165,11 +165,8 @@ export const SearchFood = () => {
           spoonacularRecipes: recipeResults.length,
           fatSecretFoods: fatSecretResults.length,
           fatSecretRecipes: fatSecretRecipeResults.length,
-          allResults: searchResults
+          allResults: searchResults,
         });
-
-        
-
       } catch (error) {
         console.error("Error fetching data from spoonacular API", error);
         setSearchResults([]);
@@ -197,6 +194,14 @@ export const SearchFood = () => {
     setSelectedFood(food);
     setSearchQuery(food.name);
     setSearchResults([]);
+
+    // debug log to verify selected food details
+    console.log("Selected food:", {
+      name: food.name,
+      type: food.type,
+      source: food.source,
+      id: food.id,
+    });
 
     // new logic for handling both spoonacular and fatsecret APIs
     if (food.source === "fatsecret" && food.type === "recipe") {
@@ -237,31 +242,6 @@ export const SearchFood = () => {
     }
 
     setUnit(food.type === "recipe" ? "serving" : "g");
-
-    // original logic for when only spoonacular API was used
-    //   if (food.type === "recipe") {
-    //     try {
-    //       const recipeInfo = await foodApi.getRecipeInformation(food.id);
-    //       setSelectedFood({
-    //         ...food,
-    //         servingSizeGrams: recipeInfo.servingSizeGrams,
-    //       });
-    //     } catch (error) {
-    //       setSelectedFood(food);
-    //     }
-    //   } else {
-    //     setSelectedFood(food);
-    //   }
-    //   setUnit(food.type === "recipe" ? "serving" : "g");
-    //   console.log("Selected food:", food);
-    //
-
-    console.log("Selected food:", {
-      name: food.name,
-      type: food.type,
-      source: food.source,
-      id: food.id,
-    });
 
     // For FatSecret items, log the detailed data
     if (food.source === "fatsecret") {
@@ -305,6 +285,18 @@ export const SearchFood = () => {
           // fatsecret ingredients
           const foodDetails = selectedFood.fatSecretData;
           const amountInGrams = convertToGrams(parseFloat(amount), unit);
+
+          console.log("Nutrition Calculation Start:", {
+            selectedFood: {
+              name: selectedFood.name,
+              type: selectedFood.type,
+              source: selectedFood.source,
+              servingSizeGrams: selectedFood.servingSizeGrams,
+              fatSecretData: selectedFood.fatSecretData ? "exists" : "missing",
+            },
+            amount,
+            unit,
+          });
 
           nutrition = {
             protein: foodDetails.perGram.protein * amountInGrams,
