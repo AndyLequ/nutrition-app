@@ -21,11 +21,8 @@ const api = axios.create({
   baseURL: API_BASE_URL, // or replace with your deployed server URL
 });
 
-const fatsecretApi = axios.create({
-  baseURL: API_BASE_URL, // or replace with your deployed server URL
-});
-
 export const foodApi = {
+  // spoonacular endpoints
   searchIngredients: async ({
     query,
     limit = 3,
@@ -77,18 +74,17 @@ export const foodApi = {
   /* This section is for fatsecret endpoint integration*/
   getFatSecretFoods: async ({
     query,
-    maxResults = 2,
+    maxResults = 3,
     pageNumber = 0,
   }: FatSecretSearchParams): Promise<FatSecretFood[]> => {
     try {
-      const response = await fatsecretApi.get("/api/fatsecret/search-foods", {
+      const response = await api.get("/api/fatsecret/search-foods", {
         params: {
           query,
           maxResults,
           pageNumber,
         },
       });
-
       return response.data;
     } catch (error) {
       console.error("Error fetching FatSecret foods:", error);
@@ -100,7 +96,7 @@ export const foodApi = {
     foodId: string
   ): Promise<FatSecretFoodDetails> => {
     try {
-      const response = await fatsecretApi.get(`/api/fatsecret/food/${foodId}`);
+      const response = await api.get(`/api/fatsecret/food/${foodId}`);
 
       return response.data;
     } catch (error) {
@@ -109,14 +105,13 @@ export const foodApi = {
     }
   },
 
-  // WIP getting list of recipe(s) from fatsecret
   getFatSecretRecipes: async ({
     query,
     maxResults = 3,
     pageNumber = 0,
   }: FatSecretSearchParams): Promise<MappedFatSecretRecipe[]> => {
     try {
-      const response = await fatsecretApi.get("/api/fatsecret/recipes", {
+      const response = await api.get("/api/fatsecret/recipes", {
         params: { query, maxResults, pageNumber },
       });
       return response.data;
@@ -126,14 +121,11 @@ export const foodApi = {
     }
   },
 
-  // WIP getting recipe details from fatsecret
   getFatSecretRecipeById: async (
     recipeId: string
   ): Promise<FatSecretRecipeDetails> => {
     try {
-      const response = await fatsecretApi.get(
-        `/api/fatsecret/recipe/${recipeId}`
-      );
+      const response = await api.get(`/api/fatsecret/recipe/${recipeId}`);
       return response.data;
     } catch (error) {
       console.error("Error fetching FatSecret recipe by ID:", error);
