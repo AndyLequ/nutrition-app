@@ -93,6 +93,7 @@ export const SearchFood = () => {
   // this function will be debounced to avoid making too many requests to the API
   // ADDING fatsecret API search here too
   const debouncedSearch = debounce(async (query) => {
+    
     if (query.length > 2) {
       try {
         const [
