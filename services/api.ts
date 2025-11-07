@@ -87,8 +87,13 @@ export const foodApi = {
   },
 
   getRecipeNutrition: async (recipeId: number): Promise<NutritionInfo> => {
-    const response = await api.get(`/api/recipes/${recipeId}/nutrition`);
-    return response.data;
+    try {
+      const response = await api.get(`/api/recipes/${recipeId}/nutrition`);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching recipe nutrition info:", error);
+      throw error;
+    }
   },
 
   /* This section is for fatsecret endpoint integration*/
