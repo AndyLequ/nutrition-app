@@ -62,13 +62,18 @@ export const foodApi = {
     amount: number,
     unit: string
   ): Promise<NutritionInfo & { name: string }> => {
-    const response = await api.get(
-      `/api/ingredients/${ingredientId}/nutrition`,
-      {
-        params: { amount, unit },
-      }
-    );
-    return response.data;
+    try {
+      const response = await api.get(
+        `/api/ingredients/${ingredientId}/nutrition`,
+        {
+          params: { amount, unit },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching nutrition info:", error);
+      throw error;
+    }
   },
 
   getRecipeInformation: async (recipeId: number) => {
