@@ -29,10 +29,15 @@ export const foodApi = {
     sort = "calories",
     sortDirection = "desc",
   }: IngredientSearchParams): Promise<Ingredient[]> => {
-    const response = await api.get("/api/ingredients", {
-      params: { query, limit, sort, sortDirection },
-    });
-    return response.data;
+    try {
+      const response = await api.get("/api/ingredients", {
+        params: { query, limit, sort, sortDirection },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching ingredients:", error);
+      throw error;
+    }
   },
 
   searchRecipes: async ({
