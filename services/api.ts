@@ -77,8 +77,13 @@ export const foodApi = {
   },
 
   getRecipeInformation: async (recipeId: number) => {
-    const response = await api.get(`/api/recipes/${recipeId}/information`);
-    return response.data;
+    try {
+      const response = await api.get(`/api/recipes/${recipeId}/information`);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching recipe information:", error);
+      throw error;
+    }
   },
 
   getRecipeNutrition: async (recipeId: number): Promise<NutritionInfo> => {
