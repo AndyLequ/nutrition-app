@@ -46,10 +46,15 @@ export const foodApi = {
     sort = "calories",
     sortDirection = "desc",
   }: RecipeSearchParams): Promise<Recipe[]> => {
-    const response = await api.get("/api/recipes", {
-      params: { query, limit, sort, sortDirection },
-    });
-    return response.data;
+    try {
+      const response = await api.get("/api/recipes", {
+        params: { query, limit, sort, sortDirection },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching recipes:", error);
+      throw error;
+    }
   },
 
   getNutrition: async (
