@@ -29,10 +29,15 @@ export const foodApi = {
     sort = "calories",
     sortDirection = "desc",
   }: IngredientSearchParams): Promise<Ingredient[]> => {
-    const response = await api.get("/api/ingredients", {
-      params: { query, limit, sort, sortDirection },
-    });
-    return response.data;
+    try {
+      const response = await api.get("/api/ingredients", {
+        params: { query, limit, sort, sortDirection },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching ingredients:", error);
+      throw error;
+    }
   },
 
   searchRecipes: async ({
@@ -41,10 +46,15 @@ export const foodApi = {
     sort = "calories",
     sortDirection = "desc",
   }: RecipeSearchParams): Promise<Recipe[]> => {
-    const response = await api.get("/api/recipes", {
-      params: { query, limit, sort, sortDirection },
-    });
-    return response.data;
+    try {
+      const response = await api.get("/api/recipes", {
+        params: { query, limit, sort, sortDirection },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching recipes:", error);
+      throw error;
+    }
   },
 
   getNutrition: async (
@@ -52,23 +62,38 @@ export const foodApi = {
     amount: number,
     unit: string
   ): Promise<NutritionInfo & { name: string }> => {
-    const response = await api.get(
-      `/api/ingredients/${ingredientId}/nutrition`,
-      {
-        params: { amount, unit },
-      }
-    );
-    return response.data;
+    try {
+      const response = await api.get(
+        `/api/ingredients/${ingredientId}/nutrition`,
+        {
+          params: { amount, unit },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching nutrition info:", error);
+      throw error;
+    }
   },
 
   getRecipeInformation: async (recipeId: number) => {
-    const response = await api.get(`/api/recipes/${recipeId}/information`);
-    return response.data;
+    try {
+      const response = await api.get(`/api/recipes/${recipeId}/information`);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching recipe information:", error);
+      throw error;
+    }
   },
 
   getRecipeNutrition: async (recipeId: number): Promise<NutritionInfo> => {
-    const response = await api.get(`/api/recipes/${recipeId}/nutrition`);
-    return response.data;
+    try {
+      const response = await api.get(`/api/recipes/${recipeId}/nutrition`);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching recipe nutrition info:", error);
+      throw error;
+    }
   },
 
   /* This section is for fatsecret endpoint integration*/
