@@ -116,6 +116,21 @@ interface FatSecretFoodDetails {
   servingSizeGrams?: number; // ✅ Add this line
 }
 
+interface MappedFatSecretRecipe {
+  id: number;
+  name: string;
+  type: "recipe";
+  nutrition: {
+    calories: number;
+    protein: number;
+    carbs: number;
+    fat: number;
+    amount: number;
+    unit: string;
+  };
+  categories: string[];
+}
+
 export type {
   Recipe,
   Ingredient,
@@ -129,4 +144,5 @@ export type {
   FatSecretRecipe,
   FatSecretIngredient,
   FatSecretSearchParams,
+  MappedFatSecretRecipe,
 };
