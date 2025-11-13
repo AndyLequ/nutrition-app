@@ -21,6 +21,15 @@ const api = axios.create({
   baseURL: API_BASE_URL, // or replace with your deployed server URL
 });
 
+// adding global interceptor
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    console.error(`API Error [${error.config?.url}]:`, error.response?.status);
+    return Promise.reject(error);
+  }
+);
+
 export const foodApi = {
   // spoonacular endpoints
   searchIngredients: async ({
