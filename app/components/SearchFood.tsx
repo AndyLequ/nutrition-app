@@ -93,15 +93,9 @@ export const SearchFood = () => {
   // this function will be debounced to avoid making too many requests to the API
   // ADDING fatsecret API search here too
   const debouncedSearch = debounce(async (query) => {
-    
     if (query.length > 2) {
       try {
-        const [
-          ingredientsResponse,
-          recipesResponse,
-          fatSecretFoodsResponse,
-          fatSecretRecipesResponse,
-        ] = await Promise.allSettled([
+        const results = await Promise.allSettled([
           foodApi.searchIngredients({
             query,
             limit: 1,
@@ -118,9 +112,11 @@ export const SearchFood = () => {
           foodApi.getFatSecretRecipes({ query, maxResults: 1, pageNumber: 0 }),
         ]);
 
-        // Handle successful responses 
-        
-
+        // Handle successful responses
+        const allResults = results
+          .filter((result) => result.status === "fulfilled")
+          .map((result) => result.value)
+          .flat();
 
         // spoonacular results
         const ingredientResults = ingredientsResponse.map((item) => ({
