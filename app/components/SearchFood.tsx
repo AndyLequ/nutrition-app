@@ -101,7 +101,7 @@ export const SearchFood = () => {
           recipesResponse,
           fatSecretFoodsResponse,
           fatSecretRecipesResponse,
-        ] = await Promise.all([
+        ] = await Promise.allSettled([
           foodApi.searchIngredients({
             query,
             limit: 1,
@@ -117,6 +117,11 @@ export const SearchFood = () => {
           foodApi.getFatSecretFoods({ query, maxResults: 1, pageNumber: 0 }),
           foodApi.getFatSecretRecipes({ query, maxResults: 1, pageNumber: 0 }),
         ]);
+
+        // Handle successful responses 
+        
+
+
         // spoonacular results
         const ingredientResults = ingredientsResponse.map((item) => ({
           id: item.id,
