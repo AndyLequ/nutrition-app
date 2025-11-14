@@ -19,7 +19,17 @@ const API_BASE_URL = "https://nutrition-app-backend-4795.onrender.com";
 
 const api = axios.create({
   baseURL: API_BASE_URL, // or replace with your deployed server URL
+  timeout: 10000, // 10 seconds timeout
 });
+
+// adding global interceptor
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    console.error(`API Error [${error.config?.url}]:`, error.response?.status);
+    return Promise.reject(error);
+  }
+);
 
 export const foodApi = {
   // spoonacular endpoints
