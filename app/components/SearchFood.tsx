@@ -112,12 +112,6 @@ export const SearchFood = () => {
           foodApi.getFatSecretRecipes({ query, maxResults: 1, pageNumber: 0 }),
         ]);
 
-        // Handle successful responses
-        const allResults = results
-          .filter((result) => result.status === "fulfilled")
-          .map((result) => result.value)
-          .flat();
-
         // spoonacular results
         const ingredientResults = ingredientsResponse.map((item) => ({
           id: item.id,
@@ -153,6 +147,12 @@ export const SearchFood = () => {
           nutrition: item.nutrition,
           servings: 1,
         }));
+
+        // Handle successful responses
+        const allResults = results
+          .filter((result) => result.status === "fulfilled")
+          .map((result) => result.value)
+          .flat();
 
         setSearchResults([
           ...ingredientResults,
