@@ -112,8 +112,20 @@ export const SearchFood = () => {
           foodApi.getFatSecretRecipes({ query, maxResults: 1, pageNumber: 0 }),
         ]);
 
+
+        const [
+          ingredientsResponse,
+          recipesResponse,
+          fatSecretFoodsResponse,
+          fatSecretRecipesResponse,
+        ] = results.map((result) =>
+          result.status === "fulfilled" ? result.value : []
+        );
+        
+        //mapping results properly
+
         // spoonacular results
-        const ingredientResults = ingredientsResponse.map((item) => ({
+        const ingredientResults = Array.isArray(ingredientsResponse) ? ingredientsResponse.map((item) => ({
           id: item.id,
           name: item.name,
           type: "ingredient",
