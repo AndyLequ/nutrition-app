@@ -133,12 +133,12 @@ export const SearchFood = () => {
             }))
           : [];
 
-        const recipeResults = recipesResponse.map((item) => ({
+          // note: spoonacular recipe mapping is misaligned 
+        const recipeResults = Array.isArray(recipesResponse) ? recipesResponse.map((item) => ({
           id: item.id,
-          name: item.title,
-          type: "recipe",
-          servings: item.servings,
-          nutrition: item.nutrition,
+          name: item.title, 
+          type: "recipe" as const,
+          source: "spoonacular" as const,
         }));
 
         // fatsecret results
