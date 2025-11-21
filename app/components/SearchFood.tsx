@@ -133,38 +133,39 @@ export const SearchFood = () => {
             }))
           : [];
 
-        const recipeResults = recipesResponse.map((item) => ({
+          // note: spoonacular recipe mapping is misaligned 
+        const recipeResults = Array.isArray(recipesResponse) ? recipesResponse.map((item) => ({
           id: item.id,
-          name: item.title,
-          type: "recipe",
-          servings: item.servings,
-          nutrition: item.nutrition,
+          name: item.title, 
+          type: "recipe" as const,
+          source: "spoonacular" as const,
         }));
 
         // fatsecret results
-        const fatSecretResults = fatSecretFoodsResponse.map((item) => ({
+        const fatSecretResults = Array.isArray(fatSecretFoodsResponse) ? fatSecretFoodsResponse.map((item) => ({
           id: item.id,
           name: item.name,
           type: "ingredient" as const, // mapping fatsecret foods to "ingredient" type
-          source: "fatsecret", //adding a source field to distinguish
-          baseAmount: 100,
-          baseUnit: "g",
-        }));
+          source: "fatsecret" as const, //adding a source field to distinguish
+        })): [];
 
-        const fatSecretRecipeResults = fatSecretRecipesResponse.map((item) => ({
+        const fatSecretRecipeResults = Array.isArray(fatSecretRecipesResponse) ? fatSecretFoodsResponse.map((item) => ({
           id: item.id,
           name: item.name,
           type: "recipe" as const, // mapping fatsecret recipes to "recipe" type,
           source: "fatsecret" as const, // adding a source field to distinguish
-          nutrition: item.nutrition,
-          servings: 1,
-        }));
+        })): [];
 
-        // Handle successful responses
-        const allResults = results
-          .filter((result) => result.status === "fulfilled")
-          .map((result) => result.value)
-          .flat();
+
+        //combine all results
+        const allResults = [
+          ...ingredientResults,
+          ...recipeResults,
+          ...fatSecretResults,
+          ...fatSecretRecipeResults,
+        ]
+
+
 
         setSearchResults([
           ...ingredientResults,
