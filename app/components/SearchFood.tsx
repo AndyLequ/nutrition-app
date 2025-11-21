@@ -147,20 +147,25 @@ export const SearchFood = () => {
           name: item.name,
           type: "ingredient" as const, // mapping fatsecret foods to "ingredient" type
           source: "fatsecret" as const, //adding a source field to distinguish
-        }));
+        })): [];
 
         const fatSecretRecipeResults = Array.isArray(fatSecretRecipesResponse) ? fatSecretFoodsResponse.map((item) => ({
           id: item.id,
           name: item.name,
           type: "recipe" as const, // mapping fatsecret recipes to "recipe" type,
           source: "fatsecret" as const, // adding a source field to distinguish
-        }));
+        })): [];
 
-        // Handle successful responses
-        const allResults = results
-          .filter((result) => result.status === "fulfilled")
-          .map((result) => result.value)
-          .flat();
+
+        //combine all results
+        const allResults = [
+          ...ingredientResults,
+          ...recipeResults,
+          ...fatSecretResults,
+          ...fatSecretRecipeResults,
+        ]
+
+
 
         setSearchResults([
           ...ingredientResults,
