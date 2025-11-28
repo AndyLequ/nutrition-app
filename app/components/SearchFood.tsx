@@ -112,6 +112,7 @@ export const SearchFood = () => {
           foodApi.getFatSecretRecipes({ query, maxResults: 1, pageNumber: 0 }),
         ]);
 
+        // extracting results from Promise.allSettled
         const [
           ingredientsResponse,
           recipesResponse,
@@ -120,6 +121,7 @@ export const SearchFood = () => {
         ] = results.map((result) =>
           result.status === "fulfilled" ? result.value : []
         );
+
 
         //mapping results properly
 
@@ -136,7 +138,7 @@ export const SearchFood = () => {
           // note: spoonacular recipe mapping is misaligned 
         const recipeResults = Array.isArray(recipesResponse) ? recipesResponse.map((item) => ({
           id: item.id,
-          name: item.title, 
+          name: item.title, // spoonacular recipes use 'title' instead of 'name'
           type: "recipe" as const,
           source: "spoonacular" as const,
         }));
@@ -174,14 +176,20 @@ export const SearchFood = () => {
           ...fatSecretRecipeResults,
         ]);
 
+        // edits made here to reflect the improved logic found above in this function
         console.log("Search results:", {
           query,
-          spoonacularIngredients: ingredientResults.length,
-          spoonacularRecipes: recipeResults.length,
-          fatSecretFoods: fatSecretResults.length,
-          fatSecretRecipes: fatSecretRecipeResults.length,
-          allResults: searchResults,
+          successfulResults: allResults.length,
+          details: {
+            spoonacularIngredients: ingredientResults.length,
+            spoonacularRecipes: recipeResults.length,
+            fatSecretFoods: fatSecretResults.length,
+            fatSecretRecipes: fatSecretRecipeResults.length,
+          }
         });
+
+        setSearchResults(allResults);
+
       } catch (error) {
         console.error("Error fetching data from spoonacular API", error);
         setSearchResults([]);
