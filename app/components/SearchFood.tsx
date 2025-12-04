@@ -172,13 +172,6 @@ export const SearchFood = () => {
           ...fatSecretRecipeResults,
         ];
 
-        setSearchResults([
-          ...ingredientResults,
-          ...recipeResults,
-          ...fatSecretResults,
-          ...fatSecretRecipeResults,
-        ]);
-
         // edits made here to reflect the improved logic found above in this function
         console.log("Search results:", {
           query,
