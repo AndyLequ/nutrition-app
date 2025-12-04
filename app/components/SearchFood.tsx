@@ -141,7 +141,7 @@ export const SearchFood = () => {
           name: item.title, // spoonacular recipes use 'title' instead of 'name'
           type: "recipe" as const,
           source: "spoonacular" as const,
-        }));
+        })) : []; // added closing brackets here
 
         // fatsecret results
         const fatSecretResults = Array.isArray(fatSecretFoodsResponse) ? fatSecretFoodsResponse.map((item) => ({
