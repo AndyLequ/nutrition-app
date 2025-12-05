@@ -136,9 +136,10 @@ export const SearchFood = () => {
 
         // note: spoonacular recipe mapping is misaligned
         const recipeResults = Array.isArray(recipesResponse)
-          ? recipesResponse.map((item) => ({
+          ? recipesResponse.map((item: any) => ({
+              // temporarily using 'any' type here
               id: item.id,
-              name: item.title, // spoonacular recipes use 'title' instead of 'name'
+              name: item.title || item.name, // handle both cases using type assertion
               type: "recipe" as const,
               source: "spoonacular" as const,
             }))
