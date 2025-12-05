@@ -122,42 +122,48 @@ export const SearchFood = () => {
           result.status === "fulfilled" ? result.value : []
         );
 
-
         //mapping results properly
 
         // spoonacular results
         const ingredientResults = Array.isArray(ingredientsResponse)
-          ? ingredientsResponse.map((item) => ({
+          ? (ingredientsResponse as any[]).map((item) => ({
               id: item.id,
-              name: item.name,
+              name: item.name, // spoonacular ingredient uses 'name'
               type: "ingredient" as const,
               source: "spoonacular" as const,
             }))
           : [];
 
-          // note: spoonacular recipe mapping is misaligned 
-        const recipeResults = Array.isArray(recipesResponse) ? recipesResponse.map((item) => ({
-          id: item.id,
-          name: item.title, // spoonacular recipes use 'title' instead of 'name'
-          type: "recipe" as const,
-          source: "spoonacular" as const,
-        }));
+        // note: spoonacular recipe mapping is misaligned
+        const recipeResults = Array.isArray(recipesResponse)
+          ? recipesResponse.map((item: any) => ({
+              // temporarily using 'any' type here
+              id: item.id,
+              name: item.title || item.name, // handle both cases using type assertion
+              type: "recipe" as const,
+              source: "spoonacular" as const,
+            }))
+          : []; // added closing brackets here
 
         // fatsecret results
-        const fatSecretResults = Array.isArray(fatSecretFoodsResponse) ? fatSecretFoodsResponse.map((item) => ({
-          id: item.id,
-          name: item.name,
-          type: "ingredient" as const, // mapping fatsecret foods to "ingredient" type
-          source: "fatsecret" as const, //adding a source field to distinguish
-        })): [];
+        const fatSecretResults = Array.isArray(fatSecretFoodsResponse)
+          ? fatSecretFoodsResponse.map((item) => ({
+              id: item.id,
+              name: item.name,
+              type: "ingredient" as const, // mapping fatsecret foods to "ingredient" type
+              source: "fatsecret" as const, //adding a source field to distinguish
+            }))
+          : [];
 
-        const fatSecretRecipeResults = Array.isArray(fatSecretRecipesResponse) ? fatSecretFoodsResponse.map((item) => ({
-          id: item.id,
-          name: item.name,
-          type: "recipe" as const, // mapping fatsecret recipes to "recipe" type,
-          source: "fatsecret" as const, // adding a source field to distinguish
-        })): [];
-
+        // fixed fatsecret recipe mapping
+        const fatSecretRecipeResults = Array.isArray(fatSecretRecipesResponse)
+          ? fatSecretRecipesResponse.map((item) => ({
+              id: item.id,
+              name: item.name,
+              type: "recipe" as const, // mapping fatsecret recipes to "recipe" type,
+              source: "fatsecret" as const, // adding a source field to distinguish
+            }))
+          : [];
 
         //combine all results
         const allResults = [
@@ -165,16 +171,7 @@ export const SearchFood = () => {
           ...recipeResults,
           ...fatSecretResults,
           ...fatSecretRecipeResults,
-        ]
-
-
-
-        setSearchResults([
-          ...ingredientResults,
-          ...recipeResults,
-          ...fatSecretResults,
-          ...fatSecretRecipeResults,
-        ]);
+        ];
 
         // edits made here to reflect the improved logic found above in this function
         console.log("Search results:", {
@@ -185,11 +182,10 @@ export const SearchFood = () => {
             spoonacularRecipes: recipeResults.length,
             fatSecretFoods: fatSecretResults.length,
             fatSecretRecipes: fatSecretRecipeResults.length,
-          }
+          },
         });
 
         setSearchResults(allResults);
-
       } catch (error) {
         console.error("Error fetching data from spoonacular API", error);
         setSearchResults([]);
