@@ -126,9 +126,9 @@ export const SearchFood = () => {
 
         // spoonacular results
         const ingredientResults = Array.isArray(ingredientsResponse)
-          ? ingredientsResponse.map((item) => ({
+          ? (ingredientsResponse as any[]).map((item) => ({
               id: item.id,
-              name: item.name,
+              name: item.name, // spoonacular ingredient uses 'name'
               type: "ingredient" as const,
               source: "spoonacular" as const,
             }))
