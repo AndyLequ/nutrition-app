@@ -112,6 +112,21 @@ export const SearchFood = () => {
           foodApi.getFatSecretRecipes({ query, maxResults: 1, pageNumber: 0 }),
         ]);
 
+        // adding degug logging for raw responses
+        console.log("Raw promise results:");
+        results.forEach((result, index) => {
+          const apiNames = [
+            "Spoonacular Ingredients",
+            "Spoonacular Recipes",
+            "FatSecret Foods",
+            "FatSecret Recipes",
+          ];
+          console.log(`${apiNames[index]};`, {
+            status: result.status,
+            value: result.status === "fulfilled" ? result.value : result.reason,
+          });
+        });
+
         // extracting results from Promise.allSettled
         const [
           ingredientsResponse,
