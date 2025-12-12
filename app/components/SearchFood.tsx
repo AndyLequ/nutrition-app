@@ -157,6 +157,14 @@ export const SearchFood = () => {
           sample:
             Array.isArray(fatSecretFoodsResponse) && fatSecretFoodsResponse[0],
         });
+        console.log("FatSecret Recipes:", {
+          data: fatSecretRecipesResponse,
+          type: typeof fatSecretRecipesResponse,
+          isArray: Array.isArray(fatSecretRecipesResponse),
+          sample:
+            Array.isArray(fatSecretRecipesResponse) &&
+            fatSecretRecipesResponse[0],
+        });
 
         //mapping results properly
 
