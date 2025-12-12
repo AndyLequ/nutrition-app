@@ -137,6 +137,14 @@ export const SearchFood = () => {
           result.status === "fulfilled" ? result.value : []
         );
 
+        console.log("extracted responses:");
+        console.log("Ingredients:", {
+          data: ingredientsResponse,
+          type: typeof ingredientsResponse,
+          isArray: Array.isArray(ingredientsResponse),
+          sample: Array.isArray(ingredientsresponse) && ingredientsResponse[0],
+        });
+
         //mapping results properly
 
         // spoonacular results
