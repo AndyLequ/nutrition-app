@@ -142,7 +142,13 @@ export const SearchFood = () => {
           data: ingredientsResponse,
           type: typeof ingredientsResponse,
           isArray: Array.isArray(ingredientsResponse),
-          sample: Array.isArray(ingredientsresponse) && ingredientsResponse[0],
+          sample: Array.isArray(ingredientsResponse) && ingredientsResponse[0],
+        });
+        console.log("Recipes:", {
+          data: recipesResponse,
+          type: typeof recipesResponse,
+          isArray: Array.isArray(recipesResponse),
+          sample: Array.isArray(recipesResponse) && recipesResponse[0],
         });
 
         //mapping results properly
