@@ -150,6 +150,13 @@ export const SearchFood = () => {
           isArray: Array.isArray(recipesResponse),
           sample: Array.isArray(recipesResponse) && recipesResponse[0],
         });
+        console.log("FatSecret Foods:", {
+          data: fatSecretFoodsResponse,
+          type: typeof fatSecretFoodsResponse,
+          isArray: Array.isArray(fatSecretFoodsResponse),
+          sample:
+            Array.isArray(fatSecretFoodsResponse) && fatSecretFoodsResponse[0],
+        });
 
         //mapping results properly
 
