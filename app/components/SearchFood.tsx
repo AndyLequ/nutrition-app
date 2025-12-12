@@ -112,6 +112,21 @@ export const SearchFood = () => {
           foodApi.getFatSecretRecipes({ query, maxResults: 1, pageNumber: 0 }),
         ]);
 
+        // adding degug logging for raw responses
+        console.log("Raw promise results:");
+        results.forEach((result, index) => {
+          const apiNames = [
+            "Spoonacular Ingredients",
+            "Spoonacular Recipes",
+            "FatSecret Foods",
+            "FatSecret Recipes",
+          ];
+          console.log(`${apiNames[index]};`, {
+            status: result.status,
+            value: result.status === "fulfilled" ? result.value : result.reason,
+          });
+        });
+
         // extracting results from Promise.allSettled
         const [
           ingredientsResponse,
@@ -121,6 +136,35 @@ export const SearchFood = () => {
         ] = results.map((result) =>
           result.status === "fulfilled" ? result.value : []
         );
+
+        console.log("extracted responses:");
+        console.log("Ingredients:", {
+          data: ingredientsResponse,
+          type: typeof ingredientsResponse,
+          isArray: Array.isArray(ingredientsResponse),
+          sample: Array.isArray(ingredientsResponse) && ingredientsResponse[0],
+        });
+        console.log("Recipes:", {
+          data: recipesResponse,
+          type: typeof recipesResponse,
+          isArray: Array.isArray(recipesResponse),
+          sample: Array.isArray(recipesResponse) && recipesResponse[0],
+        });
+        console.log("FatSecret Foods:", {
+          data: fatSecretFoodsResponse,
+          type: typeof fatSecretFoodsResponse,
+          isArray: Array.isArray(fatSecretFoodsResponse),
+          sample:
+            Array.isArray(fatSecretFoodsResponse) && fatSecretFoodsResponse[0],
+        });
+        console.log("FatSecret Recipes:", {
+          data: fatSecretRecipesResponse,
+          type: typeof fatSecretRecipesResponse,
+          isArray: Array.isArray(fatSecretRecipesResponse),
+          sample:
+            Array.isArray(fatSecretRecipesResponse) &&
+            fatSecretRecipesResponse[0],
+        });
 
         //mapping results properly
 
