@@ -12,6 +12,18 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
+function AnimatedNumber({value}: {value: number}){
+
+  const animated = useSharedValue(0);
+
+  useEffect(() => {
+
+  }, [])
+
+  return()
+
+}
+
 export default function Index() {
   const [protein, setProtein] = useState(0);
   const [carbs, setCarbs] = useState(0);
