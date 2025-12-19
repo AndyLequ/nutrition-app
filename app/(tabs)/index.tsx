@@ -94,17 +94,15 @@ export default function Index() {
           </View>
           <View className="items-center px-3">
             <Text className="text-sm text-gray-500 mb-1">Protein</Text>
-            <Text className="text-base font-medium text-gray-800">
-              {protein}
-            </Text>
+            <AnimatedNumber value={protein} />;
           </View>
           <View className="items-center px-3">
             <Text className="text-sm text-gray-500 mb-1">Carbs</Text>
-            <Text className="text-base font-medium text-gray-800">{carbs}</Text>
+            <AnimatedNumber value={carbs} />;
           </View>
           <View className="items-center px-3">
             <Text className="text-sm text-gray-500 mb-1">Fat</Text>
-            <Text className="text-base font-medium text-gray-800">{fat}</Text>
+            <AnimatedNumber value={fat} />;
           </View>
         </View>
       </View>
