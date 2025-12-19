@@ -10,6 +10,7 @@ import Animated, {
   useSharedValue,
   useAnimatedProps,
   withTiming,
+  useDerivedValue,
 } from "react-native-reanimated";
 
 function AnimatedNumber({ value }: { value: number }) {
@@ -19,19 +20,14 @@ function AnimatedNumber({ value }: { value: number }) {
     animated.value = withTiming(value, { duration: 600 });
   }, [value]);
 
-  const animatedProps = useAnimatedProps(() => ({
-    text: `${animated.value.toFixed(0)}`,
-  }));
+  const displayValue = useDerivedValue(() => Math.round(animated.value));
 
   return (
-    <Animated.Text
-      animatedProps={animatedProps}
-      className="text-base font-medium text-gray-800"
-    />
+    <Animated.Text className="text-base font-medium text-gray-800">
+      {displayValue.value}
+    </Animated.Text>
   );
 }
-
-<AnimatedNumber value={calories} />;
 
 export default function Index() {
   const [protein, setProtein] = useState(0);
@@ -94,9 +90,7 @@ export default function Index() {
         <View className="flex-row justify-between">
           <View className="items-center px-3">
             <Text className="text-sm text-gray-500 mb-1">Calories</Text>
-            <Text className="text-base font-medium text-gray-800">
-              {calories}
-            </Text>
+            <AnimatedNumber value={calories} />;
           </View>
           <View className="items-center px-3">
             <Text className="text-sm text-gray-500 mb-1">Protein</Text>
