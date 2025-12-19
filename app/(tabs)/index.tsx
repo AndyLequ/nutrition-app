@@ -12,17 +12,26 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
-function AnimatedNumber({value}: {value: number}){
-
+function AnimatedNumber({ value }: { value: number }) {
   const animated = useSharedValue(0);
 
   useEffect(() => {
+    animated.value = withTiming(value, { duration: 600 });
+  }, [value]);
 
-  }, [])
+  const animatedProps = useAnimatedProps(() => ({
+    text: `${animated.value.toFixed(0)}`,
+  }));
 
-  return()
-
+  return (
+    <Animated.Text
+      animatedProps={animatedProps}
+      className="text-base font-medium text-gray-800"
+    />
+  );
 }
+
+<AnimatedNumber value={calories} />;
 
 export default function Index() {
   const [protein, setProtein] = useState(0);
