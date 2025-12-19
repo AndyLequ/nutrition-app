@@ -6,6 +6,12 @@ import { ResetButton } from "../components/ResetButton";
 import Svg, { G, Path, Text as SvgText } from "react-native-svg";
 import * as d3Shape from "d3-shape";
 
+import Animated, {
+  useSharedValue,
+  useAnimatedProps,
+  withTiming,
+} from "react-native-reanimated";
+
 export default function Index() {
   const [protein, setProtein] = useState(0);
   const [carbs, setCarbs] = useState(0);
@@ -38,7 +44,6 @@ export default function Index() {
     setCarbs(totalCarbs);
     setFat(totalFat);
   }, [safeFoods]);
-
 
   const DATA = [
     { name: "Protein", value: protein, color: "#FF6384" },
