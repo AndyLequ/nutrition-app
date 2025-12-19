@@ -6,6 +6,29 @@ import { ResetButton } from "../components/ResetButton";
 import Svg, { G, Path, Text as SvgText } from "react-native-svg";
 import * as d3Shape from "d3-shape";
 
+import Animated, {
+  useSharedValue,
+  useAnimatedProps,
+  withTiming,
+  useDerivedValue,
+} from "react-native-reanimated";
+
+function AnimatedNumber({ value }: { value: number }) {
+  const animated = useSharedValue(0);
+
+  useEffect(() => {
+    animated.value = withTiming(value, { duration: 600 });
+  }, [value]);
+
+  const displayValue = useDerivedValue(() => Math.round(animated.value));
+
+  return (
+    <Animated.Text className="text-base font-medium text-gray-800">
+      {displayValue.value}
+    </Animated.Text>
+  );
+}
+
 export default function Index() {
   const [protein, setProtein] = useState(0);
   const [carbs, setCarbs] = useState(0);
@@ -39,7 +62,6 @@ export default function Index() {
     setFat(totalFat);
   }, [safeFoods]);
 
-
   const DATA = [
     { name: "Protein", value: protein, color: "#FF6384" },
     { name: "Carbs", value: carbs, color: "#36A2EB" },
@@ -68,23 +90,19 @@ export default function Index() {
         <View className="flex-row justify-between">
           <View className="items-center px-3">
             <Text className="text-sm text-gray-500 mb-1">Calories</Text>
-            <Text className="text-base font-medium text-gray-800">
-              {calories}
-            </Text>
+            <AnimatedNumber value={calories} />;
           </View>
           <View className="items-center px-3">
             <Text className="text-sm text-gray-500 mb-1">Protein</Text>
-            <Text className="text-base font-medium text-gray-800">
-              {protein}
-            </Text>
+            <AnimatedNumber value={protein} />;
           </View>
           <View className="items-center px-3">
             <Text className="text-sm text-gray-500 mb-1">Carbs</Text>
-            <Text className="text-base font-medium text-gray-800">{carbs}</Text>
+            <AnimatedNumber value={carbs} />;
           </View>
           <View className="items-center px-3">
             <Text className="text-sm text-gray-500 mb-1">Fat</Text>
-            <Text className="text-base font-medium text-gray-800">{fat}</Text>
+            <AnimatedNumber value={fat} />;
           </View>
         </View>
       </View>
