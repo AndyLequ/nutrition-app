@@ -108,11 +108,26 @@ export const SearchFood = () => {
   // function for searching for food, will be called when the user types in the search bar
   // this function will be debounced to avoid making too many requests to the API
   // ADDING fatsecret API search here too
+  // ADDING: progressive search
   const debouncedSearch = React.useMemo(
     () =>
       debounce(async (query) => {
         if (query.length > 2) {
+          setSearchResults([]);
+          setIsSearching(false);
+          return;
+        }
+
           try {
+            setIsSearching(true);
+
+            //Primary search (fast)
+            const fatSecretFoods = await foodApi.getFatSecretFoods({
+              query,
+              maxResults: 5, 
+              pageNumber: 0,
+            });
+            
             const results = await Promise.allSettled([
               foodApi.searchIngredients({
                 query,
