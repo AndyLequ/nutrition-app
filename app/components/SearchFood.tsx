@@ -259,6 +259,12 @@ export const SearchFood = () => {
     []
   );
 
+  useEffect(() => {
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, [debouncedSearch]);
+
   //
   // function to handle search input
   const handleSearch = async (query: string) => {
@@ -490,7 +496,6 @@ export const SearchFood = () => {
       ]);
     }
   }, [selectedFood?.type]);
-
 
   // useEffect to load data from async storage
   useEffect(() => {
