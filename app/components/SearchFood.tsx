@@ -89,7 +89,7 @@ export const SearchFood = () => {
     return grams / servingSizeGrams;
   };
 
-  const mapFatSecretFoods = (foods: any[]): UnifiedSearchResult[] => {
+  const mapFatSecretFoods = (foods: any[]): UnifiedSearchResult[] =>
     foods.map((item) => ({
       id: item.id,
       name: item.name,
@@ -97,13 +97,13 @@ export const SearchFood = () => {
       source: "fatsecret",
     }));
 
-    const mapSpoonacularIngredients = (items: any[]): UnifiedSearchResult[] => {
-      items.map((item) => ({
-        id:item.id,
-        name: item.name,
-        type: "ingredient",
-        source: "spoonacular",
-      }));
+  const mapSpoonacularIngredients = (items: any[]): UnifiedSearchResult[] =>
+    items.map((item) => ({
+      id: item.id,
+      name: item.name,
+      type: "ingredient",
+      source: "spoonacular",
+    }));
 
   // function for searching for food, will be called when the user types in the search bar
   // this function will be debounced to avoid making too many requests to the API
@@ -112,55 +112,55 @@ export const SearchFood = () => {
   const debouncedSearch = React.useMemo(
     () =>
       debounce(async (query) => {
-        if (query.length > 3) {
+        if (query.length < 3) {
           setSearchResults([]);
           setIsSearching(false);
           return;
         }
 
-          try {
-            setIsSearching(true);
+        try {
+          setIsSearching(true);
 
-            //Primary search (fast)
-            const fatSecretFoods = await foodApi.getFatSecretFoods({
+          //Primary search (fast)
+          const fatSecretFoods = await foodApi.getFatSecretFoods({
+            query,
+            maxResults: 5,
+            pageNumber: 0,
+          });
+
+          const primaryResults = mapFatSecretFoods(fatSecretFoods);
+          setSearchResults(primaryResults);
+
+          // Background enrichment (non-blocking)
+          foodApi
+            .searchIngredients({
               query,
-              maxResults: 5, 
-              pageNumber: 0,
-            });
-
-            const primaryResults = mapFatSecretFoods(fatSecretFoods)
-            setSearchResults(primaryResults);
-
-            // Background enrichment (non-blocking)
-            foodApi
-              .searchIngredients({
-                query,
-                limit: 3,
-                sort: "calories",
-                sortDirection: "desc",
-              })
-              .then((ingredients) => {
-                const enrichedResults = mapSpoonacularIngredients(ingredients);
-            
-                setSearchResults((prev) => {
-                  const ids = new Set(prev.map((r) => `{r.source}-${r.id}`));
-                  const merged = [
-                    ...prev,
-                    ...enrichedResults.filter(
-                      (r) => !ids.has(`{r.source}-${r.id}`)
-                    )
-                  ];
-                return merged;
-              })
+              limit: 3,
+              sort: "calories",
+              sortDirection: "desc",
             })
-              .catch(console.error);
-          } catch (error) {
-            console.error("Error enriching search results:", error);
-            setSearchResults([]);
-          } finally {
-                setIsSearching(false);
-              }
-    }, 500),
+            .then((ingredients) => {
+              const enrichedResults = mapSpoonacularIngredients(ingredients);
+
+              setSearchResults((prev) => {
+                const ids = new Set(prev.map((r) => `{r.source}-${r.id}`));
+                const merged = [
+                  ...prev,
+                  ...enrichedResults.filter(
+                    (r) => !ids.has(`{r.source}-${r.id}`)
+                  ),
+                ];
+                return merged;
+              });
+            })
+            .catch(console.error);
+        } catch (error) {
+          console.error("Error enriching search results:", error);
+          setSearchResults([]);
+        } finally {
+          setIsSearching(false);
+        }
+      }, 500),
     []
   );
 
