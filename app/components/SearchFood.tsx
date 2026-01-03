@@ -92,155 +92,172 @@ export const SearchFood = () => {
   // function for searching for food, will be called when the user types in the search bar
   // this function will be debounced to avoid making too many requests to the API
   // ADDING fatsecret API search here too
-  const debouncedSearch = debounce(async (query) => {
-    if (query.length > 2) {
-      try {
-        const results = await Promise.allSettled([
-          foodApi.searchIngredients({
-            query,
-            limit: 1,
-            sort: "calories",
-            sortDirection: "desc",
-          }),
-          foodApi.searchRecipes({
-            query,
-            limit: 1,
-            sort: "calories",
-            sortDirection: "desc",
-          }),
-          foodApi.getFatSecretFoods({ query, maxResults: 1, pageNumber: 0 }),
-          foodApi.getFatSecretRecipes({ query, maxResults: 1, pageNumber: 0 }),
-        ]);
+  const debouncedSearch = React.useMemo(
+    () =>
+      debounce(async (query) => {
+        if (query.length > 2) {
+          try {
+            const results = await Promise.allSettled([
+              foodApi.searchIngredients({
+                query,
+                limit: 1,
+                sort: "calories",
+                sortDirection: "desc",
+              }),
+              foodApi.searchRecipes({
+                query,
+                limit: 1,
+                sort: "calories",
+                sortDirection: "desc",
+              }),
+              foodApi.getFatSecretFoods({
+                query,
+                maxResults: 1,
+                pageNumber: 0,
+              }),
+              foodApi.getFatSecretRecipes({
+                query,
+                maxResults: 1,
+                pageNumber: 0,
+              }),
+            ]);
 
-        // adding degug logging for raw responses
-        console.log("Raw promise results:");
-        results.forEach((result, index) => {
-          const apiNames = [
-            "Spoonacular Ingredients",
-            "Spoonacular Recipes",
-            "FatSecret Foods",
-            "FatSecret Recipes",
-          ];
-          console.log(`${apiNames[index]};`, {
-            status: result.status,
-            value: result.status === "fulfilled" ? result.value : result.reason,
-          });
-        });
+            // adding degug logging for raw responses
+            console.log("Raw promise results:");
+            results.forEach((result, index) => {
+              const apiNames = [
+                "Spoonacular Ingredients",
+                "Spoonacular Recipes",
+                "FatSecret Foods",
+                "FatSecret Recipes",
+              ];
+              console.log(`${apiNames[index]};`, {
+                status: result.status,
+                value:
+                  result.status === "fulfilled" ? result.value : result.reason,
+              });
+            });
 
-        // extracting results from Promise.allSettled
-        const [
-          ingredientsResponse,
-          recipesResponse,
-          fatSecretFoodsResponse,
-          fatSecretRecipesResponse,
-        ] = results.map((result) =>
-          result.status === "fulfilled" ? result.value : []
-        );
+            // extracting results from Promise.allSettled
+            const [
+              ingredientsResponse,
+              recipesResponse,
+              fatSecretFoodsResponse,
+              fatSecretRecipesResponse,
+            ] = results.map((result) =>
+              result.status === "fulfilled" ? result.value : []
+            );
 
-        console.log("extracted responses:");
-        console.log("Ingredients:", {
-          data: ingredientsResponse,
-          type: typeof ingredientsResponse,
-          isArray: Array.isArray(ingredientsResponse),
-          sample: Array.isArray(ingredientsResponse) && ingredientsResponse[0],
-        });
-        console.log("Recipes:", {
-          data: recipesResponse,
-          type: typeof recipesResponse,
-          isArray: Array.isArray(recipesResponse),
-          sample: Array.isArray(recipesResponse) && recipesResponse[0],
-        });
-        console.log("FatSecret Foods:", {
-          data: fatSecretFoodsResponse,
-          type: typeof fatSecretFoodsResponse,
-          isArray: Array.isArray(fatSecretFoodsResponse),
-          sample:
-            Array.isArray(fatSecretFoodsResponse) && fatSecretFoodsResponse[0],
-        });
-        console.log("FatSecret Recipes:", {
-          data: fatSecretRecipesResponse,
-          type: typeof fatSecretRecipesResponse,
-          isArray: Array.isArray(fatSecretRecipesResponse),
-          sample:
-            Array.isArray(fatSecretRecipesResponse) &&
-            fatSecretRecipesResponse[0],
-        });
+            console.log("extracted responses:");
+            console.log("Ingredients:", {
+              data: ingredientsResponse,
+              type: typeof ingredientsResponse,
+              isArray: Array.isArray(ingredientsResponse),
+              sample:
+                Array.isArray(ingredientsResponse) && ingredientsResponse[0],
+            });
+            console.log("Recipes:", {
+              data: recipesResponse,
+              type: typeof recipesResponse,
+              isArray: Array.isArray(recipesResponse),
+              sample: Array.isArray(recipesResponse) && recipesResponse[0],
+            });
+            console.log("FatSecret Foods:", {
+              data: fatSecretFoodsResponse,
+              type: typeof fatSecretFoodsResponse,
+              isArray: Array.isArray(fatSecretFoodsResponse),
+              sample:
+                Array.isArray(fatSecretFoodsResponse) &&
+                fatSecretFoodsResponse[0],
+            });
+            console.log("FatSecret Recipes:", {
+              data: fatSecretRecipesResponse,
+              type: typeof fatSecretRecipesResponse,
+              isArray: Array.isArray(fatSecretRecipesResponse),
+              sample:
+                Array.isArray(fatSecretRecipesResponse) &&
+                fatSecretRecipesResponse[0],
+            });
 
-        //mapping results properly
+            //mapping results properly
 
-        // spoonacular results
-        const ingredientResults = Array.isArray(ingredientsResponse)
-          ? (ingredientsResponse as any[]).map((item) => ({
-              id: item.id,
-              name: item.name, // spoonacular ingredient uses 'name'
-              type: "ingredient" as const,
-              source: "spoonacular" as const,
-            }))
-          : [];
+            // spoonacular results
+            const ingredientResults = Array.isArray(ingredientsResponse)
+              ? (ingredientsResponse as any[]).map((item) => ({
+                  id: item.id,
+                  name: item.name, // spoonacular ingredient uses 'name'
+                  type: "ingredient" as const,
+                  source: "spoonacular" as const,
+                }))
+              : [];
 
-        // note: spoonacular recipe mapping is misaligned
-        const recipeResults = Array.isArray(recipesResponse)
-          ? recipesResponse.map((item: any) => ({
-              // temporarily using 'any' type here
-              id: item.id,
-              name: item.title || item.name, // handle both cases using type assertion
-              type: "recipe" as const,
-              source: "spoonacular" as const,
-            }))
-          : []; // added closing brackets here
+            // note: spoonacular recipe mapping is misaligned
+            const recipeResults = Array.isArray(recipesResponse)
+              ? recipesResponse.map((item: any) => ({
+                  // temporarily using 'any' type here
+                  id: item.id,
+                  name: item.title || item.name, // handle both cases using type assertion
+                  type: "recipe" as const,
+                  source: "spoonacular" as const,
+                }))
+              : []; // added closing brackets here
 
-        // fatsecret results
-        const fatSecretResults = Array.isArray(fatSecretFoodsResponse)
-          ? fatSecretFoodsResponse.map((item) => ({
-              id: item.id,
-              name: item.name,
-              type: "ingredient" as const, // mapping fatsecret foods to "ingredient" type
-              source: "fatsecret" as const, //adding a source field to distinguish
-            }))
-          : [];
+            // fatsecret results
+            const fatSecretResults = Array.isArray(fatSecretFoodsResponse)
+              ? fatSecretFoodsResponse.map((item) => ({
+                  id: item.id,
+                  name: item.name,
+                  type: "ingredient" as const, // mapping fatsecret foods to "ingredient" type
+                  source: "fatsecret" as const, //adding a source field to distinguish
+                }))
+              : [];
 
-        // fixed fatsecret recipe mapping
-        const fatSecretRecipeResults = Array.isArray(fatSecretRecipesResponse)
-          ? fatSecretRecipesResponse.map((item) => ({
-              id: item.id,
-              name: item.name,
-              type: "recipe" as const, // mapping fatsecret recipes to "recipe" type,
-              source: "fatsecret" as const, // adding a source field to distinguish
-            }))
-          : [];
+            // fixed fatsecret recipe mapping
+            const fatSecretRecipeResults = Array.isArray(
+              fatSecretRecipesResponse
+            )
+              ? fatSecretRecipesResponse.map((item) => ({
+                  id: item.id,
+                  name: item.name,
+                  type: "recipe" as const, // mapping fatsecret recipes to "recipe" type,
+                  source: "fatsecret" as const, // adding a source field to distinguish
+                }))
+              : [];
 
-        //combine all results
-        const allResults = [
-          ...ingredientResults,
-          ...recipeResults,
-          ...fatSecretResults,
-          ...fatSecretRecipeResults,
-        ];
+            //combine all results
+            const allResults = [
+              ...ingredientResults,
+              ...recipeResults,
+              ...fatSecretResults,
+              ...fatSecretRecipeResults,
+            ];
 
-        // edits made here to reflect the improved logic found above in this function
-        console.log("Search results:", {
-          query,
-          successfulResults: allResults.length,
-          details: {
-            spoonacularIngredients: ingredientResults.length,
-            spoonacularRecipes: recipeResults.length,
-            fatSecretFoods: fatSecretResults.length,
-            fatSecretRecipes: fatSecretRecipeResults.length,
-          },
-        });
+            // edits made here to reflect the improved logic found above in this function
+            console.log("Search results:", {
+              query,
+              successfulResults: allResults.length,
+              details: {
+                spoonacularIngredients: ingredientResults.length,
+                spoonacularRecipes: recipeResults.length,
+                fatSecretFoods: fatSecretResults.length,
+                fatSecretRecipes: fatSecretRecipeResults.length,
+              },
+            });
 
-        setSearchResults(allResults);
-      } catch (error) {
-        console.error("Error fetching data from spoonacular API", error);
-        setSearchResults([]);
-      } finally {
-        setIsSearching(false);
-      }
-    } else {
-      setSearchResults([]);
-      setIsSearching(false);
-    }
-  }, 500);
+            setSearchResults(allResults);
+          } catch (error) {
+            console.error("Error fetching data from spoonacular API", error);
+            setSearchResults([]);
+          } finally {
+            setIsSearching(false);
+          }
+        } else {
+          setSearchResults([]);
+          setIsSearching(false);
+        }
+      }, 500),
+    []
+  );
 
   //
   // function to handle search input
@@ -473,6 +490,7 @@ export const SearchFood = () => {
       ]);
     }
   }, [selectedFood?.type]);
+
 
   // useEffect to load data from async storage
   useEffect(() => {
