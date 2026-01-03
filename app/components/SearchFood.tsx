@@ -89,6 +89,22 @@ export const SearchFood = () => {
     return grams / servingSizeGrams;
   };
 
+  const mapFatSecretFoods = (foods: any[]): UnifiedSearchResult[] => {
+    foods.map((item) => ({
+      id: item.id,
+      name: item.name,
+      type: "ingredient",
+      source: "fatsecret",
+    }));
+
+    const mapSpoonacularIngredients = (items: any[]): UnifiedSearchResult[] => {
+      items.map((item) => ({
+        id:item.id,
+        name: item.name,
+        type: "ingredient",
+        source: "spoonacular",
+      }));
+
   // function for searching for food, will be called when the user types in the search bar
   // this function will be debounced to avoid making too many requests to the API
   // ADDING fatsecret API search here too
