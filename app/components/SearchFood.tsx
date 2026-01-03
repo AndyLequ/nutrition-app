@@ -127,7 +127,43 @@ export const SearchFood = () => {
               maxResults: 5, 
               pageNumber: 0,
             });
+
+            const primaryResults = mapFatSecretFoods(fatSecretFoods)
+            setSearchResults(primaryResults);
+
+            // Background enrichment (non-blocking)
+            foodApi
+              .searchIngredients({
+                query,
+                limit: 3,
+                sort: "calories",
+                sortDirection: "desc",
+              })
+              .then((ingredients) => {
+                const enrichedResults = mapSpoonacularIngredients(ingredients);
             
+                setSearchResults((prev) => {
+                  const ids = new Set(prev.map((r) => `{r.source}-$[r.id}`));
+                  const merged = [
+                    ...prev,
+                    ...enrichedResults.filter(
+                      (r) => !ids.has(`{r.source}-${r.id}`)
+                    )
+                  ];
+                return merged;
+              })
+            })
+              .catch(console.error);
+          } catch (error) {
+            console.error("Error enriching search results:", error);
+            setSearchResults([]);
+          } finally {
+                setIsSearching(false);
+              }
+    }, 500),
+    []
+    );
+
             const results = await Promise.allSettled([
               foodApi.searchIngredients({
                 query,
