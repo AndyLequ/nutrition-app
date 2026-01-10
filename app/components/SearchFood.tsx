@@ -495,7 +495,7 @@ export const SearchFood = () => {
             {searchResults.length > 0 && (
               <FlatList
                 data={searchResults}
-                keyExtractor={(item) => item.id.toString()}
+                keyExtractor={(item) => `${item.source}-${item.id}`}
                 renderItem={({ item }) => (
                   <TouchableOpacity
                     className="p-3 border-b border-gray-300"
