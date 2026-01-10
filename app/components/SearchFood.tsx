@@ -176,7 +176,6 @@ export const SearchFood = () => {
     setSearchQuery(query);
     if (!query) return setSearchResults([]);
 
-    setIsSearching(true);
     debouncedSearch(query);
   };
 
@@ -239,9 +238,8 @@ export const SearchFood = () => {
       console.log("FatSecret details:", food.fatSecretData);
     }
   };
-  const parseNutritionValue = (value: string) => {
+  const parseNutritionValue = (value: string) =>
     parseFloat(value.replace(/[^\d.]/g, ""));
-  };
 
   // helper function to convert various units to grams
   const convertToGrams = (
@@ -497,7 +495,7 @@ export const SearchFood = () => {
             {searchResults.length > 0 && (
               <FlatList
                 data={searchResults}
-                keyExtractor={(item) => item.id.toString()}
+                keyExtractor={(item) => `${item.source}-${item.id}`}
                 renderItem={({ item }) => (
                   <TouchableOpacity
                     className="p-3 border-b border-gray-300"
