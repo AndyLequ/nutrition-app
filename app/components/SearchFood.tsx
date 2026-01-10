@@ -238,9 +238,8 @@ export const SearchFood = () => {
       console.log("FatSecret details:", food.fatSecretData);
     }
   };
-  const parseNutritionValue = (value: string) => {
+  const parseNutritionValue = (value: string) =>
     parseFloat(value.replace(/[^\d.]/g, ""));
-  };
 
   // helper function to convert various units to grams
   const convertToGrams = (
