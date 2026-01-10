@@ -143,11 +143,11 @@ export const SearchFood = () => {
               const enrichedResults = mapSpoonacularIngredients(ingredients);
 
               setSearchResults((prev) => {
-                const ids = new Set(prev.map((r) => `{r.source}-${r.id}`));
+                const ids = new Set(prev.map((r) => `${r.source}-${r.id}`));
                 const merged = [
                   ...prev,
                   ...enrichedResults.filter(
-                    (r) => !ids.has(`{r.source}-${r.id}`)
+                    (r) => !ids.has(`${r.source}-${r.id}`)
                   ),
                 ];
                 return merged;
