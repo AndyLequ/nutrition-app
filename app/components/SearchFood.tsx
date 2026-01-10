@@ -176,7 +176,6 @@ export const SearchFood = () => {
     setSearchQuery(query);
     if (!query) return setSearchResults([]);
 
-    setIsSearching(true);
     debouncedSearch(query);
   };
 
