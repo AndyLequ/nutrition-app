@@ -24,42 +24,77 @@ const mapFatSecretFoods = (foods: any[]): UnifiedSearchResult[] =>
     source: "fatsecret",
   }));
 
-
 /*    Spoonacular -> unified shape
-*/
+ */
 const mapSpoonacularIngredients = (items: any[]): UnifiedSearchResult[] =>
-    items.map((item) => ({
-      id: item.id,
-      name: item.name,
-      type: "ingredient",
-      source: "spoonacular",
-    }));
+  items.map((item) => ({
+    id: item.id,
+    name: item.name,
+    type: "ingredient",
+    source: "spoonacular",
+  }));
 
 /* 
     Food search hook
 */
 
 export function useFoodSearch(query: string) {
-    const [searchQuery, setSearchQuery] = useState("");
-    const [searchResults, setSearchResults] = useState<UnifiedSearchResult[]>([]);
-    const [isSearching, setIsSearching] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<UnifiedSearchResult[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
 
-    /* 
+  /* 
         Debounced progressive search
     */
 
-    const debouncedSearch = useMemo(
-        () =>
-            debounce(async (query: string) => {
-                if( query.length < 3){
-                    setSearchResults([])
-                    setIsSearching(false);
-                    return;
-                }
-                try{
-                    setIsSearching(true);
-                    
-                }
-            
-            )
-    )
+  const debouncedSearch = useMemo(
+    () =>
+      debounce(async (query: string) => {
+        if (query.length < 3) {
+          setSearchResults([]);
+          setIsSearching(false);
+          return;
+        }
+        try {
+          setIsSearching(true);
+
+          // Primary (fast) - FatSecret
+          const fatSecretFoods = await foodApi.getFatSecretFoods({
+            query,
+            maxResults: 5,
+            pageNumber: 0,
+          });
+
+          setSearchResults(mapFatSecretFoods(fatSecretFoods));
+
+          // Background enrichment - Spoonacular
+          foodApi
+            .searchIngredients({
+              query,
+              limit: 3,
+              sort: "calories",
+              sortDirection: "desc",
+            })
+            .then((ingredients) => {
+              const enriched = mapSpoonacularIngredients(ingredients);
+
+              setSearchResults((prev) => {
+                const ids = new Set(prev.map((r) => `${r.source}-${r.id}`));
+
+                return [
+                  ...prev,
+                  ...enriched.filter((r) => !ids.has(`${r.source}-${r.id}`)),
+                ];
+              });
+            })
+            .catch(console.error);
+        } catch (error) {
+          console.error("Search error:", error);
+          setSearchResults([]);
+        } finally {
+          setIsSearching(false);
+        }
+      }, 500),
+    []
+  );
+}
