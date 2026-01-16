@@ -107,4 +107,27 @@ export function useFoodSearch(query: string) {
       debouncedSearch.cancel();
     };
   }, [debouncedSearch]);
+
+  /* 
+    Public search handler
+  */
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+
+    if (!query) {
+      setSearchResults([]);
+      return;
+    }
+
+    debouncedSearch(query);
+  };
+
+  return {
+    searchQuery,
+    searchResults,
+    isSearching,
+    handleSearch,
+    setSearchQuery,
+  };
 }
