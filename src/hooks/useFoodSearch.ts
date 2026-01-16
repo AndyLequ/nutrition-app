@@ -97,4 +97,14 @@ export function useFoodSearch(query: string) {
       }, 500),
     []
   );
+
+  /* 
+  cleanup debounce on unmount
+*/
+
+  useEffect(() => {
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, [debouncedSearch]);
 }
