@@ -1,13 +1,3 @@
-const {
-  searchQuery,
-  searchResults,
-  isSearching,
-  selectedFood,
-  setSelectedFood,
-  handleSearch,
-  clearResults,
-} = useFoodSearch();
-
 // React
 import React, { useEffect, useState } from "react";
 
@@ -50,6 +40,16 @@ interface UnifiedSearchResult {
 }
 
 export const SearchFood = () => {
+  const {
+    searchQuery,
+    searchResults,
+    isSearching,
+    selectedFood,
+    setSelectedFood,
+    handleSearch,
+    clearResults,
+  } = useFoodSearch();
+
   //the state variables, these states are concerned with the food being searched and then added
   const [amount, setAmount] = useState("");
   const [unit, setUnit] = useState("g");
@@ -104,20 +104,10 @@ export const SearchFood = () => {
   // ADDING fatsecret API search here too
   // ADDING: progressive search
 
-  //
-  // function to handle search input
-  const handleSearch = async (query: string) => {
-    setSearchQuery(query);
-    if (!query) return setSearchResults([]);
-
-    debouncedSearch(query);
-  };
-
   // function to handle food selection
   const handleFoodSelect = async (food: UnifiedSearchResult) => {
     setSelectedFood(food);
-    setSearchQuery(food.name);
-    setSearchResults([]);
+    clearResults();
 
     // debug log to verify selected food details
     console.log("Selected food:", {
