@@ -1,4 +1,7 @@
+// React
 import React, { useEffect, useState } from "react";
+
+// React Native
 import {
   StyleSheet,
   View,
@@ -12,13 +15,17 @@ import {
   Pressable,
   Keyboard,
 } from "react-native";
+
+// third party libraries
 import { Picker } from "@react-native-picker/picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useFood } from "../FoodProvider";
-import debounce from "lodash.debounce";
-import axios from "axios";
-import { foodApi } from "../../services/api";
 import DropDownPicker from "react-native-dropdown-picker";
+
+// App hooks
+import { useFoodSearch } from "src/hooks/useFoodSearch.ts";
+
+// app providers / context
+import { useFood } from "../FoodProvider";
 
 interface UnifiedSearchResult {
   id: number;
@@ -33,6 +40,16 @@ interface UnifiedSearchResult {
 }
 
 export const SearchFood = () => {
+  const {
+    searchQuery,
+    searchResults,
+    isSearching,
+    selectedFood,
+    setSelectedFood,
+    handleSearch,
+    clearResults,
+  } = useFoodSearch();
+
   //the state variables, these states are concerned with the food being searched and then added
   const [amount, setAmount] = useState("");
   const [unit, setUnit] = useState("g");
@@ -50,20 +67,13 @@ export const SearchFood = () => {
     { label: "ml", value: "ml" },
     { label: "serving", value: "serving" },
   ]);
+
   const [mealTypeItems, setMealTypeItems] = useState([
     { label: "Breakfast", value: "breakfast" },
     { label: "Lunch", value: "lunch" },
     { label: "Dinner", value: "dinner" },
     { label: "Snacks", value: "snacks" },
   ]);
-
-  //: state variables for handling data regarding the food that is written in the search bar
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<UnifiedSearchResult[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const [selectedFood, setSelectedFood] = useState<
-    (UnifiedSearchResult & { servingSizeGrams?: number }) | null
-  >(null);
 
   const [showSuccess, setShowSuccess] = useState(false);
 
@@ -89,101 +99,15 @@ export const SearchFood = () => {
     return grams / servingSizeGrams;
   };
 
-  const mapFatSecretFoods = (foods: any[]): UnifiedSearchResult[] =>
-    foods.map((item) => ({
-      id: item.id,
-      name: item.name,
-      type: "ingredient",
-      source: "fatsecret",
-    }));
-
-  const mapSpoonacularIngredients = (items: any[]): UnifiedSearchResult[] =>
-    items.map((item) => ({
-      id: item.id,
-      name: item.name,
-      type: "ingredient",
-      source: "spoonacular",
-    }));
-
   // function for searching for food, will be called when the user types in the search bar
   // this function will be debounced to avoid making too many requests to the API
   // ADDING fatsecret API search here too
   // ADDING: progressive search
-  const debouncedSearch = React.useMemo(
-    () =>
-      debounce(async (query) => {
-        if (query.length < 3) {
-          setSearchResults([]);
-          setIsSearching(false);
-          return;
-        }
-
-        try {
-          setIsSearching(true);
-
-          //Primary search (fast)
-          const fatSecretFoods = await foodApi.getFatSecretFoods({
-            query,
-            maxResults: 5,
-            pageNumber: 0,
-          });
-
-          const primaryResults = mapFatSecretFoods(fatSecretFoods);
-          setSearchResults(primaryResults);
-
-          // Background enrichment (non-blocking)
-          foodApi
-            .searchIngredients({
-              query,
-              limit: 3,
-              sort: "calories",
-              sortDirection: "desc",
-            })
-            .then((ingredients) => {
-              const enrichedResults = mapSpoonacularIngredients(ingredients);
-
-              setSearchResults((prev) => {
-                const ids = new Set(prev.map((r) => `${r.source}-${r.id}`));
-                const merged = [
-                  ...prev,
-                  ...enrichedResults.filter(
-                    (r) => !ids.has(`${r.source}-${r.id}`)
-                  ),
-                ];
-                return merged;
-              });
-            })
-            .catch(console.error);
-        } catch (error) {
-          console.error("Error enriching search results:", error);
-          setSearchResults([]);
-        } finally {
-          setIsSearching(false);
-        }
-      }, 500),
-    []
-  );
-
-  useEffect(() => {
-    return () => {
-      debouncedSearch.cancel();
-    };
-  }, [debouncedSearch]);
-
-  //
-  // function to handle search input
-  const handleSearch = async (query: string) => {
-    setSearchQuery(query);
-    if (!query) return setSearchResults([]);
-
-    debouncedSearch(query);
-  };
 
   // function to handle food selection
   const handleFoodSelect = async (food: UnifiedSearchResult) => {
     setSelectedFood(food);
-    setSearchQuery(food.name);
-    setSearchResults([]);
+    clearResults();
 
     // debug log to verify selected food details
     console.log("Selected food:", {
