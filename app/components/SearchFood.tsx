@@ -1,4 +1,12 @@
-
+const {
+  searchQuery,
+  searchResults,
+  isSearching,
+  selectedFood,
+  setSelectedFood,
+  handleSearch,
+  clearResults,
+} = useFoodSearch();
 
 // React
 import React, { useEffect, useState } from "react";
@@ -65,14 +73,6 @@ export const SearchFood = () => {
     { label: "Dinner", value: "dinner" },
     { label: "Snacks", value: "snacks" },
   ]);
-
-  //: state variables for handling data regarding the food that is written in the search bar
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<UnifiedSearchResult[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const [selectedFood, setSelectedFood] = useState<
-    (UnifiedSearchResult & { servingSizeGrams?: number }) | null
-  >(null);
 
   const [showSuccess, setShowSuccess] = useState(false);
 
