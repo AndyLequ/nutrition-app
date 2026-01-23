@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import debounce from "lodash.debounce";
-import { foodApi } from "../services/api";
+import { foodApi } from "../../services/api";
 
 /* 
     Shared search result shape

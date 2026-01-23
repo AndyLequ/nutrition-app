@@ -1,4 +1,9 @@
+
+
+// React
 import React, { useEffect, useState } from "react";
+
+// React Native
 import {
   StyleSheet,
   View,
@@ -12,13 +17,17 @@ import {
   Pressable,
   Keyboard,
 } from "react-native";
+
+// third party libraries
 import { Picker } from "@react-native-picker/picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useFood } from "../FoodProvider";
-import debounce from "lodash.debounce";
-import axios from "axios";
-import { foodApi } from "../../services/api";
 import DropDownPicker from "react-native-dropdown-picker";
+
+// App hooks
+import { useFoodSearch } from "src/hooks/useFoodSearch.ts";
+
+// app providers / context
+import { useFood } from "../FoodProvider";
 
 interface UnifiedSearchResult {
   id: number;
