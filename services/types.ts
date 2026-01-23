@@ -33,6 +33,21 @@ export type UnifiedFoodItem = {
   fat?: number;
 };
 
+export type UnifiedSearchResult = {
+  id: number;
+  name: string;
+  type: "ingredient" | "recipe";
+  source: "spoonacular" | "fatsecret";
+
+  //optional enrichment
+  baseAmount?: number;
+  baseUnit?: string;
+  servings?: number;
+
+  nutrition?: NutritionInfo;
+  fatSecretData?: any;
+};
+
 export type MealPlan = {
   date: string;
   meals: {
