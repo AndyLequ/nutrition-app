@@ -103,13 +103,6 @@ export const SearchFood = () => {
   // this function will be debounced to avoid making too many requests to the API
   // ADDING fatsecret API search here too
   // ADDING: progressive search
-  
-
-  useEffect(() => {
-    return () => {
-      debouncedSearch.cancel();
-    };
-  }, [debouncedSearch]);
 
   //
   // function to handle search input
