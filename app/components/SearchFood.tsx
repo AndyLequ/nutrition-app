@@ -67,6 +67,7 @@ export const SearchFood = () => {
     { label: "ml", value: "ml" },
     { label: "serving", value: "serving" },
   ]);
+
   const [mealTypeItems, setMealTypeItems] = useState([
     { label: "Breakfast", value: "breakfast" },
     { label: "Lunch", value: "lunch" },
@@ -97,22 +98,6 @@ export const SearchFood = () => {
     const grams = amount * conversions[unit];
     return grams / servingSizeGrams;
   };
-
-  const mapFatSecretFoods = (foods: any[]): UnifiedSearchResult[] =>
-    foods.map((item) => ({
-      id: item.id,
-      name: item.name,
-      type: "ingredient",
-      source: "fatsecret",
-    }));
-
-  const mapSpoonacularIngredients = (items: any[]): UnifiedSearchResult[] =>
-    items.map((item) => ({
-      id: item.id,
-      name: item.name,
-      type: "ingredient",
-      source: "spoonacular",
-    }));
 
   // function for searching for food, will be called when the user types in the search bar
   // this function will be debounced to avoid making too many requests to the API
