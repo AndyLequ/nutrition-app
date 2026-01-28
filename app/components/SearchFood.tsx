@@ -16,28 +16,19 @@ import {
   Keyboard,
 } from "react-native";
 
+// types and interfaces
+import type { UnifiedSearchResult } from "../../services/types";
+
 // third party libraries
 import { Picker } from "@react-native-picker/picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import DropDownPicker from "react-native-dropdown-picker";
 
 // App hooks
-import { useFoodSearch } from "src/hooks/useFoodSearch.ts";
+import { useFoodSearch } from "../../src/hooks/useFoodSearch";
 
 // app providers / context
 import { useFood } from "../FoodProvider";
-
-interface UnifiedSearchResult {
-  id: number;
-  name: string;
-  type: "ingredient" | "recipe";
-  source?: "spoonacular" | "fatsecret";
-  baseAmount?: number;
-  baseUnit?: string;
-  servings?: number;
-  nutrition?: any; // Adjust this type based on your API response
-  fatSecretData?: any;
-}
 
 export const SearchFood = () => {
   const {
@@ -85,7 +76,7 @@ export const SearchFood = () => {
   const convertToServings = (
     amount: number,
     unit: string,
-    servingSizeGrams: number
+    servingSizeGrams: number,
   ): number => {
     const conversions: { [key: string]: number } = {
       g: 1,
@@ -121,7 +112,7 @@ export const SearchFood = () => {
     if (food.source === "fatsecret" && food.type === "recipe") {
       try {
         const recipeDetails = await foodApi.getFatSecretRecipeById(
-          food.id.toString()
+          food.id.toString(),
         );
         setSelectedFood({
           ...food,
@@ -140,7 +131,7 @@ export const SearchFood = () => {
     else if (food.source === "fatsecret" && food.type === "ingredient") {
       try {
         const foodDetails = await foodApi.getFatSecretFoodById(
-          food.id.toString()
+          food.id.toString(),
         );
         setSelectedFood({
           ...food,
@@ -169,7 +160,7 @@ export const SearchFood = () => {
   const convertToGrams = (
     amount: number,
     unit: string,
-    servingSizeGrams: number = 100
+    servingSizeGrams: number = 100,
   ): number => {
     const conversions: { [key: string]: number } = {
       g: 1,
@@ -226,7 +217,7 @@ export const SearchFood = () => {
           const amountInGrams = convertToGrams(
             parseFloat(amount),
             unit,
-            selectedFood.servingSizeGrams || 100
+            selectedFood.servingSizeGrams || 100,
           );
 
           nutrition = {
@@ -243,14 +234,14 @@ export const SearchFood = () => {
         nutrition = await foodApi.getNutrition(
           selectedFood.id,
           parseFloat(amount),
-          unit
+          unit,
         );
       } else {
         // spoonacular recipes
         const servings = convertToServings(
           parseFloat(amount),
           unit,
-          selectedFood.servingSizeGrams || 100
+          selectedFood.servingSizeGrams || 100,
         );
 
         const baseNutrition = await foodApi.getRecipeNutrition(selectedFood.id);

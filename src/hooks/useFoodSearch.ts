@@ -1,16 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import debounce from "lodash.debounce";
 import { foodApi } from "../../services/api";
-
-/* 
-    Shared search result shape
-*/
-export interface UnifiedSearchResult {
-  id: number;
-  name: string;
-  type: "ingredient" | "recipe";
-  source?: "spoonacular" | "fatsecret";
-}
+import type { UnifiedSearchResult } from "@/services/types";
 
 /* 
     FatSecret -> unified shape
@@ -95,7 +86,7 @@ export function useFoodSearch(query: string) {
           setIsSearching(false);
         }
       }, 500),
-    []
+    [],
   );
 
   /* 
