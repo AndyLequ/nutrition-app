@@ -33,18 +33,11 @@ export function useFoodSearch(query: string) {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<UnifiedSearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [selectedFood, setSelectedFood] = useState<UnifiedSearchResult | null>(
-    null,
-  );
 
-  const handleSearch = useCallback((query: string) => {
-    setSearchQuery(query);
-    if (!query) {
-      setSearchResults([]);
-      return;
-    }
-
-    setIsSearching(true);
+  
+  const clearResults = useCallback(() => {
+    setSearchResults([]);
+    setIsSearching(false);
   }, []);
 
   /* 
@@ -115,12 +108,25 @@ export function useFoodSearch(query: string) {
   /* 
     Public search handler
   */
+  const handleSearch = useCallback(
+    (query: string) => {
+      setSearchQuery(query);
+
+      if(!query){
+        clearResults();
+        return;
+      }
+
+      debouncedSearch(query);
+    },
+  )
+
 
   return {
     searchQuery,
     searchResults,
     isSearching,
     handleSearch,
-    setSearchQuery,
+    clearResults,
   };
 }
