@@ -1,16 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import debounce from "lodash.debounce";
 import { foodApi } from "../../services/api";
-
-/* 
-    Shared search result shape
-*/
-export interface UnifiedSearchResult {
-  id: number;
-  name: string;
-  type: "ingredient" | "recipe";
-  source?: "spoonacular" | "fatsecret";
-}
+import type { UnifiedSearchResult } from "@/services/types";
 
 /* 
     FatSecret -> unified shape
@@ -42,6 +33,12 @@ export function useFoodSearch(query: string) {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<UnifiedSearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+
+  
+  const clearResults = useCallback(() => {
+    setSearchResults([]);
+    setIsSearching(false);
+  }, []);
 
   /* 
         Debounced progressive search
@@ -95,7 +92,7 @@ export function useFoodSearch(query: string) {
           setIsSearching(false);
         }
       }, 500),
-    []
+    [],
   );
 
   /* 
@@ -111,23 +108,25 @@ export function useFoodSearch(query: string) {
   /* 
     Public search handler
   */
+  const handleSearch = useCallback(
+    (query: string) => {
+      setSearchQuery(query);
 
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
+      if(!query){
+        clearResults();
+        return;
+      }
 
-    if (!query) {
-      setSearchResults([]);
-      return;
-    }
+      debouncedSearch(query);
+    },
+  )
 
-    debouncedSearch(query);
-  };
 
   return {
     searchQuery,
     searchResults,
     isSearching,
     handleSearch,
-    setSearchQuery,
+    clearResults,
   };
 }
