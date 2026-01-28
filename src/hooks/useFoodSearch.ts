@@ -37,6 +37,16 @@ export function useFoodSearch(query: string) {
     null,
   );
 
+  const handleSearch = useCallback((query: string) => {
+    setSearchQuery(query);
+    if (!query) {
+      setSearchResults([]);
+      return;
+    }
+
+    setIsSearching(true);
+  }, []);
+
   /* 
         Debounced progressive search
     */
@@ -105,17 +115,6 @@ export function useFoodSearch(query: string) {
   /* 
     Public search handler
   */
-
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-
-    if (!query) {
-      setSearchResults([]);
-      return;
-    }
-
-    debouncedSearch(query);
-  };
 
   return {
     searchQuery,
