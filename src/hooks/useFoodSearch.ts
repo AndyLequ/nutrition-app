@@ -33,6 +33,9 @@ export function useFoodSearch(query: string) {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<UnifiedSearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [selectedFood, setSelectedFood] = useState<UnifiedSearchResult | null>(
+    null,
+  );
 
   /* 
         Debounced progressive search
