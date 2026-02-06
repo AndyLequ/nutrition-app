@@ -16,6 +16,8 @@ import {
   Keyboard,
 } from "react-native";
 
+import { foodApi } from "../../services/api";
+
 // types and interfaces
 import type { UnifiedSearchResult } from "../../services/types";
 
