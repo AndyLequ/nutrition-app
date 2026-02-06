@@ -16,6 +16,8 @@ import {
   Keyboard,
 } from "react-native";
 
+import { foodApi } from "../../services/api";
+
 // types and interfaces
 import type { UnifiedSearchResult } from "../../services/types";
 
@@ -35,14 +37,15 @@ export const SearchFood = () => {
     searchQuery,
     searchResults,
     isSearching,
-    selectedFood,
-    setSelectedFood,
     handleSearch,
     clearResults,
   } = useFoodSearch();
 
   //the state variables, these states are concerned with the food being searched and then added
   const [amount, setAmount] = useState("");
+  const [selectedFood, setSelectedFood] = useState<UnifiedSearchResult | null>(
+    null,
+  );
   const [unit, setUnit] = useState("g");
   const [isFocused1, setIsFocused1] = useState(false);
   const [isFocused2, setIsFocused2] = useState(false);
@@ -280,7 +283,7 @@ export const SearchFood = () => {
         fat: Number(nutrition.fat),
       });
 
-      setSearchQuery("");
+      handleSearch(""); // Clear search input
       setAmount("");
       setUnit("g");
       setMealType("breakfast");
