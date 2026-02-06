@@ -281,7 +281,7 @@ export const SearchFood = () => {
         fat: Number(nutrition.fat),
       });
 
-      setSearchQuery("");
+      handleSearch(""); // Clear search input
       setAmount("");
       setUnit("g");
       setMealType("breakfast");
