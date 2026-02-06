@@ -29,7 +29,7 @@ const mapSpoonacularIngredients = (items: any[]): UnifiedSearchResult[] =>
     Food search hook
 */
 
-export function useFoodSearch(query: string) {
+export function useFoodSearch() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<UnifiedSearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -118,7 +118,7 @@ export function useFoodSearch(query: string) {
       }
 
       debouncedSearch(query);
-    },
+    },[debouncedSearch, clearResults]
   )
 
 
