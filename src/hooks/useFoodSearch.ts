@@ -34,7 +34,6 @@ export function useFoodSearch() {
   const [searchResults, setSearchResults] = useState<UnifiedSearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
 
-  
   const clearResults = useCallback(() => {
     setSearchResults([]);
     setIsSearching(false);
@@ -84,12 +83,11 @@ export function useFoodSearch() {
                 ];
               });
             })
-            .catch(console.error);
+            .catch(console.error)
+            .finally(() => setIsSearching(false));
         } catch (error) {
           console.error("Search error:", error);
           setSearchResults([]);
-        } finally {
-          setIsSearching(false);
         }
       }, 500),
     [],
@@ -112,15 +110,15 @@ export function useFoodSearch() {
     (query: string) => {
       setSearchQuery(query);
 
-      if(!query){
+      if (!query) {
         clearResults();
         return;
       }
 
       debouncedSearch(query);
-    },[debouncedSearch, clearResults]
-  )
-
+    },
+    [debouncedSearch, clearResults],
+  );
 
   return {
     searchQuery,
