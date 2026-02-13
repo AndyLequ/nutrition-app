@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import debounce from "lodash.debounce";
 import { foodApi } from "../../services/api";
 import type { UnifiedSearchResult } from "@/services/types";
@@ -43,23 +43,25 @@ export function useFoodSearch() {
         Debounced progressive search
     */
 
+  const latestQueryRef = useRef("");
+
   const debouncedSearch = useMemo(
     () =>
       debounce(async (query: string) => {
-        if (query.length < 3) {
-          setSearchResults([]);
-          setIsSearching(false);
-          return;
-        }
-        try {
-          setIsSearching(true);
+        latestQueryRef.current = query;
 
+
+        setIsSearching(true);
+
+        try {
           // Primary (fast) - FatSecret
           const fatSecretFoods = await foodApi.getFatSecretFoods({
             query,
             maxResults: 5,
             pageNumber: 0,
           });
+
+          if (latestQueryRef.current !== query) return; // discard if query has changed
 
           setSearchResults(mapFatSecretFoods(fatSecretFoods));
 
@@ -72,11 +74,12 @@ export function useFoodSearch() {
               sortDirection: "desc",
             })
             .then((ingredients) => {
+              if (latestQueryRef.current !== query) return; // discard if query has changed
+
               const enriched = mapSpoonacularIngredients(ingredients);
 
               setSearchResults((prev) => {
                 const ids = new Set(prev.map((r) => `${r.source}-${r.id}`));
-
                 return [
                   ...prev,
                   ...enriched.filter((r) => !ids.has(`${r.source}-${r.id}`)),
@@ -88,6 +91,7 @@ export function useFoodSearch() {
         } catch (error) {
           console.error("Search error:", error);
           setSearchResults([]);
+          setIsSearching(false);
         }
       }, 500),
     [],
@@ -110,7 +114,7 @@ export function useFoodSearch() {
     (query: string) => {
       setSearchQuery(query);
 
-      if (!query) {
+      if(!query || query.length < 3){
         clearResults();
         return;
       }
