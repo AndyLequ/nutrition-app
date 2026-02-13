@@ -51,9 +51,10 @@ export function useFoodSearch() {
           setIsSearching(false);
           return;
         }
-        try {
-          setIsSearching(true);
 
+        setIsSearching(true);
+
+        try {
           // Primary (fast) - FatSecret
           const fatSecretFoods = await foodApi.getFatSecretFoods({
             query,
