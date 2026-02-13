@@ -77,7 +77,6 @@ export function useFoodSearch() {
 
               setSearchResults((prev) => {
                 const ids = new Set(prev.map((r) => `${r.source}-${r.id}`));
-
                 return [
                   ...prev,
                   ...enriched.filter((r) => !ids.has(`${r.source}-${r.id}`)),
@@ -89,6 +88,7 @@ export function useFoodSearch() {
         } catch (error) {
           console.error("Search error:", error);
           setSearchResults([]);
+          setIsSearching(false);
         }
       }, 500),
     [],
