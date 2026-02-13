@@ -50,11 +50,6 @@ export function useFoodSearch() {
       debounce(async (query: string) => {
         latestQueryRef.current = query;
 
-        // if (query.length < 3) {
-        //   setSearchResults([]);
-        //   setIsSearching(false);
-        //   return;
-        // }
 
         setIsSearching(true);
 
@@ -119,7 +114,7 @@ export function useFoodSearch() {
     (query: string) => {
       setSearchQuery(query);
 
-      if (!query) {
+      if(!query || query.length < 3){
         clearResults();
         return;
       }
