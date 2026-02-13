@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import debounce from "lodash.debounce";
 import { foodApi } from "../../services/api";
 import type { UnifiedSearchResult } from "@/services/types";
@@ -42,6 +42,8 @@ export function useFoodSearch() {
   /* 
         Debounced progressive search
     */
+
+  const latestQueryRef = useRef("");
 
   const debouncedSearch = useMemo(
     () =>
