@@ -48,11 +48,13 @@ export function useFoodSearch() {
   const debouncedSearch = useMemo(
     () =>
       debounce(async (query: string) => {
-        if (query.length < 3) {
-          setSearchResults([]);
-          setIsSearching(false);
-          return;
-        }
+        latestQueryRef.current = query;
+
+        // if (query.length < 3) {
+        //   setSearchResults([]);
+        //   setIsSearching(false);
+        //   return;
+        // }
 
         setIsSearching(true);
 
@@ -63,6 +65,8 @@ export function useFoodSearch() {
             maxResults: 5,
             pageNumber: 0,
           });
+
+          if (latestQueryRef.current !== query) return; // discard if query has changed
 
           setSearchResults(mapFatSecretFoods(fatSecretFoods));
 
@@ -75,6 +79,8 @@ export function useFoodSearch() {
               sortDirection: "desc",
             })
             .then((ingredients) => {
+              if (latestQueryRef.current !== query) return; // discard if query has changed
+
               const enriched = mapSpoonacularIngredients(ingredients);
 
               setSearchResults((prev) => {
