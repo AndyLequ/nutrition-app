@@ -165,7 +165,7 @@ interface FatSecretIngredient {
 }
 
 export interface FatSecretFoodDetails {
-  id: string;
+  id: number;
   name: string;
   serving: fatsecretNutritionInfo;
   perGram: fatsecretNutritionInfo;
