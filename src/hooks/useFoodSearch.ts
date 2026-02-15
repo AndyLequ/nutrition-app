@@ -1,14 +1,17 @@
 import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import debounce from "lodash.debounce";
 import { foodApi } from "../../services/api";
-import type { UnifiedSearchResult } from "@/services/types";
-import type { FatSecretFood } from "@/services/interfaces";
+import type {
+  UnifiedSearchResult,
+  FatSecretFood,
+  Ingredient,
+} from "@/services/types";
 
 /* 
     FatSecret -> unified shape
 */
 
-const mapFatSecretFoods = (foods: any[]): UnifiedSearchResult[] =>
+const mapFatSecretFoods = (foods: FatSecretFood[]): UnifiedSearchResult[] =>
   foods.map((item) => ({
     id: item.id,
     name: item.name,
@@ -18,7 +21,9 @@ const mapFatSecretFoods = (foods: any[]): UnifiedSearchResult[] =>
 
 /*    Spoonacular -> unified shape
  */
-const mapSpoonacularIngredients = (items: any[]): UnifiedSearchResult[] =>
+const mapSpoonacularIngredients = (
+  items: Ingredient[],
+): UnifiedSearchResult[] =>
   items.map((item) => ({
     id: item.id,
     name: item.name,
@@ -50,7 +55,6 @@ export function useFoodSearch() {
     () =>
       debounce(async (query: string) => {
         latestQueryRef.current = query;
-
 
         setIsSearching(true);
 
@@ -115,7 +119,7 @@ export function useFoodSearch() {
     (query: string) => {
       setSearchQuery(query);
 
-      if(!query || query.length < 3){
+      if (!query || query.length < 3) {
         clearResults();
         return;
       }
