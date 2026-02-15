@@ -71,32 +71,36 @@ export function useFoodSearch() {
           setSearchResults(mapFatSecretFoods(fatSecretFoods));
 
           // Background enrichment - Spoonacular
-          foodApi
-            .searchIngredients({
+          //new code for better flow and consistency with async/await
+          try {
+            const ingredients = await foodApi.searchIngredients({
               query,
               limit: 3,
               sort: "calories",
               sortDirection: "desc",
-            })
-            .then((ingredients) => {
-              if (latestQueryRef.current !== query) return; // discard if query has changed
+            });
 
-              const enriched = mapSpoonacularIngredients(ingredients);
+            if (latestQueryRef.current !== query) return;
 
-              setSearchResults((prev) => {
-                const ids = new Set(prev.map((r) => `${r.source}-${r.id}`));
-                return [
-                  ...prev,
-                  ...enriched.filter((r) => !ids.has(`${r.source}-${r.id}`)),
-                ];
-              });
-            })
-            .catch(console.error)
-            .finally(() => setIsSearching(false));
+            const enriched = mapSpoonacularIngredients(ingredients);
+
+            setSearchResults((prev) => {
+              const ids = new Set(prev.map((r) => `${r.source}-${r.id}`));
+              return [
+                ...prev,
+                ...enriched.filter((r) => !ids.has(`${r.source}-${r.id}`)),
+              ];
+            });
+          } catch (error) {
+            console.error("Enrichment error:", error);
+          }
         } catch (error) {
           console.error("Search error:", error);
           setSearchResults([]);
-          setIsSearching(false);
+        } finally {
+          if (latestQueryRef.current === query) {
+            setIsSearching(false);
+          }
         }
       }, 500),
     [],
