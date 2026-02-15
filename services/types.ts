@@ -173,7 +173,7 @@ export interface FatSecretFoodDetails {
 }
 
 export interface FatSecretRecipeDetails {
-  id: string;
+  id: number;
   name: string;
   servingSizeGrams: number;
   nutritionPerServing: NutritionInfo;
