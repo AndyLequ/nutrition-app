@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import debounce from "lodash.debounce";
 import { foodApi } from "../../services/api";
 import type { UnifiedSearchResult } from "@/services/types";
+import type { FatSecretFood } from "@/services/interfaces";
 
 /* 
     FatSecret -> unified shape

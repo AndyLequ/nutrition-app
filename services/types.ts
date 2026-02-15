@@ -45,7 +45,7 @@ export type UnifiedSearchResult = {
   servings?: number;
 
   nutrition?: NutritionInfo;
-  fatSecretData?: any;
+  fatSecretData?: FatSecretFoodDetails | FatSecretRecipeDetails;
 };
 
 export type MealPlan = {
