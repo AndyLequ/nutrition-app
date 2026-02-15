@@ -45,7 +45,7 @@ export type UnifiedSearchResult = {
   servings?: number;
 
   nutrition?: NutritionInfo;
-  fatSecretData?: any;
+  fatSecretData?: FatSecretFoodDetails | FatSecretRecipeDetails;
 };
 
 export type MealPlan = {
@@ -165,7 +165,7 @@ interface FatSecretIngredient {
 }
 
 export interface FatSecretFoodDetails {
-  id: string;
+  id: number;
   name: string;
   serving: fatsecretNutritionInfo;
   perGram: fatsecretNutritionInfo;
@@ -173,7 +173,7 @@ export interface FatSecretFoodDetails {
 }
 
 export interface FatSecretRecipeDetails {
-  id: string;
+  id: number;
   name: string;
   servingSizeGrams: number;
   nutritionPerServing: NutritionInfo;

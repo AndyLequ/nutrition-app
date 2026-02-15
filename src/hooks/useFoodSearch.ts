@@ -1,13 +1,17 @@
 import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import debounce from "lodash.debounce";
 import { foodApi } from "../../services/api";
-import type { UnifiedSearchResult } from "@/services/types";
+import type {
+  UnifiedSearchResult,
+  FatSecretFood,
+  Ingredient,
+} from "@/services/types";
 
 /* 
     FatSecret -> unified shape
 */
 
-const mapFatSecretFoods = (foods: any[]): UnifiedSearchResult[] =>
+const mapFatSecretFoods = (foods: FatSecretFood[]): UnifiedSearchResult[] =>
   foods.map((item) => ({
     id: item.id,
     name: item.name,
@@ -17,7 +21,9 @@ const mapFatSecretFoods = (foods: any[]): UnifiedSearchResult[] =>
 
 /*    Spoonacular -> unified shape
  */
-const mapSpoonacularIngredients = (items: any[]): UnifiedSearchResult[] =>
+const mapSpoonacularIngredients = (
+  items: Ingredient[],
+): UnifiedSearchResult[] =>
   items.map((item) => ({
     id: item.id,
     name: item.name,
@@ -50,7 +56,6 @@ export function useFoodSearch() {
       debounce(async (query: string) => {
         latestQueryRef.current = query;
 
-
         setIsSearching(true);
 
         try {
@@ -66,32 +71,36 @@ export function useFoodSearch() {
           setSearchResults(mapFatSecretFoods(fatSecretFoods));
 
           // Background enrichment - Spoonacular
-          foodApi
-            .searchIngredients({
+          //new code for better flow and consistency with async/await
+          try {
+            const ingredients = await foodApi.searchIngredients({
               query,
               limit: 3,
               sort: "calories",
               sortDirection: "desc",
-            })
-            .then((ingredients) => {
-              if (latestQueryRef.current !== query) return; // discard if query has changed
+            });
 
-              const enriched = mapSpoonacularIngredients(ingredients);
+            if (latestQueryRef.current !== query) return;
 
-              setSearchResults((prev) => {
-                const ids = new Set(prev.map((r) => `${r.source}-${r.id}`));
-                return [
-                  ...prev,
-                  ...enriched.filter((r) => !ids.has(`${r.source}-${r.id}`)),
-                ];
-              });
-            })
-            .catch(console.error)
-            .finally(() => setIsSearching(false));
+            const enriched = mapSpoonacularIngredients(ingredients);
+
+            setSearchResults((prev) => {
+              const ids = new Set(prev.map((r) => `${r.source}-${r.id}`));
+              return [
+                ...prev,
+                ...enriched.filter((r) => !ids.has(`${r.source}-${r.id}`)),
+              ];
+            });
+          } catch (error) {
+            console.error("Enrichment error:", error);
+          }
         } catch (error) {
           console.error("Search error:", error);
           setSearchResults([]);
-          setIsSearching(false);
+        } finally {
+          if (latestQueryRef.current === query) {
+            setIsSearching(false);
+          }
         }
       }, 500),
     [],
@@ -114,7 +123,7 @@ export function useFoodSearch() {
     (query: string) => {
       setSearchQuery(query);
 
-      if(!query || query.length < 3){
+      if (!query || query.length < 3) {
         clearResults();
         return;
       }
