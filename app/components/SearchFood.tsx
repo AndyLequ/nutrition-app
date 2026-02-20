@@ -363,9 +363,9 @@ export const SearchFood = () => {
             unit,
             foodType: selectedFood?.type,
           });
-          await AsyncStorage.setItem("@inputs", dataToSave);
+          await AsyncStorage.setItem("@foodInputs", dataToSave);
         } catch (e) {
-          console.error("Failed to save data");
+          console.error("Failed to save data", e);
         }
       };
       saveData();
