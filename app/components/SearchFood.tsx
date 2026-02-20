@@ -103,6 +103,7 @@ export const SearchFood = () => {
 
   // function to handle food selection
   const handleFoodSelect = async (food: UnifiedSearchResult) => {
+    setIsFetchingDetails(true);
     setSelectedFood(food);
     clearResults();
 
@@ -131,6 +132,8 @@ export const SearchFood = () => {
           ...food,
           servingSizeGrams: 100,
         });
+      } finally {
+        setIsFetchingDetails(false);
       }
     }
     // for fatsecret ingredients, need to fetch details
@@ -506,10 +509,15 @@ export const SearchFood = () => {
               <TouchableOpacity
                 className="h-12 bg-indigo-500 rounded-lg justify-center items-center"
                 onPress={handleSubmit}
+                disabled={isFetchingDetails}
               >
-                <Text className="text-white text-base font-semibold">
-                  Submit
-                </Text>
+                {isFetchingDetails ? (
+                  <ActivityIndicator color="white" />
+                ) : (
+                  <Text className="text-white text-base font-semibold">
+                    Submit
+                  </Text>
+                )}
               </TouchableOpacity>
 
               {showSuccess && (
