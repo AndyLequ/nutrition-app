@@ -299,7 +299,7 @@ export const SearchFood = () => {
         setShowSuccess(false);
       }, 2000); // Hide success message after 2 seconds
 
-      await AsyncStorage.removeItem("@inputs"); // Clear saved data
+      await AsyncStorage.removeItem("@foodInputs"); // Clear saved data
 
       // Reset form...
     } catch (error) {
