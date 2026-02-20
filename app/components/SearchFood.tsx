@@ -333,7 +333,7 @@ export const SearchFood = () => {
         if (savedData !== null) {
           const { savedfoodName, savedAmount, savedMealType } =
             JSON.parse(savedData);
-          setSearchQuery(savedfoodName);
+          handleSearch(savedfoodName);
           setAmount(savedAmount);
           setMealType(savedMealType || "breakfast");
         }
