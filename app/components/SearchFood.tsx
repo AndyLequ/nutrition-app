@@ -329,16 +329,21 @@ export const SearchFood = () => {
     const loadData = async () => {
       // Load data here
       try {
-        const savedData = await AsyncStorage.getItem("data");
+        const savedData = await AsyncStorage.getItem("@foodInputs");
         if (savedData !== null) {
-          const { savedfoodName, savedAmount, savedMealType } =
-            JSON.parse(savedData);
-          handleSearch(savedfoodName);
-          setAmount(savedAmount);
+          const {
+            searchQuery: savedQuery,
+            amount: savedAmount,
+            mealType: savedMealType,
+            unit: savedUnit,
+          } = JSON.parse(savedData);
+          handleSearch(savedQuery || "");
+          setAmount(savedAmount || "");
           setMealType(savedMealType || "breakfast");
+          setUnit(savedUnit || "g");
         }
       } catch (e) {
-        console.error("Failed to load data");
+        console.error("Failed to load data", e);
       } finally {
         setIsLoading(false);
       }
