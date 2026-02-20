@@ -71,6 +71,9 @@ export const SearchFood = () => {
 
   const [showSuccess, setShowSuccess] = useState(false);
 
+  // showing loading while fetching food details; this is the state necessary for making that possible
+  const [isFetchingDetails, setIsFetchingDetails] = useState(false);
+
   // these states are for later use, not important right now
   // const [submittedFoods, setSubmittedFoods] = useState([]);
   // const [showFoodList, setShowFoodList] = useState(false);
@@ -100,6 +103,7 @@ export const SearchFood = () => {
 
   // function to handle food selection
   const handleFoodSelect = async (food: UnifiedSearchResult) => {
+    setIsFetchingDetails(true);
     setSelectedFood(food);
     clearResults();
 
@@ -128,6 +132,8 @@ export const SearchFood = () => {
           ...food,
           servingSizeGrams: 100,
         });
+      } finally {
+        setIsFetchingDetails(false);
       }
     }
     // for fatsecret ingredients, need to fetch details
@@ -293,7 +299,7 @@ export const SearchFood = () => {
         setShowSuccess(false);
       }, 2000); // Hide success message after 2 seconds
 
-      await AsyncStorage.removeItem("@inputs"); // Clear saved data
+      await AsyncStorage.removeItem("@foodInputs"); // Clear saved data
 
       // Reset form...
     } catch (error) {
@@ -323,16 +329,21 @@ export const SearchFood = () => {
     const loadData = async () => {
       // Load data here
       try {
-        const savedData = await AsyncStorage.getItem("data");
+        const savedData = await AsyncStorage.getItem("@foodInputs");
         if (savedData !== null) {
-          const { savedfoodName, savedAmount, savedMealType } =
-            JSON.parse(savedData);
-          setSearchQuery(savedfoodName);
-          setAmount(savedAmount);
+          const {
+            searchQuery: savedQuery,
+            amount: savedAmount,
+            mealType: savedMealType,
+            unit: savedUnit,
+          } = JSON.parse(savedData);
+          handleSearch(savedQuery || "");
+          setAmount(savedAmount || "");
           setMealType(savedMealType || "breakfast");
+          setUnit(savedUnit || "g");
         }
       } catch (e) {
-        console.error("Failed to load data");
+        console.error("Failed to load data", e);
       } finally {
         setIsLoading(false);
       }
@@ -352,9 +363,9 @@ export const SearchFood = () => {
             unit,
             foodType: selectedFood?.type,
           });
-          await AsyncStorage.setItem("@inputs", dataToSave);
+          await AsyncStorage.setItem("@foodInputs", dataToSave);
         } catch (e) {
-          console.error("Failed to save data");
+          console.error("Failed to save data", e);
         }
       };
       saveData();
@@ -408,6 +419,11 @@ export const SearchFood = () => {
                 }}
                 onBlur={() => setIsFocused1(false)}
               />
+              {isSearching && (
+                <View style={{ marginTop: 8 }}>
+                  <ActivityIndicator size="small" color="#6366f1" />
+                </View>
+              )}
             </View>
 
             {searchResults.length > 0 && (
@@ -498,10 +514,15 @@ export const SearchFood = () => {
               <TouchableOpacity
                 className="h-12 bg-indigo-500 rounded-lg justify-center items-center"
                 onPress={handleSubmit}
+                disabled={isFetchingDetails}
               >
-                <Text className="text-white text-base font-semibold">
-                  Submit
-                </Text>
+                {isFetchingDetails ? (
+                  <ActivityIndicator color="white" />
+                ) : (
+                  <Text className="text-white text-base font-semibold">
+                    Submit
+                  </Text>
+                )}
               </TouchableOpacity>
 
               {showSuccess && (
