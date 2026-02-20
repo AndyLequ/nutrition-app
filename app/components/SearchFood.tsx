@@ -71,6 +71,9 @@ export const SearchFood = () => {
 
   const [showSuccess, setShowSuccess] = useState(false);
 
+  // showing loading while fetching food details; this is the state necessary for making that possible
+  const [isFetchingDetails, setIsFetchingDetails] = useState(false);
+
   // these states are for later use, not important right now
   // const [submittedFoods, setSubmittedFoods] = useState([]);
   // const [showFoodList, setShowFoodList] = useState(false);
@@ -408,6 +411,11 @@ export const SearchFood = () => {
                 }}
                 onBlur={() => setIsFocused1(false)}
               />
+              {isSearching && (
+                <View style={{ marginTop: 8 }}>
+                  <ActivityIndicator size="small" color="#6366f1" />
+                </View>
+              )}
             </View>
 
             {searchResults.length > 0 && (
