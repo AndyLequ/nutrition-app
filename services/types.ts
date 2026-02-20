@@ -44,6 +44,8 @@ export type UnifiedSearchResult = {
   baseUnit?: string;
   servings?: number;
 
+  servingSizeGrams?: number;
+
   nutrition?: NutritionInfo;
   fatSecretData?: FatSecretFoodDetails | FatSecretRecipeDetails;
 };
