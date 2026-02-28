@@ -108,8 +108,8 @@ export const SearchFood = () => {
     clearResults();
 
     // new logic for handling both spoonacular and fatsecret APIs
-    if (food.source === "fatsecret" && food.type === "recipe") {
-      try {
+    try {
+        if (food.source === "fatsecret" && food.type === "recipe") {
         const recipeDetails = await foodApi.getFatSecretRecipeById(
           food.id.toString(),
         );
@@ -118,36 +118,30 @@ export const SearchFood = () => {
           fatSecretData: recipeDetails,
           servingSizeGrams: recipeDetails.servingSizeGrams, // assuming 100g for fatsecret recipes, adjust as needed
         });
-      } catch (error) {
-        console.error("Error fetching FatSecret recipe details", error);
-        setSelectedFood({
-          ...food,
-          servingSizeGrams: 100,
-        });
-      } finally {
-        setIsFetchingDetails(false);
-      }
-    }
-    // for fatsecret ingredients, need to fetch details
-    else if (food.source === "fatsecret" && food.type === "ingredient") {
-      try {
-        const foodDetails = await foodApi.getFatSecretFoodById(
-          food.id.toString(),
-        );
-        setSelectedFood({
-          ...food,
-          fatSecretData: foodDetails,
-          servingSizeGrams: (foodDetails as any).servingSizeGrams || 100,
-        });
-      } catch (error) {
-        console.error("Error fetching FatSecret food details", error);
+      } 
+   
+      // for fatsecret ingredients, need to fetch details
+      else if (food.source === "fatsecret" && food.type === "ingredient") {
+        try {
+          const foodDetails = await foodApi.getFatSecretFoodById(
+            food.id.toString(),
+          );
+          setSelectedFood({
+            ...food,
+            fatSecretData: foodDetails,
+            servingSizeGrams: (foodDetails as any).servingSizeGrams || 100,
+          });
+        } catch (error) {
+          console.error("Error fetching FatSecret food details", error);
+          setSelectedFood(food);
+        }
+      } else {
         setSelectedFood(food);
       }
-    } else {
-      setSelectedFood(food);
+      setUnit(food.type === "recipe" ? "serving" : "g");
     }
 
-    setUnit(food.type === "recipe" ? "serving" : "g");
+
 
     // For FatSecret items, log the detailed data
     if (food.source === "fatsecret") {
