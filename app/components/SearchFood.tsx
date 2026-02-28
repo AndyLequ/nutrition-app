@@ -109,7 +109,7 @@ export const SearchFood = () => {
 
     // new logic for handling both spoonacular and fatsecret APIs
     try {
-        if (food.source === "fatsecret" && food.type === "recipe") {
+      if (food.source === "fatsecret" && food.type === "recipe") {
         const recipeDetails = await foodApi.getFatSecretRecipeById(
           food.id.toString(),
         );
@@ -118,30 +118,26 @@ export const SearchFood = () => {
           fatSecretData: recipeDetails,
           servingSizeGrams: recipeDetails.servingSizeGrams, // assuming 100g for fatsecret recipes, adjust as needed
         });
-      } 
-   
+      }
       // for fatsecret ingredients, need to fetch details
       else if (food.source === "fatsecret" && food.type === "ingredient") {
-        try {
-          const foodDetails = await foodApi.getFatSecretFoodById(
-            food.id.toString(),
-          );
-          setSelectedFood({
-            ...food,
-            fatSecretData: foodDetails,
-            servingSizeGrams: (foodDetails as any).servingSizeGrams || 100,
-          });
-        } catch (error) {
-          console.error("Error fetching FatSecret food details", error);
-          setSelectedFood(food);
-        }
+        const foodDetails = await foodApi.getFatSecretFoodById(
+          food.id.toString(),
+        );
+        setSelectedFood({
+          ...food,
+          fatSecretData: foodDetails,
+          servingSizeGrams: (foodDetails as any).servingSizeGrams || 100,
+        });
       } else {
         setSelectedFood(food);
       }
       setUnit(food.type === "recipe" ? "serving" : "g");
+    } catch (error) {
+      console.error("Error fetching details:", error);
+    } finally {
+      setIsFetchingDetails(false);
     }
-
-
 
     // For FatSecret items, log the detailed data
     if (food.source === "fatsecret") {
