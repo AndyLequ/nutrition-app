@@ -113,6 +113,7 @@ export const SearchFood = () => {
         const recipeDetails = await foodApi.getFatSecretRecipeById(
           food.id.toString(),
         );
+        console.log("FatSecret recipe details:", recipeDetails);
         setSelectedFood({
           ...food,
           fatSecretData: recipeDetails,
@@ -137,11 +138,6 @@ export const SearchFood = () => {
       console.error("Error fetching details:", error);
     } finally {
       setIsFetchingDetails(false);
-    }
-
-    // For FatSecret items, log the detailed data
-    if (food.source === "fatsecret") {
-      console.log("FatSecret details:", food.fatSecretData);
     }
   };
   const parseNutritionValue = (value: string) =>
