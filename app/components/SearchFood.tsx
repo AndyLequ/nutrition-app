@@ -496,7 +496,7 @@ export const SearchFood = () => {
               <TouchableOpacity
                 className="h-12 bg-indigo-500 rounded-lg justify-center items-center"
                 onPress={handleSubmit}
-                disabled={isFetchingDetails}
+                disabled={isFetchingDetails || !selectedFood || !amount}
               >
                 {isFetchingDetails ? (
                   <ActivityIndicator color="white" />
