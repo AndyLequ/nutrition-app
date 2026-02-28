@@ -107,14 +107,6 @@ export const SearchFood = () => {
     setSelectedFood(food);
     clearResults();
 
-    // debug log to verify selected food details
-    console.log("Selected food:", {
-      name: food.name,
-      type: food.type,
-      source: food.source,
-      id: food.id,
-    });
-
     // new logic for handling both spoonacular and fatsecret APIs
     if (food.source === "fatsecret" && food.type === "recipe") {
       try {

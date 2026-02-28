@@ -65,6 +65,7 @@ export function useFoodSearch() {
             maxResults: 5,
             pageNumber: 0,
           });
+          console.log("Raw FatSecret results:", fatSecretFoods);
 
           if (latestQueryRef.current !== query) return; // discard if query has changed
 
@@ -79,6 +80,7 @@ export function useFoodSearch() {
               sort: "calories",
               sortDirection: "desc",
             });
+            console.log("Raw Spoonacular results:", ingredients);
 
             if (latestQueryRef.current !== query) return;
 
