@@ -107,38 +107,21 @@ export const SearchFood = () => {
     setSelectedFood(food);
     clearResults();
 
-    // debug log to verify selected food details
-    console.log("Selected food:", {
-      name: food.name,
-      type: food.type,
-      source: food.source,
-      id: food.id,
-    });
-
     // new logic for handling both spoonacular and fatsecret APIs
-    if (food.source === "fatsecret" && food.type === "recipe") {
-      try {
+    try {
+      if (food.source === "fatsecret" && food.type === "recipe") {
         const recipeDetails = await foodApi.getFatSecretRecipeById(
           food.id.toString(),
         );
+        console.log("FatSecret recipe details:", recipeDetails);
         setSelectedFood({
           ...food,
           fatSecretData: recipeDetails,
           servingSizeGrams: recipeDetails.servingSizeGrams, // assuming 100g for fatsecret recipes, adjust as needed
         });
-      } catch (error) {
-        console.error("Error fetching FatSecret recipe details", error);
-        setSelectedFood({
-          ...food,
-          servingSizeGrams: 100,
-        });
-      } finally {
-        setIsFetchingDetails(false);
       }
-    }
-    // for fatsecret ingredients, need to fetch details
-    else if (food.source === "fatsecret" && food.type === "ingredient") {
-      try {
+      // for fatsecret ingredients, need to fetch details
+      else if (food.source === "fatsecret" && food.type === "ingredient") {
         const foodDetails = await foodApi.getFatSecretFoodById(
           food.id.toString(),
         );
@@ -147,19 +130,14 @@ export const SearchFood = () => {
           fatSecretData: foodDetails,
           servingSizeGrams: (foodDetails as any).servingSizeGrams || 100,
         });
-      } catch (error) {
-        console.error("Error fetching FatSecret food details", error);
+      } else {
         setSelectedFood(food);
       }
-    } else {
-      setSelectedFood(food);
-    }
-
-    setUnit(food.type === "recipe" ? "serving" : "g");
-
-    // For FatSecret items, log the detailed data
-    if (food.source === "fatsecret") {
-      console.log("FatSecret details:", food.fatSecretData);
+      setUnit(food.type === "recipe" ? "serving" : "g");
+    } catch (error) {
+      console.error("Error fetching details:", error);
+    } finally {
+      setIsFetchingDetails(false);
     }
   };
   const parseNutritionValue = (value: string) =>
@@ -514,7 +492,7 @@ export const SearchFood = () => {
               <TouchableOpacity
                 className="h-12 bg-indigo-500 rounded-lg justify-center items-center"
                 onPress={handleSubmit}
-                disabled={isFetchingDetails}
+                disabled={isFetchingDetails || !selectedFood || !amount}
               >
                 {isFetchingDetails ? (
                   <ActivityIndicator color="white" />
