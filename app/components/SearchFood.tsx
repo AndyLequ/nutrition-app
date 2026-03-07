@@ -126,11 +126,12 @@ export const SearchFood = () => {
         const foodDetails = await foodApi.getFatSecretFoodById(
           food.id.toString(),
         );
-        setSelectedFood({
+
+        enrichedFood = {
           ...food,
           fatSecretData: foodDetails,
-          servingSizeGrams: (foodDetails as any).servingSizeGrams || 100,
-        });
+          servingSizeGrams: (foodDetails as any).servingSizeGrams || 100, // assuming 100g if not provided, adjust as needed
+        };
       } else {
         setSelectedFood(food);
       }
