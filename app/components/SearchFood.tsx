@@ -104,7 +104,6 @@ export const SearchFood = () => {
   // function to handle food selection
   const handleFoodSelect = async (food: UnifiedSearchResult) => {
     setIsFetchingDetails(true);
-    setSelectedFood(food);
     clearResults();
 
     // new logic for handling both spoonacular and fatsecret APIs
