@@ -108,6 +108,8 @@ export const SearchFood = () => {
 
     // new logic for handling both spoonacular and fatsecret APIs
     try {
+      let enrichedFood = food;
+
       if (food.source === "fatsecret" && food.type === "recipe") {
         const recipeDetails = await foodApi.getFatSecretRecipeById(
           food.id.toString(),
