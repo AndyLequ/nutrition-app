@@ -114,12 +114,12 @@ export const SearchFood = () => {
         const recipeDetails = await foodApi.getFatSecretRecipeById(
           food.id.toString(),
         );
-        console.log("FatSecret recipe details:", recipeDetails);
-        setSelectedFood({
+
+        enrichedFood = {
           ...food,
           fatSecretData: recipeDetails,
           servingSizeGrams: recipeDetails.servingSizeGrams, // assuming 100g for fatsecret recipes, adjust as needed
-        });
+        };
       }
       // for fatsecret ingredients, need to fetch details
       else if (food.source === "fatsecret" && food.type === "ingredient") {
