@@ -104,35 +104,38 @@ export const SearchFood = () => {
   // function to handle food selection
   const handleFoodSelect = async (food: UnifiedSearchResult) => {
     setIsFetchingDetails(true);
-    setSelectedFood(food);
     clearResults();
 
     // new logic for handling both spoonacular and fatsecret APIs
     try {
+      let enrichedFood = food;
+
       if (food.source === "fatsecret" && food.type === "recipe") {
         const recipeDetails = await foodApi.getFatSecretRecipeById(
           food.id.toString(),
         );
-        console.log("FatSecret recipe details:", recipeDetails);
-        setSelectedFood({
+
+        enrichedFood = {
           ...food,
           fatSecretData: recipeDetails,
           servingSizeGrams: recipeDetails.servingSizeGrams, // assuming 100g for fatsecret recipes, adjust as needed
-        });
+        };
       }
       // for fatsecret ingredients, need to fetch details
       else if (food.source === "fatsecret" && food.type === "ingredient") {
         const foodDetails = await foodApi.getFatSecretFoodById(
           food.id.toString(),
         );
-        setSelectedFood({
+
+        enrichedFood = {
           ...food,
           fatSecretData: foodDetails,
-          servingSizeGrams: (foodDetails as any).servingSizeGrams || 100,
-        });
-      } else {
-        setSelectedFood(food);
+          servingSizeGrams: (foodDetails as any).servingSizeGrams || 100, // assuming 100g if not provided, adjust as needed
+        };
       }
+
+      setSelectedFood(enrichedFood);
+
       setUnit(food.type === "recipe" ? "serving" : "g");
     } catch (error) {
       console.error("Error fetching details:", error);
