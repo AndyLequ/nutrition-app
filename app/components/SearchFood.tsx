@@ -132,9 +132,10 @@ export const SearchFood = () => {
           fatSecretData: foodDetails,
           servingSizeGrams: (foodDetails as any).servingSizeGrams || 100, // assuming 100g if not provided, adjust as needed
         };
-      } else {
-        setSelectedFood(food);
       }
+
+      setSelectedFood(enrichedFood);
+
       setUnit(food.type === "recipe" ? "serving" : "g");
     } catch (error) {
       console.error("Error fetching details:", error);
